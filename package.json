@@ -1,0 +1,16 @@
+{
+  "name": "screeps-code",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "upload": "node upload.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/lodash": "3.10.1",
+    "@types/screeps": "^3.3.2"
+  }
+}
