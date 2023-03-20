@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
+    "lint": "eslint \"src/**/*.js\"",
     "upload": "node upload.js"
   },
   "keywords": [],
@@ -11,6 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "@types/lodash": "3.10.1",
-    "@types/screeps": "^3.3.2"
+    "@types/node": "^18.15.3",
+    "@types/screeps": "^3.3.2",
+    "eslint": "^8.36.0",
+    "eslint-plugin-screeps": "^2.1.0"
   }
 }

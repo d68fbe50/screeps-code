@@ -26,5 +26,5 @@ Creep.prototype.log = function() {
 }
 
 Creep.prototype.run = function() {
-    //
+    roles
 }
