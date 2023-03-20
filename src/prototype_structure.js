@@ -1,0 +1,3 @@
+Structure.prototype.log = function() {
+    //
+}

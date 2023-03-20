@@ -1,0 +1,3 @@
+StructureFactory.prototype.run = function() {
+    //
+}

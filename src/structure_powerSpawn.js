@@ -1,0 +1,3 @@
+StructurePowerSpawn.prototype.run = function() {
+    //
+}

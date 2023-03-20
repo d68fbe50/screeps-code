@@ -1,0 +1,3 @@
+StructureLink.prototype.run = function() {
+    //
+}

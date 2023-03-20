@@ -1,0 +1,3 @@
+StructureObserver.prototype.run = function() {
+    //
+}

@@ -1,0 +1,3 @@
+StructureSpawn.prototype.run = function() {
+    //
+}

@@ -1,0 +1,3 @@
+StructureExtractor.prototype.run = function() {
+    //
+}

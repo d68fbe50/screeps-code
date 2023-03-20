@@ -1,0 +1,3 @@
+StructureTerminal.prototype.run = function() {
+    //
+}

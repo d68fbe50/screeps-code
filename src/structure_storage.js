@@ -1,0 +1,3 @@
+StructureStorage.prototype.run = function() {
+    //
+}

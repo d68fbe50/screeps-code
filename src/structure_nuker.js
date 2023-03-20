@@ -1,0 +1,3 @@
+StructureNuker.prototype.run = function() {
+    //
+}

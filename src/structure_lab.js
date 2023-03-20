@@ -1,0 +1,3 @@
+StructureLab.prototype.run = function() {
+    //
+}

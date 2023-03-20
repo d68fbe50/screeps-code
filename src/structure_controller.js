@@ -1,0 +1,3 @@
+StructureController.prototype.run = function() {
+    //
+}
