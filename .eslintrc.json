@@ -15,8 +15,14 @@
         "screeps"
     ],
     "rules": {
+        "eqeqeq": ["error", "always"],
+
+        "no-unused-vars": "warn",
+        "no-use-before-define": "error",
+
         "indent": ["error", 4],
         "linebreak-style": ["error", "windows"],
+        "object-curly-spacing": ["error", "always"],
         "quotes": ["error", "single"],
         "semi": ["error", "never"]
     }

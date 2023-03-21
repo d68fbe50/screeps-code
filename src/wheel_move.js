@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable eqeqeq, no-unused-vars, no-use-before-define */
 
 /*
 creep对穿+跨房间寻路+寻路缓存 

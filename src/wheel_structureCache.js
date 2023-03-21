@@ -1,4 +1,4 @@
-// @ts-nocheck
+/* eslint-disable eqeqeq */
 
 /**
  *  作者：Scorpior_gh

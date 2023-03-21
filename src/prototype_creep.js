@@ -1,4 +1,4 @@
-const roles = {
+const roles = { // 注意与 config.js 的 ROLE_TYPES 保持一致
     claimer: require('./role_claimer'),
     defender: require('./role_defender'),
     depoDefender: require('./role_depoDefender'),
@@ -6,11 +6,12 @@ const roles = {
     harvester: require('./role_harvester'),
     helper: require('./role_helper'),
     mineHarvester: require('./role_mineHarvester'),
-    pbAttacker: require('./role_pbAttacker'),
-    pbDefender: require('./role_pbDefender'),
-    pbHealer: require('./role_pbHealer'),
-    pbTransporter: require('./role_pbTransporter'),
+    powerAttacker: require('./role_powerAttacker'),
+    powerDefender: require('./role_powerDefender'),
+    powerHealer: require('./role_powerHealer'),
+    powerTransporter: require('./role_powerTransporter'),
     remoteHarvester: require('./role_remoteHarvester'),
+    remoteDefender: require('./role_remoteDefender'),
     remoteTransporter: require('./role_remoteTransporter'),
     reserver: require('./role_reserver'),
     squadAttacker: require('./role_squadAttacker'),
