@@ -1,7 +1,6 @@
 const { SUBMIT_STRUCTURE_TYPES } = require('./config')
 
 Room.prototype.getCenterTask = function(submitStructureType) {
-    if (!(submitStructureType in SUBMIT_STRUCTURE_TYPES)) return false
     return this.getTask('TaskCenterTransport', submitStructureType)
 }
 
@@ -12,12 +11,9 @@ Room.prototype.addCenterTask = function(submitStructureType, priority, sourceStr
 }
 
 Room.prototype.removeCenterTask = function(submitStructureType) {
-    if (!(submitStructureType in SUBMIT_STRUCTURE_TYPES)) return false
     return this.removeTask('TaskCenterTransport', submitStructureType)
 }
 
-Room.prototype.updateCenterTask = function(submitStructureType, priority, sourceStructureType, targetStructureType, resourceType, amount) {
-    if (!(submitStructureType in SUBMIT_STRUCTURE_TYPES)) return false
-    const taskData = { sourceStructureType, targetStructureType, resourceType, amount }
+Room.prototype.updateCenterTask = function(submitStructureType, priority, taskData) {
     return this.updateTask('TaskCenterTransport', submitStructureType, priority, taskData)
 }

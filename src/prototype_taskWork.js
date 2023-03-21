@@ -1,7 +1,6 @@
 const { WORK_TYPES } = require('./config')
 
 Room.prototype.getWorkTask = function(workType) {
-    if (!(workType in WORK_TYPES)) return false
     return this.getTask('TaskWork', workType)
 }
 
@@ -14,12 +13,9 @@ Room.prototype.addWorkTask = function(workType, priority, needAmount, workingAmo
 }
 
 Room.prototype.removeWorkTask = function(workType) {
-    if (!(workType in WORK_TYPES)) return false
     return this.removeTask('TaskWork', workType)
 }
 
-Room.prototype.updateWorkTask = function(workType, priority, needAmount, workingAmount) {
-    if (!(workType in WORK_TYPES)) return false
-    const taskData = { needAmount, workingAmount }
+Room.prototype.updateWorkTask = function(workType, priority, taskData) {
     return this.updateTask('TaskWork', workType, priority, taskData)
 }

@@ -1,4 +1,4 @@
-const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roles 保持一致
+const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
     claimer: 0, // priority
     defender: 0,
     depoDefender: 0,
