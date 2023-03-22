@@ -5,7 +5,7 @@ const repairWallMaxHits = 10000
 StructureTower.prototype.run = function() {
     if (this.store[RESOURCE_ENERGY] < 10) return this.room.addTransportTask('fillTower')
     if (attackEnemy(this)) return
-    if (repairStructure(this)) return
+    repairStructure(this)
 }
 
 StructureTower.prototype.onBuildComplete = function() {

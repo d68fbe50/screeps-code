@@ -46,8 +46,6 @@ Creep.prototype.run = function() {
 }
 
 Creep.prototype.getFrom = function(target, resourceType = RESOURCE_ENERGY, amount) {
-    if (typeof(target) === 'string') target = Game.getObjectById(target)
-    if (!target) return ERR_INVALID_TARGET
     let result
     if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
     else if (target instanceof Resource) result = this.pickup(target)
@@ -57,8 +55,6 @@ Creep.prototype.getFrom = function(target, resourceType = RESOURCE_ENERGY, amoun
 }
 
 Creep.prototype.putTo = function(target, resourceType = RESOURCE_ENERGY, amount) {
-    if (typeof(target) === 'string') target = Game.getObjectById(target)
-    if (!target) return ERR_INVALID_TARGET
     const result = this.transfer(target, resourceType, amount)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 1 })
     return result

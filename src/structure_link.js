@@ -40,13 +40,13 @@ function runCenterLink(link) {
 
 function runUpgradeLink(link) {
     if (link.store[RESOURCE_ENERGY] > 100) return
-    if (!link.room.centerlink || link.room.centerlink.cooldown > 0) return
-    const amount = Math.min(link.store.getFreeCapacity(RESOURCE_ENERGY), link.room.centerlink.store.getFreeCapacity(RESOURCE_ENERGY))
+    if (!link.room.centerLink || link.room.centerLink.cooldown > 0) return
+    const amount = Math.min(link.store.getFreeCapacity(RESOURCE_ENERGY), link.room.centerLink.store.getFreeCapacity(RESOURCE_ENERGY))
     link.room.addCenterTask('centerLink', undefined, 'storage', 'centerLink', RESOURCE_ENERGY, amount)
 }
 
 function runSourceLink(link) {
     if (link.store.getUsedCapacity(RESOURCE_ENERGY) < 700) return
     if (supportUpgradeLink(link)) return
-    if (link.room.centerlink && link.room.centerLink.store[RESOURCE_ENERGY] < 799) link.transferEnergy(link.room.centerLink)
+    if (link.room.centerLink && link.room.centerLink.store[RESOURCE_ENERGY] < 799) link.transferEnergy(link.room.centerLink)
 }

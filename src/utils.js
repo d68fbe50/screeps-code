@@ -21,8 +21,7 @@ function createBodyGetter(bodyConfig) {
                 return availableEnergyCheck && dryCheck
             })
         if (!targetLevel) return []
-        const bodys = bodyConfig[targetLevel]
-        return bodys
+        return bodyConfig[targetLevel]
     }
 }
 

@@ -21,7 +21,7 @@ function handleNotExistCreep() {
         const roleRequire = roleRequires[role]
         if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory))) {
             delete Memory.creeps[creepName]
-            global.log(`unallowed spawn`, `[${creepName}]`, 'notify')
+            log(`unallowed spawn`, `[${creepName}]`, 'notify')
             continue
         }
         const creepHome = Game.rooms[home]
