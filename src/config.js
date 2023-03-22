@@ -1,9 +1,9 @@
 const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
     claimer: 0, // priority
-    defender: 0,
+    defender: 7,
     depoDefender: 0,
     depoHarvester: 0,
-    harvester: 95,
+    harvester: 8,
     helper: 0,
     mineHarvester: 0,
     powerAttacker: 0,
@@ -14,37 +14,37 @@ const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一�
     remoteDefender: 0,
     remoteTransporter: 0,
     reserver: 0,
-    squadAttacker: 0,
-    squadDismantler: 0,
-    squadHealer: 0,
-    squadRanged: 0,
-    transporter: 99,
-    worker: 0
+    squadAttacker: 5,
+    squadDismantler: 5,
+    squadHealer: 5,
+    squadRanged: 5,
+    transporter: 9,
+    worker: 6
 }
 
 const SUBMIT_STRUCTURE_TYPES = {
-    centerLink: 0,
-    factory: 0,
-    storage: 0,
-    terminal: 0
+    centerLink: 9,
+    factory: 3,
+    storage: 5,
+    terminal: 7
 }
 
 const TRANSPORT_TYPES = {
-    fillExtension: 99,
-    fillTower: 95,
-    labEnergy: 0,
-    labIn: 0,
-    labOut: 0,
+    fillExtension: 9,
+    fillTower: 7,
+    labEnergy: 5,
+    labIn: 5,
+    labOut: 5,
     nukerEnergy: 0,
     nukerG: 0,
-    powerSpawnEnergy: 0,
-    powerSpawnPower: 0
+    powerSpawnEnergy: 1,
+    powerSpawnPower: 1
 }
 
 const WORK_TYPES = {
-    build: 0,
-    repair: 0,
-    upgrade: 0
+    build: 9,
+    repair: 6,
+    upgrade: 3
 }
 
 module.exports = { ROLE_TYPES, SUBMIT_STRUCTURE_TYPES, TRANSPORT_TYPES, WORK_TYPES }

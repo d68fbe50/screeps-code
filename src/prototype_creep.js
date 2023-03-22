@@ -22,16 +22,16 @@ const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
     worker: require('./role_worker')
 }
 
-Creep.prototype.log = function(content, type) {
+Creep.prototype.log = function(content, type, notifyNow) {
     this.say(content)
-    this.room.log(content, `[${this.name}]`, type)
+    this.room.log(content, `[${this.pos.x},${this.pos.y}] [${this.name}]`, type, notifyNow)
 }
 
 Creep.prototype.run = function() {
-    if (!(this.memory.role in roleRequires)) return this.log('no role!')
     if (this.spawning) return
 
     const roleRequire = roleRequires[this.memory.role]
+    if (!roleRequire) return this.log('role not find!', 'error')
 
     if (!this.memory.ready) {
         if (roleRequire.prepare) this.memory.ready = roleRequire.prepare(this)

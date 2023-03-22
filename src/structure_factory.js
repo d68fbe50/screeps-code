@@ -1,3 +1,7 @@
-StructureFactory.prototype.run = function() { // eslint-disable-line no-undef
+StructureFactory.prototype.run = function() {
+    //
+}
+
+StructureFactory.prototype.onBuildComplete = function() {
     //
 }
