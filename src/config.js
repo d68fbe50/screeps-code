@@ -1,9 +1,10 @@
 const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
-    claimer: 0, // priority
-    defender: 7,
+    centerTransporter: 7, // priority
+    claimer: 0,
+    defender: 6,
     depoDefender: 0,
     depoHarvester: 0,
-    harvester: 8,
+    harvester: 9,
     helper: 0,
     mineHarvester: 0,
     powerAttacker: 0,
@@ -18,7 +19,7 @@ const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一�
     squadDismantler: 5,
     squadHealer: 5,
     squadRanged: 5,
-    transporter: 9,
+    transporter: 8,
     worker: 6
 }
 

@@ -3,12 +3,12 @@ const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = requ
 // TaskBase --------------------------------------------------------------------------------------
 
 Room.prototype.printTasks = function(taskType) {
-    if (!this.memory[taskType]) this.memory[taskType] = []
+    if (!this.memory[taskType]) return
     return taskType + ' : [\n\t' + this.memory[taskType].map(i => JSON.stringify(i)).join(',\n\t') + '\n]'
 }
 
 Room.prototype.printTaskKeys = function(taskType) {
-    if (!this.memory[taskType]) this.memory[taskType] = []
+    if (!this.memory[taskType]) return
     return taskType + ' : ' + this.memory[taskType].map(i => i.key).join(', ')
 }
 
@@ -50,23 +50,30 @@ Room.prototype.updateTask = function(taskType, key, priority = undefined, taskDa
 
 // TaskCenterTransport ---------------------------------------------------------------------------
 
-Room.prototype.getCenterTask = function(submitStructureType) {
-    return this.getTask('TaskCenterTransport', submitStructureType)
+Room.prototype.getCenterTask = function(submit) {
+    return this.getTask('TaskCenterTransport', submit)
 }
 
-Room.prototype.addCenterTask = function(submitStructureType, priority, sourceStructureType, targetStructureType, resourceType, amount) {
-    if (!(submitStructureType in SUBMIT_STRUCTURE_TYPES)) return false
-    if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[submitStructureType]
-    const taskData = { sourceStructureType, targetStructureType, resourceType, amount }
-    return this.addTask('TaskCenterTransport', submitStructureType, priority, taskData)
+Room.prototype.addCenterTask = function(submit, priority, source, target, resourceType, amount) {
+    if (!(submit in SUBMIT_STRUCTURE_TYPES)) return false
+    if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[submit]
+    const taskData = { source, target, resourceType, amount }
+    return this.addTask('TaskCenterTransport', submit, priority, taskData)
 }
 
-Room.prototype.removeCenterTask = function(submitStructureType) {
-    return this.removeTask('TaskCenterTransport', submitStructureType)
+Room.prototype.removeCenterTask = function(submit) {
+    return this.removeTask('TaskCenterTransport', submit)
 }
 
-Room.prototype.updateCenterTask = function(submitStructureType, priority, taskData) {
-    return this.updateTask('TaskCenterTransport', submitStructureType, priority, taskData)
+Room.prototype.updateCenterTask = function(submit, priority, taskData) {
+    return this.updateTask('TaskCenterTransport', submit, priority, taskData)
+}
+
+Room.prototype.handleCenterTask = function(submit, amount) {
+    const taskData = this.getCenterTask(submit).taskData
+    taskData.amount -= amount
+    if (taskData.amount <= 0) return this.removeCenterTask(submit)
+    this.updateCenterTask(submit, undefined, taskData)    
 }
 
 // TaskSpawn -------------------------------------------------------------------------------------
