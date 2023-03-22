@@ -23,12 +23,12 @@ const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
     worker: require('./role_worker')
 }
 
-Creep.prototype.log = function(content, type, notifyNow) {
+Creep.prototype.log = function (content, type, notifyNow) {
     this.say(content)
     this.room.log(content, `[${this.pos.x},${this.pos.y}] [${this.name}]`, type, notifyNow)
 }
 
-Creep.prototype.run = function() {
+Creep.prototype.run = function () {
     if (this.spawning) return
 
     const roleRequire = roleRequires[this.memory.role]
@@ -45,7 +45,7 @@ Creep.prototype.run = function() {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
-Creep.prototype.getFrom = function(target, resourceType = RESOURCE_ENERGY, amount) {
+Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
     let result
     if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
     else if (target instanceof Resource) result = this.pickup(target)
@@ -54,13 +54,13 @@ Creep.prototype.getFrom = function(target, resourceType = RESOURCE_ENERGY, amoun
     return result
 }
 
-Creep.prototype.putTo = function(target, resourceType = RESOURCE_ENERGY, amount) {
+Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
     const result = this.transfer(target, resourceType, amount)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 1 })
     return result
 }
 
-Creep.prototype.upgrade = function(target) {
+Creep.prototype.upgrade = function (target) {
     if (!target) target = this.room.controller
     const result = this.upgradeController(target)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 3 })

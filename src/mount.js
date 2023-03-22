@@ -1,4 +1,5 @@
 require('./prototype_creep')
+require('./prototype_creepRelease')
 require('./prototype_delayQueue')
 require('./prototype_global')
 require('./prototype_room')

@@ -1,7 +1,7 @@
-StructureLab.prototype.run = function() {
+StructureLab.prototype.run = function () {
     //
 }
 
-StructureLab.prototype.onBuildComplete = function() {
+StructureLab.prototype.onBuildComplete = function () {
     //
 }

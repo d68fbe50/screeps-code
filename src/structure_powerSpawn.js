@@ -1,7 +1,7 @@
-StructurePowerSpawn.prototype.run = function() {
+StructurePowerSpawn.prototype.run = function () {
     //
 }
 
-StructurePowerSpawn.prototype.onBuildComplete = function() {
+StructurePowerSpawn.prototype.onBuildComplete = function () {
     //
 }

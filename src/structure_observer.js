@@ -1,7 +1,7 @@
-StructureObserver.prototype.run = function() {
+StructureObserver.prototype.run = function () {
     //
 }
 
-StructureObserver.prototype.onBuildComplete = function() {
+StructureObserver.prototype.onBuildComplete = function () {
     //
 }

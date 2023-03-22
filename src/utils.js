@@ -12,7 +12,7 @@ function getBodyConfig(...bodySets) {
 }
 
 function createBodyGetter(bodyConfig) {
-    return function(room, spawn) {
+    return function (room, spawn) {
         const targetLevel = Object.keys(bodyConfig)
             .reverse()
             .find(level => {

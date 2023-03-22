@@ -1,7 +1,7 @@
-StructureStorage.prototype.run = function() {
+StructureStorage.prototype.run = function () {
     //
 }
 
-StructureStorage.prototype.onBuildComplete = function() {
+StructureStorage.prototype.onBuildComplete = function () {
     //
 }

@@ -1,4 +1,4 @@
-const source = function(creep) {
+const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
     if (creep.store.getUsedCapacity() > 0) {
         creep.putTo(creep.room.terminal ? creep.room.terminal : creep.room.storage, Object.keys(creep.store)[0])
@@ -26,7 +26,7 @@ const source = function(creep) {
     return false
 }
 
-const target = function(creep) {
+const target = function (creep) {
     const task = creep.room.getCenterTask(creep.memory.taskKey)
     if (!task) return true
     const key = task.key

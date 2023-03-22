@@ -1,4 +1,4 @@
-StructureLink.prototype.run = function() {
+StructureLink.prototype.run = function () {
     if (this.cooldown > 0) return
 
     if (this.id === this.room.memory.centerLinkId) return runCenterLink(this)
@@ -6,7 +6,7 @@ StructureLink.prototype.run = function() {
     runSourceLink(this)
 }
 
-StructureLink.prototype.onBuildComplete = function() {
+StructureLink.prototype.onBuildComplete = function () {
     const structuresInRange = this.pos.findInRange(FIND_MY_STRUCTURES, 2, {
         filter: i => i.structureType === STRUCTURE_STORAGE || i.structureType === STRUCTURE_TERMINAL || i.structureType === STRUCTURE_FACTORY
     })

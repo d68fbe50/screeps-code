@@ -1,7 +1,7 @@
-StructureNuker.prototype.run = function() {
+StructureNuker.prototype.run = function () {
     //
 }
 
-StructureNuker.prototype.onBuildComplete = function() {
+StructureNuker.prototype.onBuildComplete = function () {
     //
 }

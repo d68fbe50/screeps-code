@@ -1,7 +1,7 @@
-StructureExtractor.prototype.run = function() {
+StructureExtractor.prototype.run = function () {
     //
 }
 
-StructureExtractor.prototype.onBuildComplete = function() {
+StructureExtractor.prototype.onBuildComplete = function () {
     //
 }

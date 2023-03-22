@@ -34,7 +34,7 @@ Usage:
 module :main
 
 require('超级移动优化');
-module.exports.loop=function() {
+module.exports.loop = function () {
 
     //your codes go here
 
