@@ -1,5 +1,3 @@
-/* eslint-disable eqeqeq, no-unused-vars, no-use-before-define */
-
 /*
 creep对穿+跨房间寻路+寻路缓存 
 跑的比香港记者还快从你做起

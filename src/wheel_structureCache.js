@@ -1,5 +1,3 @@
-/* eslint-disable eqeqeq */
-
 /**
  *  作者：Scorpior_gh
  *  版本：1.4.3

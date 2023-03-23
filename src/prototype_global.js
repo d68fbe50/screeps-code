@@ -3,7 +3,7 @@ Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (globa
 const logHistory = []
 const logHistoryLimit = 1000
 
-global.log = function (content, prefix = '', type = 'info', notifyNow = false) {
+global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     if (type === 'error') content = `<text style="color:red">${content}</text>`
     if (type === 'warning') content = `<text style="color:yellow">${content}</text>`
     if (type === 'notify') content = `<text style="color:lightblue">${content}</text>`

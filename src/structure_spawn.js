@@ -10,10 +10,13 @@ StructureSpawn.prototype.run = function () {
     const { key, taskData } = task
     const role = taskData.role
     const roleRequire = roleRequires[role]
-    if (!roleRequire) return this.room.removeSpawnTask(key)
+    if (!roleRequire || !roleRequire.bodys) {
+        this.room.removeSpawnTask(key)
+        this.log(`${key} 找不到角色或身体配置`, 'error')
+        return
+    }
 
-    const bodys = roleRequire.bodys ? roleRequire.bodys(this.room, this) : [WORK, CARRY, MOVE]
-    if (bodys.length <= 0) return this.room.lockSpawnTask(key, 30)
+    const bodys = calcBodyPart(roleRequire.bodys, this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(taskData) })
     if (result === OK || result === ERR_NAME_EXISTS) this.room.removeSpawnTask(key)
@@ -26,4 +29,12 @@ StructureSpawn.prototype.run = function () {
 
 StructureSpawn.prototype.onBuildComplete = function () {
     //
+}
+
+function calcBodyPart(bodysRequire, energyCapacityAvailable) {
+    const energyLevels = [10000, 5600, 2300, 1800, 1300, 800, 550, 300]
+    const level = 7 - energyLevels.findIndex(i => i <= energyCapacityAvailable)
+    const bodys = []
+    Object.keys(bodysRequire[level]).forEach(i => bodys.push(...Array(bodysRequire[level][i]).fill(i)))
+    return bodys
 }

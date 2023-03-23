@@ -1,5 +1,5 @@
 const repairInterval = 3
-const repairRoadHitsRate = 0.5
+const repairHitsRate = 0.5
 const repairWallMaxHits = 10000
 
 StructureTower.prototype.run = function () {
@@ -22,10 +22,10 @@ function attackEnemy(tower) {
 function repairStructure(tower) {
     if (Game.time % repairInterval) return false
     if (!tower.room._towerRepairTargets) tower.room._towerRepairTargets = tower.room.find(FIND_STRUCTURES, {
-        filter: i => (i.structureType === STRUCTURE_ROAD && i.hits / i.hitsMax < repairRoadHitsRate)
-            || (i.structureType === STRUCTURE_RAMPART && i.hits < repairWallMaxHits)
+        filter: i => i.structureType !== STRUCTURE_CONTAINER
+            && (i.structureType === STRUCTURE_RAMPART && i.hits < repairWallMaxHits)
             || (i.structureType === STRUCTURE_WALL && i.hits < repairWallMaxHits)
-            || (i.structureType !== STRUCTURE_ROAD && i.structureType !== STRUCTURE_RAMPART && i.structureType !== STRUCTURE_WALL && i.hits < i.hitsMax)
+            || (i.structureType !== STRUCTURE_RAMPART && i.structureType !== STRUCTURE_WALL && i.hits / i.hitsMax < repairHitsRate)
     })
     if (tower.room._towerRepairTargets.length === 0) return false
     tower.repair(tower.pos.findClosestByRange(tower.room._towerRepairTargets))

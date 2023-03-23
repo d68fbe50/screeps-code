@@ -1,6 +1,6 @@
-Room.prototype.log = function (content, prefix, type, notifyNow) {
+Room.prototype.log = function (content, type, notifyNow, prefix) {
     prefix = `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${this.name}">[${this.name}]</a> ${prefix ? prefix : ''}`
-    log(content, prefix, type, notifyNow)
+    log(content, type, notifyNow, prefix)
 }
 
 Object.defineProperty(Room.prototype, 'centerLink', {

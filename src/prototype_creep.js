@@ -25,7 +25,7 @@ const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
 
 Creep.prototype.log = function (content, type, notifyNow) {
     this.say(content)
-    this.room.log(content, `[${this.pos.x},${this.pos.y}] [${this.name}]`, type, notifyNow)
+    this.room.log(content, type, notifyNow, `[${this.pos.x},${this.pos.y}] [${this.name}]`)
 }
 
 Creep.prototype.run = function () {

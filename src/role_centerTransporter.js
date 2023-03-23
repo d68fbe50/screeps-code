@@ -51,4 +51,15 @@ const target = function (creep) {
     return false
 }
 
-module.exports = { source, target }
+const bodys = [ // 5 级出 link 前用不到
+    { carry: 1, move: 1 },
+    { carry: 1, move: 1 },
+    { carry: 1, move: 1 },
+    { carry: 1, move: 1 },
+    { carry: 16, move: 1 },
+    { carry: 16, move: 1 },
+    { carry: 16, move: 1 },
+    { carry: 16, move: 1 }
+]
+
+module.exports = { source, target, bodys }

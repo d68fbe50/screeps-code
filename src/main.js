@@ -4,13 +4,22 @@ const { roleRequires } = require('./prototype_creep')
 console.log('[全局重置]')
 
 module.exports.loop = function () {
-    Object.values(Game.structures).forEach(i => i.run && i.run())
+    checkMemory()
+
+    Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && i.controller.run && i.controller.run())
+    Object.values(Game.structures).forEach(i => i.structureType !== STRUCTURE_CONTROLLER && i.run && i.run())
     Object.values(Game.creeps).forEach(i => i.run && i.run())
     Object.values(Game.powerCreeps).forEach(i => i.run && i.run())
+    Object.values(Game.flags).forEach(i => i.run && i.run())
 
     handleNotExistCreep()
+    clearFlag()
 
     if (Game.cpu.bucket >= 10000) Game.cpu.generatePixel && Game.cpu.generatePixel()
+}
+
+function checkMemory() {
+    if (!Memory.allCreepNames) Memory.allCreepNames = []
 }
 
 function handleNotExistCreep() {
@@ -21,11 +30,21 @@ function handleNotExistCreep() {
         const roleRequire = roleRequires[role]
         if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory))) {
             delete Memory.creeps[creepName]
-            log(`unallowed spawn`, `[${creepName}]`, 'notify')
+            Memory.allCreepNames = _.pull(Memory.allCreepNames, creepName)
+            log(`unallowed spawn: ${creepName}`, 'notify')
             continue
         }
         const creepHome = Game.rooms[home]
         creepHome && creepHome.addSpawnTask(creepName, undefined, { role, home, config })
         delete Memory.creeps[creepName]
+    }
+}
+
+function clearFlag() {
+    if (Game.time % 5) return
+    for (const flagName in Memory.flags) {
+        if (Game.flags[flagName]) continue
+        delete Memory.flags[flagName]
+        log(`remove deleted flag memory: ${flagName}, 'notify`)
     }
 }

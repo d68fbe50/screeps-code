@@ -1,25 +1,23 @@
 const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = require('./config')
 
+const TASK_TYPES = [ 'TaskCenterTransport', 'TaskSpawn', 'TaskTransport', 'TaskWork' ]
+
 // TaskBase --------------------------------------------------------------------------------------
 
 Room.prototype.printTasks = function (taskType) {
-    if (!this.memory[taskType]) return
     return taskType + ' : [\n\t' + this.memory[taskType].map(i => JSON.stringify(i)).join(',\n\t') + '\n]'
 }
 
 Room.prototype.printTaskKeys = function (taskType) {
-    if (!this.memory[taskType]) return
     return taskType + ' : ' + this.memory[taskType].map(i => i.key).join(', ')
 }
 
 Room.prototype.getTask = function (taskType, key = undefined) {
-    if (!this.memory[taskType]) this.memory[taskType] = []
     if (key) return this.memory[taskType].find(i => i.key === key)
     return this.memory[taskType].find(i => !i.taskData || !i.taskData.lock || i.taskData.lock < Game.time)
 }
 
 Room.prototype.getTaskIndex = function (taskType, key) {
-    if (!this.memory[taskType]) this.memory[taskType] = []
     return this.memory[taskType].findIndex(i => i.key === key)
 }
 
@@ -43,7 +41,7 @@ Room.prototype.updateTask = function (taskType, key, priority = undefined, taskD
     if (index === -1) return false
     if (taskData) this.memory[taskType][index].taskData = taskData
     const oldTask = this.getTask(taskType, key)
-    if (priority === undefined || oldTask.priority === priority) return true
+    if (priority === undefined || oldTask.priority === priority) return key
     this.removeTask(taskType, key)
     return this.addTask(taskType, key, priority, oldTask.taskData)
 }
@@ -85,7 +83,9 @@ Room.prototype.getSpawnTask = function (creepName) {
 Room.prototype.addSpawnTask = function (creepName, priority, creepMemory) {
     if (creepName in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
     if (priority === undefined) priority = ROLE_TYPES[creepMemory.role]
-    return this.addTask('TaskSpawn', creepName, priority, creepMemory)
+    const result = this.addTask('TaskSpawn', creepName, priority, creepMemory)
+    if (result) Memory.allCreepNames.push(creepName)
+    return result
 }
 
 Room.prototype.removeSpawnTask = function (creepName) {

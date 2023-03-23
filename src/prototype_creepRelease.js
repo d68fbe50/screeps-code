@@ -1,17 +1,58 @@
-Room.prototype.addHarvester = function () {
-    const sources = this.find(FIND_SOURCES)
-    const creepNames = []
-    if (sources[0]) {
-        const name = `${this.name}_harvester_${1}`
-        const config = { sourceId: sources[0].id }
-        this.addSpawnTask(name, undefined, { role: 'harvester', home: this.name, config })
-        creepNames.push(name)
+Room.prototype.addCenterTransporter = function () {
+    //
+}
+
+Room.prototype.addClaimer = function () {
+    //
+}
+
+Room.prototype.addDefender = function () {
+    //
+}
+
+Room.prototype.addHarvester = function (flagName) {
+    const creepName = getAvailableCreepName('h')
+    this.addSpawnTask(creepName, undefined, { role: 'harvester', home: this.name, config: { flagName } })
+    this.log(`harvester: ${creepName} 发布成功！`, 'success')
+}
+
+Room.prototype.addHelper = function () {
+    //
+}
+
+Room.prototype.addMineHarvester = function () {
+    //
+}
+
+Room.prototype.addRemoteDefender = function () {
+    //
+}
+
+Room.prototype.addRemoteHarvester = function () {
+    //
+}
+
+Room.prototype.addRemoteTransporter = function () {
+    //
+}
+
+Room.prototype.addReserver = function () {
+    //
+}
+
+Room.prototype.addTransporter = function () {
+    //
+}
+
+Room.prototype.addWorker = function () {
+    //
+}
+
+function getAvailableCreepName(prefix) {
+    let count = 1
+    while (Memory.allCreepNames.includes('' + prefix + count)) {
+        if (count > 1000) return '' + prefix + Game.time
+        count++
     }
-    if (sources[1]) {
-        const name = `${this.name}_harvester_${2}`
-        const config = { sourceId: sources[1].id }
-        this.addSpawnTask(name, undefined, { role: 'harvester', home: this.name, config })
-        creepNames.push(name)
-    }
-    this.log(`harvester*${sources.length} 发布成功！`, creepNames, 'success')
+    return '' + prefix + count
 }
