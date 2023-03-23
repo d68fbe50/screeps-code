@@ -26,12 +26,12 @@ function handleNotExistCreep() {
     for (const creepName in Memory.creeps) {
         if (Game.creeps[creepName]) continue
         const creepMemory = Memory.creeps[creepName]
-        const { role, home, config } = creepMemory
+        const { role, home, config, dontNeed } = creepMemory
         const roleRequire = roleRequires[role]
-        if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory))) {
+        if (!roleRequire || dontNeed || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory))) {
             delete Memory.creeps[creepName]
             Memory.allCreepNames = _.pull(Memory.allCreepNames, creepName)
-            log(`unallowed spawn: ${creepName}`, 'notify')
+            log(`unallowed spawn creep: ${creepName}`, 'notify')
             continue
         }
         const creepHome = Game.rooms[home]
@@ -45,6 +45,6 @@ function clearFlag() {
     for (const flagName in Memory.flags) {
         if (Game.flags[flagName]) continue
         delete Memory.flags[flagName]
-        log(`remove deleted flag memory: ${flagName}, 'notify`)
+        log(`remove deleted flag memory: ${flagName}`, 'notify')
     }
 }

@@ -3,7 +3,7 @@ const { roleRequires } = require('./prototype_creep')
 const importantRoles = ['harvester', 'transporter']
 
 StructureSpawn.prototype.run = function () {
-    if (this.spawning) return
+    if (this.spawning || this.room.memory.lockSpawn > Game.time) return
     const task = this.room.getSpawnTask()
     if (!task) return
 

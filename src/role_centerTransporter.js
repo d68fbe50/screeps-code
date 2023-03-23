@@ -1,7 +1,20 @@
+const prepare = function (creep) {
+    const { centerPosX, centerPosY } = creep.memory.config
+    if (centerPosX && centerPosY) {
+        if (creep.pos.x !== centerPosX || creep.pos.y !== centerPosY) {
+            creep.moveTo(centerPosX, centerPosY)
+            return false
+        }
+    }
+    return true
+}
+
 const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
     if (creep.store.getUsedCapacity() > 0) {
-        creep.putTo(creep.room.terminal ? creep.room.terminal : creep.room.storage, Object.keys(creep.store)[0])
+        let putTarget = creep.room.terminal ? creep.room.terminal : creep.room.storage
+        if (putTarget) creep.putTo(putTarget, Object.keys(creep.store)[0])
+        else creep.drop(Object.keys(creep.store)[0])
         return false
     }
 
@@ -62,4 +75,4 @@ const bodys = [ // 5 级出 link 前用不到
     { carry: 16, move: 1 }
 ]
 
-module.exports = { source, target, bodys }
+module.exports = { prepare, source, target, bodys }

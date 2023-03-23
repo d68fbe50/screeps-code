@@ -54,7 +54,7 @@ changelog:
         自动根据挡路建筑情况设置中立房间costMatrix过期时间，增加ob寻路（检查房间是否可走），
         提供deletePathInRoom接口（使用方式见下方ps），print()中增加平均每次查找缓存时检查的路径数量统计，
         findRoute遇到过道新手墙时bugfix，偏移路径bugfix
-0.9.5： TODO：ignoreSwamp避开路，提供deletePathFromRoom、deletePathToRoom接口，增加自动visual，betterMove
+0.9.5： 待实现：ignoreSwamp避开路，提供deletePathFromRoom、deletePathToRoom接口，增加自动visual，betterMove
 
 
 ps:
@@ -618,7 +618,7 @@ function bypassRouteCallback(nextRoomName, fromRoomName) {
  * @param {string} toRoomName 
  * @param {boolean} bypass
  */
-function findRoute(fromRoomName, toRoomName, bypass) {  // TODO 以后跨shard寻路也放在这个函数里
+function findRoute(fromRoomName, toRoomName, bypass) {
     //console.log('findRoute', fromRoomName, toRoomName, bypass);
     return Game.map.findRoute(fromRoomName, toRoomName, { routeCallback: bypass ? bypassRouteCallback : routeCallback })
 }
@@ -1466,7 +1466,7 @@ module.exports = {
         delete costMatrixCache[roomName]
         return OK
     },
-    deltePath: function (fromPos, toPos, opts) {   // TODO
+    deltePath: function (fromPos, toPos, opts) {
         //if(!(fromPos instanceof RoomPosition))
         return 'not implemented'
     },

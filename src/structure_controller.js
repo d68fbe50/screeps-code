@@ -29,6 +29,7 @@ StructureController.prototype.run = function () {
 }
 
 function checkRoomMemory(room) {
+    if (!room.memory.centerPos) room.memory.centerPos = {}
     if (!room.memory.TaskCenterTransport) room.memory.TaskCenterTransport = []
     if (!room.memory.TaskSpawn) room.memory.TaskSpawn = []
     if (!room.memory.TaskTransport) room.memory.TaskTransport = []

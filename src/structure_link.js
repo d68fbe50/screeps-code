@@ -11,7 +11,7 @@ StructureLink.prototype.onBuildComplete = function () {
         filter: i => i.structureType === STRUCTURE_STORAGE || i.structureType === STRUCTURE_TERMINAL || i.structureType === STRUCTURE_FACTORY
     })
     if (structuresInRange[0]) {
-        // TODO 发布centetTrans-role
+        this.room.addCenterTransporter(this.room.memory.centerPos.x, this.room.memory.centerPos.y)
         return this.room.memory.centerLinkId = this.id
     }
 

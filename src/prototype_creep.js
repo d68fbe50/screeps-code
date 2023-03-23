@@ -60,6 +60,18 @@ Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount
     return result
 }
 
+Creep.prototype.buildTo = function (constructionSite) {
+    const result = this.build(constructionSite)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(constructionSite, { range: 3 })
+    return result
+}
+
+Creep.prototype.repairTo = function (structure) {
+    const result = this.repair(structure)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure, { range: 3 })
+    return result
+}
+
 Creep.prototype.upgrade = function (target) {
     if (!target) target = this.room.controller
     const result = this.upgradeController(target)

@@ -7,7 +7,7 @@ interface PowerCreep { run }
 interface Flag { run }
 
 interface Memory { allCreepNames }
-interface RoomMemory { centerLinkId, upgradeLinkId, rcl }
+interface RoomMemory { centerLinkId, upgradeLinkId, rcl, centerPos, lockSpawn }
 interface SpawnMemory { }
 interface CreepMemory { role, home, config, ready, working }
 interface PowerCreepMemory { }
