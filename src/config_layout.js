@@ -34,7 +34,7 @@ const LAYOUT_DATA = {
     8: {
         tower: [ [29,26], [24,29], [26,29] ],
         spawn: [ [28,29] ],
-        factory: [ [24,25] ]
+        powerSpawn: [ [24,25] ]
     }
 }
 

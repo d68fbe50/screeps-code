@@ -1,3 +1,5 @@
+const { wallHitsMax } = require('./config')
+
 const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
     centerTransporter: require('./role_centerTransporter'),
     claimer: require('./role_claimer'),
@@ -19,7 +21,9 @@ const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
     squadDismantler: require('./role_squadDismantler'),
     squadHealer: require('./role_squadHealer'),
     squadRanged: require('./role_squadRanged'),
+    starter: require('./role_starter'),
     transporter: require('./role_transporter'),
+    upgrader: require('./role_upgrader'),
     worker: require('./role_worker')
 }
 
@@ -43,6 +47,46 @@ Creep.prototype.run = function () {
     const working = roleRequire.source ? this.memory.working : true
     if (working) roleRequire.target && roleRequire.target(this) && (this.memory.working = !this.memory.working)
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
+}
+
+Creep.prototype.buildStructure = function () {
+    const constructionSiteId = this.room.memory.constructionSiteId
+    const constructionSite = Game.getObjectById(constructionSiteId)
+    if (constructionSite) {
+        this.buildTo(constructionSite)
+        return true
+    }
+    if (constructionSiteId) { // !constructionSite
+        delete this.room.memory.constructionSiteId
+        this.room.update() // wheel.structureCache.js
+        return true
+    }
+    const closestConstructionSite = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
+    if (closestConstructionSite) { // !constructionSite && !constructionSiteId
+        this.room.memory.constructionSiteId = closestConstructionSite.id
+        return true
+    } else return false
+}
+
+Creep.prototype.repairWall = function () {
+    const needRepairWallId = this.room.memory.needRepairWallId
+    if (!(Game.time % 100) || !needRepairWallId) {
+        const minHitsWall = this.room.find(FIND_STRUCTURES, {
+            filter: i => (i.structureType === STRUCTURE_WALL || i.structureType === STRUCTURE_RAMPART) && i.hits < wallHitsMax
+        }).sort((a, b) => a.hits - b.hits)[0]
+        if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
+        else {
+            delete this.room.memory.needRepairWallId
+            return false
+        }
+    }
+    const needRepairWall = Game.getObjectById(this.room.memory.needRepairWallId)
+    if (!needRepairWall) {
+        delete this.room.memory.needRepairWallId
+        return true
+    }
+    this.repairTo(needRepairWall)
+    return true
 }
 
 Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {

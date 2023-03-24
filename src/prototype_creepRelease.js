@@ -19,7 +19,9 @@ const roleShortNames = {
     squadDismantler: 'x',
     squadHealer: 'x',
     squadRanged: 'x',
+    starter: 's',
     transporter: 't',
+    upgrader: 'u',
     worker: 'w'
 }
 
@@ -83,11 +85,18 @@ Room.prototype.addTransporter = function () {
     //
 }
 
-Room.prototype.addWorker = function () {
+Room.prototype.addUpgrader = function () {
     //
 }
 
-function getAvailableCreepName(prefix) {
+Room.prototype.addWorker = function () {
+    const role = 'worker'
+    const creepName = getAvailableCreepName(roleShortNames[role])
+    this.addSpawnTask(creepName, undefined, { role, home: this.name })
+    this.log(`${role}: ${creepName} 发布成功！`, 'success')
+}
+
+function getAvailableCreepName(prefix = 'creep') {
     let count = 1
     while (Memory.allCreepNames.includes(prefix + count)) {
         if (count++ > 1000) return prefix + Game.time

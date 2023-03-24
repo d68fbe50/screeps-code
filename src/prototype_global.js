@@ -15,17 +15,39 @@ global.log = function (content, type = 'info', notifyNow = false, prefix) {
     logHistory.push(content)
 }
 
-global.get = function (id) {
-    return Game.getObjectById(id)
-}
-
 global.printLogHistory = function (amount = 10) {
     if (amount > logHistory.length) amount = logHistory.length
     console.log(logHistory.slice(amount * -1).join('\n'))
 }
 
+global.get = function (id) {
+    return Game.getObjectById(id)
+}
+
+global.eo = function (orderId, addAmount) {
+    return Game.market.extendOrder(orderId, addAmount)
+}
+
+global.cop = function (orderId, newPrice) {
+    return Game.market.changeOrderPrice(orderId, newPrice)
+}
+
 Object.defineProperty(global, 'c', {
     get: function () { return Game.creeps },
+    set: function () {},
+    enumerable: false,
+    configurable: true
+})
+
+Object.defineProperty(global, 'm', {
+    get: function () { return Game.market },
+    set: function () {},
+    enumerable: false,
+    configurable: true
+})
+
+Object.defineProperty(global, 'r', {
+    get: function () { return Game.rooms },
     set: function () {},
     enumerable: false,
     configurable: true

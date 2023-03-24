@@ -46,7 +46,7 @@ const target = function (creep) {
         return true
     }
     creep.putTo(creep.room.terminal || creep.room.storage
-        || (Game.rooms[creep.memory.home] && Game.rooms[creep.memory.home].terminal || Game.rooms[creep.memory.home].storage)
+        || (Game.rooms[creep.memory.home].terminal || Game.rooms[creep.memory.home].storage)
         , Object.keys(creep.store)[0])
 }
 

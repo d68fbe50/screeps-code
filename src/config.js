@@ -1,10 +1,12 @@
+const wallHitsMax = 100000
+
 const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
     centerTransporter: 7, // priority
     claimer: 0,
     defender: 6,
     depoDefender: 0,
     depoHarvester: 0,
-    harvester: 9,
+    harvester: 8,
     helper: 0,
     mineHarvester: 0,
     powerAttacker: 0,
@@ -19,8 +21,10 @@ const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一�
     squadDismantler: 5,
     squadHealer: 5,
     squadRanged: 5,
-    transporter: 8,
-    worker: 6
+    starter: 0,
+    transporter: 9,
+    upgrader: 0,
+    worker: 0
 }
 
 const SUBMIT_STRUCTURE_TYPES = {
@@ -48,4 +52,4 @@ const WORK_TYPES = {
     upgrade: 3
 }
 
-module.exports = { ROLE_TYPES, SUBMIT_STRUCTURE_TYPES, TRANSPORT_TYPES, WORK_TYPES }
+module.exports = { ROLE_TYPES, SUBMIT_STRUCTURE_TYPES, TRANSPORT_TYPES, WORK_TYPES, wallHitsMax }

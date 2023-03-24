@@ -11,6 +11,14 @@ Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
     this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
 }
 
+Room.prototype.cbo = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+    return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
+}
+
+Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+    return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
+}
+
 Room.prototype.visualLayout = function (centerPosX = 25, centerPosY = 25) {
     Object.keys(LAYOUT_DATA).forEach(l => {
         Object.keys(LAYOUT_DATA[l]).forEach(s => {
@@ -49,3 +57,20 @@ Object.defineProperty(Room.prototype, 'upgradeLink', {
     enumerable: false,
     configurable: true
 })
+
+let tmpTick
+Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
+    if (!confirm) return false
+    if (tmpTick !== Game.time - 1) {
+        tmpTick = Game.time
+        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
+        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
+        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
+        return
+    }
+    // TODO
+    this.controller.unclaim()
+    log(`room: ${this.name} 已移除！`, 'error')
+    log(`room: ${this.name} 已移除！`, 'error')
+    log(`room: ${this.name} 已移除！`, 'error')
+}

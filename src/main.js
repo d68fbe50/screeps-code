@@ -14,12 +14,16 @@ module.exports.loop = function () {
 
     handleNotExistCreep()
     clearFlag()
+    collectStats()
 
     if (Game.cpu.bucket >= 10000) Game.cpu.generatePixel && Game.cpu.generatePixel()
 }
 
 function checkMemory() {
     if (!Memory.allCreepNames) Memory.allCreepNames = []
+    if (!(Game.time % 1000)) Memory.allCreepNames = _.uniq(Memory.allCreepNames)
+    if (!Memory.stats) Memory.stats = {}
+    if (!Memory.stats.rooms) Memory.stats.rooms = {}
 }
 
 function handleNotExistCreep() {
@@ -28,7 +32,7 @@ function handleNotExistCreep() {
         const creepMemory = Memory.creeps[creepName]
         const { role, home, config, dontNeed } = creepMemory
         const roleRequire = roleRequires[role]
-        if (!roleRequire || dontNeed || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory))) {
+        if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) { // 注意顺序
             delete Memory.creeps[creepName]
             Memory.allCreepNames = _.pull(Memory.allCreepNames, creepName)
             log(`unallowed spawn creep: ${creepName}`, 'notify')
@@ -41,10 +45,20 @@ function handleNotExistCreep() {
 }
 
 function clearFlag() {
-    if (Game.time % 5) return
     for (const flagName in Memory.flags) {
         if (Game.flags[flagName]) continue
         delete Memory.flags[flagName]
         log(`remove deleted flag memory: ${flagName}`, 'notify')
     }
+}
+
+function collectStats() {
+    if (Game.time % 10) return
+    Memory.stats.gcl = Game.gcl.level
+    Memory.stats.gpl = Game.gpl.level
+    Memory.stats.gclPercent = (Game.gcl.progress / Game.gcl.progressTotal) * 100
+    Memory.stats.gplPercent = (Game.gpl.progress / Game.gpl.progressTotal) * 100
+    Memory.stats.cpu = Game.cpu.getUsed()
+    Memory.stats.bucket = Game.cpu.bucket
+    Memory.stats.credit = Game.market.credits
 }
