@@ -9,5 +9,5 @@ StructureExtractor.prototype.run = function () {
 }
 
 StructureExtractor.prototype.onBuildComplete = function () {
-    this.room.find(FIND_MINERALS).forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_CYAN))
+    this.room.mineral.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_CYAN))
 }

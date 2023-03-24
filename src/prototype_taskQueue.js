@@ -1,14 +1,12 @@
 const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = require('./config')
 
-const TASK_TYPES = [ 'TaskCenterTransport', 'TaskSpawn', 'TaskTransport', 'TaskWork' ]
-
 // TaskBase --------------------------------------------------------------------------------------
 
-Room.prototype.printTasks = function (taskType) {
+Room.prototype.printAllTask = function (taskType) {
     return taskType + ' : [\n\t' + this.memory[taskType].map(i => JSON.stringify(i)).join(',\n\t') + '\n]'
 }
 
-Room.prototype.printTaskKeys = function (taskType) {
+Room.prototype.printAllTaskKeys = function (taskType) {
     return taskType + ' : ' + this.memory[taskType].map(i => i.key).join(', ')
 }
 
@@ -84,7 +82,7 @@ Room.prototype.addSpawnTask = function (creepName, priority, creepMemory) {
     if (creepName in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
     if (priority === undefined) priority = ROLE_TYPES[creepMemory.role]
     const result = this.addTask('TaskSpawn', creepName, priority, creepMemory)
-    if (result) Memory.allCreepNames.push(creepName)
+    if (result) Memory.allCreepNameList.push(creepName)
     return result
 }
 

@@ -3,7 +3,11 @@ const { roleRequires } = require('./prototype_creep')
 const importantRoles = ['harvester', 'transporter']
 
 StructureSpawn.prototype.run = function () {
-    if (this.spawning || this.room.memory.lockSpawn > Game.time) return
+    if (this.room.memory.lockSpawn > Game.time) return
+    if (this.spawning) {
+        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
+        return
+    }
     delete this.room.memory.lockSpawn
     const task = this.room.getSpawnTask()
     if (!task) return

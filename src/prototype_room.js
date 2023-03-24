@@ -30,34 +30,6 @@ Room.prototype.visualLayout = function (centerPosX = 25, centerPosY = 25) {
     this.visual.connectRoads()
 }
 
-Object.defineProperty(Room.prototype, 'my', {
-    get: function () { return this.controller && this.controller.my },
-    set: function () {},
-    enumerable: false,
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'level', {
-    get: function () { return this.controller && this.controller.level },
-    set: function () {},
-    enumerable: false,
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'centerLink', {
-    get: function () { return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId) },
-    set: function () {},
-    enumerable: false,
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'upgradeLink', {
-    get: function () { return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId) },
-    set: function () {},
-    enumerable: false,
-    configurable: true
-})
-
 let tmpTick
 Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
     if (!confirm) return false
@@ -74,3 +46,179 @@ Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
     log(`room: ${this.name} 已移除！`, 'error')
     log(`room: ${this.name} 已移除！`, 'error')
 }
+
+// Room Properties -------------------------------------------------------------------------------
+
+Object.defineProperty(Room.prototype, 'my', {
+    get: function () {
+        return this.controller && this.controller.my
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'level', {
+    get: function () {
+        return this.controller && this.controller.level
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'owner', {
+    get() {
+        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
+    },
+    configurable: true,
+})
+
+// Structure Properties --------------------------------------------------------------------------
+
+Object.defineProperty(Room.prototype, 'structures', {
+    get() {
+        if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
+        return this._allStructures
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'hostileStructures', {
+    get() {
+        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
+        return this._hostileStructures
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'centerLink', {
+    get: function () {
+        return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeLink', {
+    get: function () {
+        return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'wall', {
+    get: function () {
+        return this[STRUCTURE_WALL]
+    },
+    configurable: true
+})
+
+// Creep Properties ------------------------------------------------------------------------------
+
+Object.defineProperty(Room.prototype, 'creeps', {
+    get() {
+        if (!this._creeps) this._creeps = this.find(FIND_MY_CREEPS)
+        return this._creeps
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'hostiles', {
+    get() {
+        if (!this._hostiles) this._hostiles = this.find(FIND_HOSTILE_CREEPS)
+        return this._hostiles
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'invaders', {
+    get() {
+        if (!this._invaders) this._invaders = _.filter(this.hostiles, i => i.owner.username === 'Invader')
+        return this._invaders
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'sourceKeepers', {
+    get() {
+        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
+        return this._sourceKeepers
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'playerHostiles', {
+    get() {
+        if (!this._playerHostiles) {
+            this._playerHostiles = _.filter(this.hostiles, i => i.owner.username !== 'Invader' && i.owner.username !== 'Source Keeper')
+        }
+        return this._playerHostiles
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'dangerousHostiles', {
+    get() {
+        if (!this._dangerousHostiles) {
+            if (this.my) this._dangerousHostiles = _.filter(this.hostiles,
+                    i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+            else this._dangerousHostiles = _.filter(this.hostiles,
+                    i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+        }
+        return this._dangerousHostiles
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
+    get() {
+        if (!this._dangerousPlayerHostiles) this._dangerousPlayerHostiles = _.filter(this.playerHostiles,
+                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+        return this._dangerousPlayerHostiles
+    },
+    configurable: true,
+})
+
+// Other Properties ------------------------------------------------------------------------------
+
+Object.defineProperty(Room.prototype, 'flags', {
+    get() {
+        if (!this._flags) this._flags = this.find(FIND_FLAGS)
+        return this._flags
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'constructionSites', {
+    get() {
+        if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
+        return this._constructionSites
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'tombstones', {
+    get() {
+        if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
+        return this._tombstones
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'drops', {
+    get() {
+        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
+        return this._drops;
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'droppedEnergy', {
+    get() {
+        return this.drops[RESOURCE_ENERGY] || []
+    },
+    configurable: true,
+})
+
+Object.defineProperty(Room.prototype, 'droppedPower', {
+    get() {
+        return this.drops[RESOURCE_POWER] || []
+    },
+    configurable: true,
+})

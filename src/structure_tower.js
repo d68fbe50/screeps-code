@@ -13,16 +13,15 @@ StructureTower.prototype.onBuildComplete = function () {
 }
 
 function attackEnemy(tower) {
-    if (!tower.room._enemies) tower.room._enemies = tower.room.find(FIND_HOSTILE_CREEPS)
-    if (tower.room._enemies.length === 0) return false
-    tower.attack(tower.pos.findClosestByRange(tower.room._enemies))
+    if (tower.room.hostiles.length === 0) return false
+    tower.attack(tower.pos.findClosestByRange(tower.room.hostiles))
     return true
 }
 
 function repairStructure(tower) {
     if (Game.time % repairInterval) return false
-    if (!tower.room._towerRepairTargets) tower.room._towerRepairTargets = tower.room.find(FIND_STRUCTURES, {
-        filter: i => (i.structureType === STRUCTURE_RAMPART && i.hits < repairWallHitsMax)
+    if (!tower.room._towerRepairTargets) tower.room._towerRepairTargets = tower.room.structures.filter(i => {
+        return (i.structureType === STRUCTURE_RAMPART && i.hits < repairWallHitsMax)
             || (i.structureType !== STRUCTURE_RAMPART && i.structureType !== STRUCTURE_WALL && i.structureType !== STRUCTURE_CONTAINER && i.hits / i.hitsMax < repairHitsRate)
     })
     if (tower.room._towerRepairTargets.length === 0) return false

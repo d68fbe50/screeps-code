@@ -11,12 +11,7 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
-    if (creep.store.getUsedCapacity() > 0) {
-        let putTarget = creep.room.terminal ? creep.room.terminal : creep.room.storage
-        if (putTarget) creep.putTo(putTarget, Object.keys(creep.store)[0])
-        else creep.drop(Object.keys(creep.store)[0])
-        return false
-    }
+    if (!creep.clearResources()) return false
 
     const task = creep.room.getCenterTask()
     if (!task) return false

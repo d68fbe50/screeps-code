@@ -24,6 +24,10 @@ global.get = function (id) {
     return Game.getObjectById(id)
 }
 
+global.res = function () {
+    return HelperRoomResource.showAllRes()
+}
+
 global.eo = function (orderId, addAmount) {
     return Game.market.extendOrder(orderId, addAmount)
 }
@@ -34,21 +38,15 @@ global.cop = function (orderId, newPrice) {
 
 Object.defineProperty(global, 'c', {
     get: function () { return Game.creeps },
-    set: function () {},
-    enumerable: false,
     configurable: true
 })
 
 Object.defineProperty(global, 'm', {
     get: function () { return Game.market },
-    set: function () {},
-    enumerable: false,
     configurable: true
 })
 
 Object.defineProperty(global, 'r', {
     get: function () { return Game.rooms },
-    set: function () {},
-    enumerable: false,
     configurable: true
 })

@@ -49,6 +49,15 @@ Creep.prototype.run = function () {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
+Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
+    if (this.store.getUsedCapacity() === 0 || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
+    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
+    const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
+    if (putTarget) this.putTo(putTarget, resourceType)
+    else this.drop(resourceType)
+    return false
+}
+
 Creep.prototype.buildStructure = function () {
     const constructionSiteId = this.room.memory.constructionSiteId
     const constructionSite = Game.getObjectById(constructionSiteId)
@@ -61,7 +70,7 @@ Creep.prototype.buildStructure = function () {
         this.room.update() // wheel.structureCache.js
         return true
     }
-    const closestConstructionSite = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
+    const closestConstructionSite = this.pos.findClosestByRange(this.room.constructionSites)
     if (closestConstructionSite) { // !constructionSite && !constructionSiteId
         this.room.memory.constructionSiteId = closestConstructionSite.id
         return true
@@ -71,9 +80,7 @@ Creep.prototype.buildStructure = function () {
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % 100) || !needRepairWallId) {
-        const minHitsWall = this.room.find(FIND_STRUCTURES, {
-            filter: i => (i.structureType === STRUCTURE_WALL || i.structureType === STRUCTURE_RAMPART) && i.hits < wallHitsMax
-        }).sort((a, b) => a.hits - b.hits)[0]
+        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(i => i.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
             delete this.room.memory.needRepairWallId

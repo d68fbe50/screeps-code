@@ -20,8 +20,8 @@ module.exports.loop = function () {
 }
 
 function checkMemory() {
-    if (!Memory.allCreepNames) Memory.allCreepNames = []
-    if (!(Game.time % 1000)) Memory.allCreepNames = _.uniq(Memory.allCreepNames)
+    if (!Memory.allCreepNameList) Memory.allCreepNameList = []
+    if (!(Game.time % 1000)) Memory.allCreepNameList = _.uniq(Memory.allCreepNameList)
     if (!Memory.stats) Memory.stats = {}
     if (!Memory.stats.rooms) Memory.stats.rooms = {}
 }
@@ -34,7 +34,7 @@ function handleNotExistCreep() {
         const roleRequire = roleRequires[role]
         if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) { // 注意顺序
             delete Memory.creeps[creepName]
-            Memory.allCreepNames = _.pull(Memory.allCreepNames, creepName)
+            Memory.allCreepNameList = _.pull(Memory.allCreepNameList, creepName)
             log(`unallowed spawn creep: ${creepName}`, 'notify')
             continue
         }

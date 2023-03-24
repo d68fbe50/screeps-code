@@ -1,37 +1,9 @@
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
+    collectRoomStats(this)
     visualTaskText(this.room)
-
-    if (!(Game.time % 3)) {
-        if (this.room.energyAvailable < this.room.energyCapacityAvailable) this.room.addTransportTask('fillExtension')
-    }
-
-    if (!(Game.time % 10)) {
-        Memory.stats.rooms[this.room.name].rcl = this.level
-        Memory.stats.rooms[this.room.name].rclPercent = (this.progress / (this.progressTotal || 1)) * 100
-        Memory.stats.rooms[this.room.name].energy = this.room[RESOURCE_ENERGY] // wheel_structureCache.js
-    }
-
-    if (Game.time % 100 || this.room.memory.rcl === this.level) return
-    this.room.memory.rcl = this.level
-    // TODO this.room.updateLayout()
-    if (this.level === 1) {
-        this.room.find(FIND_SOURCES).forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
-    } else if (this.level === 2) {
-        //
-    } else if (this.level === 3) {
-        //
-    } else if (this.level === 4) {
-        //
-    } else if (this.level === 5) {
-        //
-    } else if (this.level === 6) {
-        //
-    } else if (this.level === 7) {
-        //
-    } else if (this.level === 8) {
-        //
-    }
+    onLevelChange(this)
+    if (!(Game.time % 100)) this.room.update()
 }
 
 function checkRoomMemory(room) {
@@ -45,10 +17,41 @@ function checkRoomMemory(room) {
     if (!room.memory.workerList) room.memory.workerList = []
 }
 
+function collectRoomStats(controller) {
+    if (Game.time % 10) return
+    Memory.stats.rooms[controller.room.name].rcl = controller.level
+    Memory.stats.rooms[controller.room.name].rclPercent = (controller.progress / (controller.progressTotal || 1)) * 100
+    Memory.stats.rooms[controller.room.name].energy = controller.room[RESOURCE_ENERGY] // wheel_structureCache.js
+}
+
 function visualTaskText(room) {
     let visualTextY = 2
-    room.visual.text(room.printTaskKeys('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printTaskKeys('TaskSpawn'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printTaskKeys('TaskTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printTaskKeys('TaskWork'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTaskKeys('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTaskKeys('TaskSpawn'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTaskKeys('TaskTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTaskKeys('TaskWork'), 1, visualTextY++, { align: 'left' })
+}
+
+function onLevelChange(controller) {
+    const level = controller.level
+    if (Game.time % 100 || controller.room.memory.rcl === level) return
+    controller.room.memory.rcl = level
+    // TODO this.room.updateLayout()
+    if (level === 1) {
+        controller.room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
+    } else if (level === 2) {
+        //
+    } else if (level === 3) {
+        //
+    } else if (level === 4) {
+        //
+    } else if (level === 5) {
+        //
+    } else if (level === 6) {
+        //
+    } else if (level === 7) {
+        //
+    } else if (level === 8) {
+        //
+    }
 }

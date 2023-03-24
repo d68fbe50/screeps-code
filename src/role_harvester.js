@@ -29,6 +29,8 @@ const prepare = function (creep) {
 }
 
 const target = function (creep) {
+    if (creep.ticksToLive < 2) creep.drop(RESOURCE_ENERGY)
+
     const source = Game.getObjectById(creep.memory.sourceId)
     if (creep.memory.linkId) {
         const link = Game.getObjectById(creep.memory.linkId)
