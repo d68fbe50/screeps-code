@@ -26,7 +26,7 @@ global.printLogHistory = function (amount = 10) {
 
 Object.defineProperty(global, 'c', {
     get: function () { return Game.creeps },
-    set: function () { },
+    set: function () {},
     enumerable: false,
     configurable: true
 })

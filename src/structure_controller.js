@@ -1,6 +1,6 @@
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
-    visualTaskText(this)
+    visualTaskText(this.room)
 
     if (!(Game.time % 3)) {
         if (this.room.energyAvailable < this.room.energyCapacityAvailable) this.room.addTransportTask('fillExtension')
@@ -36,10 +36,10 @@ function checkRoomMemory(room) {
     if (!room.memory.TaskWork) room.memory.TaskWork = []
 }
 
-function visualTaskText(controller) {
+function visualTaskText(room) {
     let visualTextY = 2
-    controller.room.visual.text(controller.room.printTaskKeys('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
-    controller.room.visual.text(controller.room.printTaskKeys('TaskSpawn'), 1, visualTextY++, { align: 'left' })
-    controller.room.visual.text(controller.room.printTaskKeys('TaskTransport'), 1, visualTextY++, { align: 'left' })
-    controller.room.visual.text(controller.room.printTaskKeys('TaskWork'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printTaskKeys('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printTaskKeys('TaskSpawn'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printTaskKeys('TaskTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printTaskKeys('TaskWork'), 1, visualTextY++, { align: 'left' })
 }

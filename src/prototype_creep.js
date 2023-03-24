@@ -66,16 +66,34 @@ Creep.prototype.buildTo = function (constructionSite) {
     return result
 }
 
+Creep.prototype.dismantleTo = function (structure) {
+    const result = this.dismantle(structure)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure, { range: 1 })
+    return result
+}
+
 Creep.prototype.repairTo = function (structure) {
     const result = this.repair(structure)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(structure, { range: 3 })
     return result
 }
 
-Creep.prototype.upgrade = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.upgradeController(target)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 3 })
+Creep.prototype.upgrade = function (controller) {
+    if (!controller) controller = this.room.controller
+    const result = this.upgradeController(controller)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 3 })
+}
+
+Creep.prototype.claim = function (controller) {
+    if (!controller) controller = this.room.controller
+    const result = this.claimController(controller)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 1 })
+}
+
+Creep.prototype.reserve = function (controller) {
+    if (!controller) controller = this.room.controller
+    const result = this.reserveController(controller)
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 1 })
 }
 
 module.exports = { roleRequires }

@@ -61,16 +61,22 @@ Room.prototype.addRemoteDefender = function () {
     //
 }
 
-Room.prototype.addRemoteHarvester = function () {
-    //
+Room.prototype.addRemoteHarvester = function (flagName) {
+    const role = 'remoteHarvester'
+    const creepName = getAvailableCreepName(roleShortNames[role])
+    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
 Room.prototype.addRemoteTransporter = function () {
     //
 }
 
-Room.prototype.addReserver = function () {
-    //
+Room.prototype.addReserver = function (flagName) {
+    const role = 'reserver'
+    const creepName = getAvailableCreepName(roleShortNames[role])
+    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
 Room.prototype.addTransporter = function () {

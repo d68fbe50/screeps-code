@@ -29,11 +29,6 @@ const prepare = function (creep) {
 }
 
 const target = function (creep) {
-    if (creep.memory.role === 'remoteHarvester' && creep.hits < creep.hitsMax && !creep.memory.dontNeed) {
-        creep.memory.dontNeed = true
-        // TODO: delayTask
-    }
-
     const source = Game.getObjectById(creep.memory.sourceId)
     if (creep.memory.linkId) {
         const link = Game.getObjectById(creep.memory.linkId)

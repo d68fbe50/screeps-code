@@ -1,6 +1,7 @@
 Flag.prototype.run = function () {
     if (this.memory.checked) return
-    const closestMyRoom = (this.room && this.room.my) ? this.room : findClosestMyRoom(this.pos.roomName)
+    const isInMyRoom = this.room && this.room.my
+    const closestMyRoom = isInMyRoom ? this.room : findClosestMyRoom(this.pos.roomName)
 
     if (this.color === COLOR_RED) {
         if (this.secondaryColor === COLOR_RED) ;
@@ -19,10 +20,10 @@ Flag.prototype.run = function () {
     }
     if (this.color === COLOR_YELLOW) {
         if (this.secondaryColor === COLOR_CYAN) closestMyRoom.addMineHarvester(this.name)
-        if (this.secondaryColor === COLOR_YELLOW) closestMyRoom.addHarvester(this.name)
+        if (this.secondaryColor === COLOR_YELLOW) isInMyRoom ? this.room.addHarvester(this.name) : closestMyRoom.addRemoteHarvester(this.name)
     }
     if (this.color === COLOR_WHITE) {
-        if (this.secondaryColor === COLOR_BLUE) this.room && this.room.my && this.room.setCenterPos(this.pos.x, this.pos.y) || this.remove()
+        if (this.secondaryColor === COLOR_BLUE) isInMyRoom && this.room.setCenterPos(this.pos.x, this.pos.y) || this.remove()
     }
 
     this.memory.checked = true

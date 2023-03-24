@@ -1552,6 +1552,6 @@ module.exports = {
         text += `\ncache hit avg cost: ${(hitCost).toFixed(5)}, cache miss avg cost: ${(missCost).toFixed(5)}, total avg cost: ${(hitCost * (1 - missRate) + missCost * missRate).toFixed(5)}`
         return text
     },
-    clear: () => { }
+    clear: () => {}
     // clear: clearUnused
 }
