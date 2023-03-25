@@ -2,7 +2,8 @@ const build = {
     source: (creep) => creep.getEnergy(),
     target: (creep) => {
         if (creep.isEmpty) return true
-        creep.buildStructure()
+        const result = creep.buildStructure()
+        if (!result) creep.room.removeWorkTask(creep.memory.taskKey)
     }
 }
 
@@ -10,7 +11,8 @@ const repair = {
     source: (creep) => creep.getEnergy(),
     target: (creep) => {
         if (creep.isEmpty) return true
-        creep.repairWall()
+        const result = creep.repairWall()
+        if (!result) creep.room.removeWorkTask(creep.memory.taskKey)
     }
 }
 

@@ -33,7 +33,7 @@ Flag.prototype.run = function () {
         if (this.secondaryColor === COLOR_RED) ; // nuker emergency
     }
     if (this.color === COLOR_WHITE) { // command
-        if (this.secondaryColor === COLOR_BLUE) isInMyRoom && this.room.setCenterPos(this.pos.x, this.pos.y) || this.remove()
+        if (this.secondaryColor === COLOR_GREEN) isInMyRoom && this.room.setCenterPos(this.pos.x, this.pos.y) || this.remove()
     }
 
     this.memory.checked = true

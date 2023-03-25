@@ -3,6 +3,7 @@ StructureController.prototype.run = function () {
     collectRoomStats(this)
     visualTaskText(this.room)
     onLevelChange(this)
+    if (!(Game.time % 10)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
     if (!(Game.time % 100)) this.room.update()
 }
 

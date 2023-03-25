@@ -14,7 +14,7 @@ const prepare = function (creep) {
 const source = function (creep) {
     const taskKey = creep.memory.taskKey
     if (!taskKey) return false
-    const task = creep.room.getTransportTask(taskKey)
+    const task = creep.room.getWorkTask(taskKey)
     if (!task) return false
     const action = workTaskActions[taskKey]
     if (!action || !action.source) {
@@ -27,7 +27,7 @@ const source = function (creep) {
 const target = function (creep) {
     const taskKey = creep.memory.taskKey
     if (!taskKey) return true
-    const task = creep.room.getTransportTask(taskKey)
+    const task = creep.room.getWorkTask(taskKey)
     if (!task) return true
     const action = workTaskActions[taskKey]
     if (!action || !action.target) {

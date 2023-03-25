@@ -9,7 +9,7 @@ interface PowerCreep { run }
 interface Flag { run }
 
 interface Memory { allCreepNameList, stats }
-interface RoomMemory { centerLinkId, upgradeLinkId, rcl, centerPos, lockSpawn, remoteSourceLock, transporterList, workerList, constructionSiteId, needRepairWallId, sourceContainerList }
+interface RoomMemory { centerLinkId, upgradeLinkId, rcl, centerPos, lockSpawnTime, remoteSourceLock, transporterList, workerList, constructionSiteId, needRepairWallId, sourceContainerList }
 interface SpawnMemory { }
 interface CreepMemory { role, home, config, ready, working, needFillSpawnExtId, needFillTowerId, energyStructureId }
 interface PowerCreepMemory { }

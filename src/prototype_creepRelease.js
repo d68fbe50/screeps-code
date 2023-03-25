@@ -29,7 +29,7 @@ Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
     if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇。', 'error')
     const role = 'centerTransporter'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { centerPosX, centerPosY } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { centerPosX, centerPosY } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
@@ -44,7 +44,7 @@ Room.prototype.addDefender = function () {
 Room.prototype.addHarvester = function (flagName) {
     const role = 'harvester'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
@@ -55,7 +55,7 @@ Room.prototype.addHelper = function () {
 Room.prototype.addMineHarvester = function (flagName) {
     const role = 'mineHarvester'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
@@ -66,7 +66,7 @@ Room.prototype.addRemoteDefender = function () {
 Room.prototype.addRemoteHarvester = function (flagName) {
     const role = 'remoteHarvester'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
@@ -77,14 +77,14 @@ Room.prototype.addRemoteTransporter = function () {
 Room.prototype.addReserver = function (flagName) {
     const role = 'reserver'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name, config: { flagName } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
 Room.prototype.addTransporter = function () {
     const role = 'transporter'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name })
+    this.addSpawnTask(creepName, { role, home: this.name })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
@@ -95,7 +95,7 @@ Room.prototype.addUpgrader = function () {
 Room.prototype.addWorker = function () {
     const role = 'worker'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, undefined, { role, home: this.name })
+    this.addSpawnTask(creepName, { role, home: this.name })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 

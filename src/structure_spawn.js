@@ -3,17 +3,17 @@ const { roleRequires } = require('./prototype_creep')
 const importantRoles = ['harvester', 'transporter']
 
 StructureSpawn.prototype.run = function () {
-    if (this.room.memory.lockSpawn > Game.time) return
+    if (this.room.memory.lockSpawnTime > Game.time) return
     if (this.spawning) {
         if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
         return
     }
-    delete this.room.memory.lockSpawn
+    delete this.room.memory.lockSpawnTime
     const task = this.room.getSpawnTask()
     if (!task) return
 
-    const { key, taskData } = task
-    const role = taskData.role
+    const { key, data } = task
+    const role = data.role
     const roleRequire = roleRequires[role]
     if (!roleRequire || !roleRequire.bodys) {
         this.room.removeSpawnTask(key)
@@ -23,7 +23,7 @@ StructureSpawn.prototype.run = function () {
 
     const bodys = calcBodyPart(roleRequire.bodys, role === 'starter' ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
-    const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(taskData) })
+    const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
     if (result === OK || result === ERR_NAME_EXISTS) this.room.removeSpawnTask(key)
     else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockSpawnTask(key, 30)
     else {

@@ -1,7 +1,5 @@
 const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = require('./config')
 
-// TaskBase --------------------------------------------------------------------------------------
-
 Room.prototype.printAllTask = function (taskType) {
     return taskType + ' : [\n\t' + this.memory[taskType].map(i => JSON.stringify(i)).join(',\n\t') + '\n]'
 }
@@ -10,134 +8,178 @@ Room.prototype.printAllTaskKeys = function (taskType) {
     return taskType + ' : ' + this.memory[taskType].map(i => i.key).join(', ')
 }
 
-Room.prototype.getTask = function (taskType, key = undefined) {
-    if (key) return this.memory[taskType].find(i => i.key === key)
-    return this.memory[taskType].find(i => !i.taskData || !i.taskData.lock || i.taskData.lock < Game.time)
+// TaskBase --------------------------------------------------------------------------------------
+
+const getTask = function (room, type, key = undefined) {
+    if (!type) return undefined
+    if (key) return room.memory[type].find(i => i.key === key)
+    return room.memory[type].find(i => !i.lockTime || Game.time > i.lockTime)
 }
 
-Room.prototype.getTaskIndex = function (taskType, key) {
-    return this.memory[taskType].findIndex(i => i.key === key)
+const getTaskIndex = function (room, type, key) {
+    if (!type || !key) return -1
+    return room.memory[type].findIndex(i => i.key === key)
 }
 
-Room.prototype.addTask = function (taskType, key, priority = 0, taskData = {}) {
-    if (this.getTask(taskType, key)) return false
-    let index = this.memory[taskType].findIndex(i => i.priority < priority)
-    index = index === -1 ? this.memory[taskType].length : index
-    this.memory[taskType].splice(index, 0, { key, priority, taskData })
+const addTask = function (room, type, key, data = {}, priority = 0, lockTime = 0, minUnits = 0, nowUnits = 0, maxUnits = 0) {
+    if (!type || !key || getTask(room, type, key)) return false
+    let index = room.memory[type].findIndex(i => i.priority < priority)
+    index = index === -1 ? room.memory[type].length : index
+    room.memory[type].splice(index, 0, { key, data, priority, lockTime, minUnits, nowUnits, maxUnits })
     return key
 }
 
-Room.prototype.removeTask = function (taskType, key) {
-    const index = this.getTaskIndex(taskType, key)
+const removeTask = function (room, type, key) {
+    if (!type || !key) return false
+    const index = getTaskIndex(room, type, key)
     if (index === -1) return false
-    this.memory[taskType].splice(index, 1)
+    room.memory[type].splice(index, 1)
     return key
 }
 
-Room.prototype.updateTask = function (taskType, key, priority = undefined, taskData = undefined) {
-    const index = this.getTaskIndex(taskType, key)
+const updateTask = function (room, type, key, content) { // content sample { data: { role: 'harvester' }, maxUnits = 1 }
+    if (!type || !key || !content) return false
+    const index = getTaskIndex(room, type, key)
     if (index === -1) return false
-    if (taskData) this.memory[taskType][index].taskData = taskData
-    const oldTask = this.getTask(taskType, key)
-    if (priority === undefined || oldTask.priority === priority) return key
-    this.removeTask(taskType, key)
-    return this.addTask(taskType, key, priority, oldTask.taskData)
+    Object.keys(content).forEach(k => room.memory[type][index][k] = content[k])
+    return key
+}
+
+const updateTaskPriority = function (room, type, key, priority) {
+    if (!type || !key || priority === undefined) return false
+    const t = getTask(room, type, key)
+    if (!t) return false
+    if (t.priority === priority) return key
+    removeTask(room, type, key)
+    return addTask(room, type, key, _.cloneDeep(t.data), priority, t.lockTime, t.minUnits, t.nowUnits, t.maxUnits)
+}
+
+const lockTask = function (room, type, key, tick) {
+    if (!type || !key || tick === undefined) return false
+    const index = getTaskIndex(room, type, key)
+    if (index === -1) return false
+    room.memory[type][index].lockTime = Game.time + tick
+    return key
+}
+
+const unlockTask = function (room, type, key) {
+    if (!type || !key) return false
+    const index = getTaskIndex(room, type, key)
+    if (index === -1) return false
+    room.memory[type][index].lockTime = 0
+    return key
+}
+
+const addTaskUnit = function (room, type, key) {
+    if (!type || !key) return false
+    const index = getTaskIndex(room, type, key)
+    if (index === -1) return false
+    room.memory[type][index].nowUnits += 1
+    return key
+}
+
+const reduceTaskUnit = function (room, type, key) {
+    if (!type || !key) return false
+    const index = getTaskIndex(room, type, key)
+    if (index === -1) return false
+    room.memory[type][index].nowUnits -= 1
+    return key
+}
+
+Room.prototype.testTaskQueue = function () {
+    this.memory.TaskTest = []
+    addTask(this, 'TaskTest', 'test1', { data1: 'oldValue1' }, 1, 0, 1, 0, 1)
+    addTask(this, 'TaskTest', 'test2', undefined, 2, 20)
+    addTask(this, 'TaskTest', 'test3', undefined, 3)
+    removeTask(this, 'TaskTest', 'test3')
+    updateTask(this, 'TaskTest', 'test1', { data: { data1: 'value1' }, maxUnits: 2 })
+    updateTaskPriority(this, 'TaskTest', 'test1', 3)
+    lockTask(this, 'TaskTest', 'test1', 50)
+    unlockTask(this, 'TaskTest', 'test2')
+    addTaskUnit(this, 'TaskTest', 'test1')
+    addTaskUnit(this, 'TaskTest', 'test1')
+    reduceTaskUnit(this, 'TaskTest', 'test1')
+    const index = getTaskIndex(this, 'TaskTest', 'test1')
+    const t = this.memory.TaskTest[index]
+    const result = getTask(this, 'TaskTest').key === 'test2' && t.key === 'test1' && t.lockTime > 0 && t.data && t.data.data1 === 'value1' && t.nowUnits === 1 && t.maxUnits === 2
+    console.log(result ? '测试通过' : 'ERROR: 测试未通过！！！')
+    delete this.memory.TaskTest
 }
 
 // TaskCenterTransport ---------------------------------------------------------------------------
 
-Room.prototype.getCenterTask = function (submit) {
-    return this.getTask('TaskCenterTransport', submit)
+Room.prototype.getCenterTask = function (key) {
+    return getTask(this, 'TaskCenterTransport', key)
 }
 
-Room.prototype.addCenterTask = function (submit, priority, source, target, resourceType, amount) {
-    if (!(submit in SUBMIT_STRUCTURE_TYPES)) return false
-    if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[submit]
-    const taskData = { source, target, resourceType, amount }
-    return this.addTask('TaskCenterTransport', submit, priority, taskData)
+Room.prototype.addCenterTask = function (key, priority, source, target, resourceType, amount) {
+    if (!(key in SUBMIT_STRUCTURE_TYPES)) return false
+    if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[key]
+    const data = { source, target, resourceType, amount }
+    return addTask(this, 'TaskCenterTransport', key, data, priority)
 }
 
-Room.prototype.removeCenterTask = function (submit) {
-    return this.removeTask('TaskCenterTransport', submit)
+Room.prototype.removeCenterTask = function (key) {
+    return removeTask(this, 'TaskCenterTransport', key)
 }
 
-Room.prototype.updateCenterTask = function (submit, priority, taskData) {
-    return this.updateTask('TaskCenterTransport', submit, priority, taskData)
-}
-
-Room.prototype.handleCenterTask = function (submit, amount) {
-    const taskData = this.getCenterTask(submit).taskData
-    taskData.amount -= amount
-    if (taskData.amount <= 0) return this.removeCenterTask(submit)
-    this.updateCenterTask(submit, undefined, taskData)    
+Room.prototype.handleCenterTask = function (key, amount) {
+    const data = this.getCenterTask(key).data
+    data.amount -= amount
+    if (data.amount <= 0) return this.removeCenterTask(key)
+    return updateTask(this, 'TaskCenterTransport', key, { data })
 }
 
 // TaskSpawn -------------------------------------------------------------------------------------
 
-Room.prototype.getSpawnTask = function (creepName) {
-    return this.getTask('TaskSpawn', creepName)
+Room.prototype.getSpawnTask = function (key) {
+    return getTask(this, 'TaskSpawn', key)
 }
 
-Room.prototype.addSpawnTask = function (creepName, priority, creepMemory) {
-    if (creepName in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
+Room.prototype.addSpawnTask = function (key, creepMemory, priority) {
+    if (key in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
     if (priority === undefined) priority = ROLE_TYPES[creepMemory.role]
-    const result = this.addTask('TaskSpawn', creepName, priority, creepMemory)
-    if (result) Memory.allCreepNameList.push(creepName)
+    const result = addTask(this, 'TaskSpawn', key, creepMemory, priority)
+    if (result) Memory.allCreepNameList.push(key)
     return result
 }
 
-Room.prototype.removeSpawnTask = function (creepName) {
-    return this.removeTask('TaskSpawn', creepName)
+Room.prototype.removeSpawnTask = function (key) {
+    return removeTask(this, 'TaskSpawn', key)
 }
 
-Room.prototype.updateSpawnTask = function (creepName, priority, creepMemory) {
-    return this.updateTask('TaskSpawn', creepName, priority, creepMemory)
-}
-
-Room.prototype.lockSpawnTask = function (creepName, tick = 30) {
-    const taskData = this.getSpawnTask(creepName).taskData
-    taskData.lock = Game.time + tick
-    this.updateSpawnTask(creepName, undefined, taskData)
+Room.prototype.lockSpawnTask = function (key, tick = 30) {
+    return lockTask(this, 'TaskSpawn', key, tick)
 }
 
 // TaskTransport ---------------------------------------------------------------------------------
 
-Room.prototype.getTransportTask = function (transportType) {
-    return this.getTask('TaskTransport', transportType)
+Room.prototype.getTransportTask = function (key) {
+    return getTask(this, 'TaskTransport', key)
 }
 
-Room.prototype.addTransportTask = function (transportType, priority) {
-    if (!(transportType in TRANSPORT_TYPES)) return false
-    if (priority === undefined) priority = TRANSPORT_TYPES[transportType]
-    const taskData = {}
-    return this.addTask('TaskTransport', transportType, priority, taskData)
+Room.prototype.addTransportTask = function (key, priority) {
+    if (!(key in TRANSPORT_TYPES)) return false
+    if (priority === undefined) priority = TRANSPORT_TYPES[key]
+    return addTask(this, 'TaskTransport', key, undefined, priority)
 }
 
-Room.prototype.removeTransportTask = function (transportType) {
-    return this.removeTask('TaskTransport', transportType)
-}
-
-Room.prototype.updateTransportTask = function (transportType, priority, taskData) {
-    return this.updateTask('TaskTransport', transportType, priority, taskData)
+Room.prototype.removeTransportTask = function (key) {
+    return removeTask(this, 'TaskTransport', key)
 }
 
 // TaskWork --------------------------------------------------------------------------------------
 
-Room.prototype.getWorkTask = function (workType) {
-    return this.getTask('TaskWork', workType)
+Room.prototype.getWorkTask = function (key) {
+    return getTask(this, 'TaskWork', key)
 }
 
-Room.prototype.addWorkTask = function (workType, priority, needAmount, workingAmount) {
-    if (!(workType in WORK_TYPES)) return false
-    if (priority === undefined) priority = WORK_TYPES[workType]
-    const taskData = { needAmount, workingAmount }
-    return this.addTask('TaskWork', workType, priority, taskData)
+Room.prototype.addWorkTask = function (key, priority, minUnits, maxUnits) {
+    if (!(key in WORK_TYPES)) return false
+    if (priority === undefined) priority = WORK_TYPES[key]
+    return addTask(this, 'TaskWork', key, undefined, priority, undefined, minUnits, 0, maxUnits)
 }
 
-Room.prototype.removeWorkTask = function (workType) {
-    return this.removeTask('TaskWork', workType)
-}
-
-Room.prototype.updateWorkTask = function (workType, priority, taskData) {
-    return this.updateTask('TaskWork', workType, priority, taskData)
+Room.prototype.removeWorkTask = function (key) {
+    return removeTask(this, 'TaskWork', key)
 }

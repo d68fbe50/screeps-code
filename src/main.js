@@ -39,7 +39,7 @@ function handleNotExistCreep() {
             continue
         }
         const creepHome = Game.rooms[home]
-        creepHome && creepHome.addSpawnTask(creepName, undefined, { role, home, config })
+        creepHome && creepHome.addSpawnTask(creepName, { role, home, config })
         delete Memory.creeps[creepName]
     }
 }
