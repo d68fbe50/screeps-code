@@ -9,6 +9,8 @@ StructureController.prototype.run = function () {
 function checkRoomMemory(room) {
     if (!Memory.stats.rooms[room.name]) Memory.stats.rooms[room.name] = {}
     if (!room.memory.centerPos) room.memory.centerPos = {}
+    if (!room.memory.sourceContainerList) room.memory.sourceContainerList = []
+    if (!(Game.time % 1000)) room.memory.sourceContainerList = room.memory.sourceContainerList.filter(s => Game.getObjectById(s))
     if (!room.memory.TaskCenterTransport) room.memory.TaskCenterTransport = []
     if (!room.memory.TaskSpawn) room.memory.TaskSpawn = []
     if (!room.memory.TaskTransport) room.memory.TaskTransport = []
@@ -38,7 +40,7 @@ function onLevelChange(controller) {
     controller.room.memory.rcl = level
     // TODO this.room.updateLayout()
     if (level === 1) {
-        controller.room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
+        controller.room.source.forEach(s => !s.pos.lookFor(LOOK_FLAGS)[0] && s.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
     } else if (level === 2) {
         //
     } else if (level === 3) {

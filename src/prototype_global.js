@@ -37,16 +37,16 @@ global.cop = function (orderId, newPrice) {
 }
 
 Object.defineProperty(global, 'c', {
-    get: function () { return Game.creeps },
+    get() { return Game.creeps },
     configurable: true
 })
 
 Object.defineProperty(global, 'm', {
-    get: function () { return Game.market },
+    get() { return Game.market },
     configurable: true
 })
 
 Object.defineProperty(global, 'r', {
-    get: function () { return Game.rooms },
+    get() { return Game.rooms },
     configurable: true
 })

@@ -40,7 +40,7 @@ const target = function (creep) {
     const key = task.key
     const { target, resourceType } = task.taskData
     
-    const putAmount = creep.store.getUsedCapacity(resourceType)
+    const putAmount = creep.store[resourceType]
     const result = creep.putTo(creep.room[target], resourceType)
 
     if (result === OK) {

@@ -1,37 +1,28 @@
-function getEnergy(creep) {
-    if (creep.store[RESOURCE_ENERGY] / creep.store.getCapacity() > 0.5) return true
-    if (!creep.clearResources(RESOURCE_ENERGY)) return false
-    creep.getFrom(creep.room.terminal) // TODO
-    return false
-}
-
 const fillExtension = {
-    source: (creep) => getEnergy(creep),
+    source: (creep) => creep.getEnergy(),
     target: (creep) => {
         if (creep.room.energyAvailable === creep.room.energyCapacityAvailable) return creep.room.removeTransportTask(creep.memory.taskKey)
-        if (creep.store[RESOURCE_ENERGY] === 0) return true
+        if (creep.energy === 0) return true
         let target = Game.getObjectById(creep.memory.needFillSpawnExtId)
-        if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-            target = creep.pos.findClosestByRange([...creep.room.spawn, ...creep.room.extension], { filter: i => i.store.getFreeCapacity(RESOURCE_ENERGY) > 0 })
+        if (!target || target.isFull) {
+            target = creep.pos.findClosestByRange([...creep.room.spawn, ...creep.room.extension], { filter: s => !s.isFull })
             creep.memory.needFillSpawnExtId = target.id // target 一定存在
         }
         creep.putTo(target)
-        return false
     }
 }
 
 const fillTower = {
-    source: (creep) => getEnergy(creep),
+    source: (creep) => creep.getEnergy(),
     target: (creep) => {
-        if (creep.store[RESOURCE_ENERGY] === 0) return true
+        if (creep.energy === 0) return true
         let target = Game.getObjectById(creep.memory.needFillTowerId)
-        if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-            target = creep.pos.findClosestByRange(creep.room.tower, { filter: i => i.store[RESOURCE_ENERGY] < 800 })
+        if (!target || target.isFull) {
+            target = creep.pos.findClosestByRange(creep.room.tower, { filter: t => t.energy < 800 })
             if (!target) return creep.room.removeTransportTask(creep.memory.taskKey)
             creep.memory.needFillTowerId = target.id
         }
         creep.putTo(target)
-        return false
     }
 }
 

@@ -1,7 +1,25 @@
-const build = {}
+const build = {
+    source: (creep) => creep.getEnergy(),
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        creep.buildStructure()
+    }
+}
 
-const repair = {}
+const repair = {
+    source: (creep) => creep.getEnergy(),
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        creep.repairWall()
+    }
+}
 
-const upgrade = {}
+const upgrade = {
+    source: (creep) => creep.getEnergy(),
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        creep.upgrade()
+    }
+}
 
 module.exports = { build, repair, upgrade }

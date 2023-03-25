@@ -1,3 +1,5 @@
+const workTaskActions = require("./task_work");
+
 const isNeed = function (creepMemory, creepName) {
     if (!creepMemory.dontNeed) return true
     Memory.rooms[creepMemory.home].workerList = _.pull(Memory.rooms[creepMemory.home].workerList, creepName)
@@ -10,13 +12,29 @@ const prepare = function (creep) {
 }
 
 const source = function (creep) {
-    if (creep.store.getFreeCapacity() === 0) return true
-    //
+    const taskKey = creep.memory.taskKey
+    if (!taskKey) return false
+    const task = creep.room.getTransportTask(taskKey)
+    if (!task) return false
+    const action = workTaskActions[taskKey]
+    if (!action || !action.source) {
+        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        return false
+    }
+    return action.source(creep)
 }
 
 const target = function (creep) {
-    if (creep.store.getUsedCapacity() === 0) return true
-    //
+    const taskKey = creep.memory.taskKey
+    if (!taskKey) return true
+    const task = creep.room.getTransportTask(taskKey)
+    if (!task) return true
+    const action = workTaskActions[taskKey]
+    if (!action || !action.target) {
+        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        return true
+    }
+    return action.target(creep)
 }
 
 const bodys = [

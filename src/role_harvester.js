@@ -21,7 +21,10 @@ const prepare = function (creep) {
     if (link) creep.memory.linkId = link.id
     else {
         const container = source.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } })[0]
-        if (container) creep.memory.containerId = container.id
+        if (container) {
+            creep.memory.containerId = container.id
+            container.register()
+        }
     }
     creep.memory.sourceId = source.id
     creep.memory.dontPullMe = true
@@ -35,7 +38,7 @@ const target = function (creep) {
     if (creep.memory.linkId) {
         const link = Game.getObjectById(creep.memory.linkId)
         if (!link) return delete creep.memory.linkId
-        if (link.store.getFreeCapacity(RESOURCE_ENERGY) === 0) return
+        if (link.isFull) return
         if (creep.store.getFreeCapacity() <= 2 * 6) creep.putTo(link)
         creep.getFrom(source)
         return
@@ -43,9 +46,10 @@ const target = function (creep) {
     if (creep.memory.containerId) {
         const container = Game.getObjectById(creep.memory.containerId)
         if (!container) return delete creep.memory.containerId
+        if (!(Game.time % 10)) container.register()
         if (!creep.pos.isEqualTo(container)) return creep.moveTo(container)
-        if (container.hits / container.hitsMax < 0.5 && creep.store[RESOURCE_ENERGY] >= 6) return creep.repairTo(container)
-        if (container.store.getFreeCapacity() > 0) creep.getFrom(source)
+        if (container.hits / container.hitsMax < 0.5 && creep.energy >= 6) return creep.repairTo(container)
+        if (!container.isFull) creep.getFrom(source)
         return
     }
     if (creep.memory.constructionSiteId) {
@@ -55,7 +59,7 @@ const target = function (creep) {
             if (container) creep.memory.containerId = container.id
             return delete creep.memory.constructionSiteId
         }
-        if (creep.store[RESOURCE_ENERGY] >= 5 * 6) return creep.buildTo(constructionSite)
+        if (creep.energy >= 5 * 6) return creep.buildTo(constructionSite)
         creep.getFrom(source)
         return
     }

@@ -27,21 +27,21 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive < (creep.room.name === creep.memory.home ? 100 : 200)) {
-        if (creep.store.getUsedCapacity() > 0) return true
+        if (!creep.isEmpty) return true
         else return creep.suicide()
     }
 
-    if (creep.store.getFreeCapacity() === 0) return true
+    if (creep.isFull) return true
     const result = creep.getFrom(Game.getObjectById(creep.memory.mineralId))
     if (result === ERR_NOT_ENOUGH_RESOURCES) {
         creep.memory.dontNeed = true
-        if (creep.store.getUsedCapacity() > 0) return true
+        if (!creep.isEmpty) return true
         else return creep.suicide()
     }
 }
 
 const target = function (creep) {
-    if (creep.store.getUsedCapacity() === 0) {
+    if (creep.isEmpty) {
         creep.memory.ready = false
         return true
     }

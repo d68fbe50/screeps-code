@@ -5,18 +5,25 @@ Room.prototype.log = function (content, type, notifyNow, prefix) {
     log(content, type, notifyNow, prefix)
 }
 
-Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
-    this.memory.centerPos.x = centerPosX
-    this.memory.centerPos.y = centerPosY
-    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
-}
-
 Room.prototype.cbo = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
     return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
 }
 
 Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
+}
+
+Room.prototype.getAvailableEnergyStructureId = function () {
+    if (this.storage && this.storage.energy > 10000) return this.storage
+    if (this.terminal && this.terminal.energy > 10000) return this.terminal
+    const container = this.memory.sourceContainerList.map(s => Game.getObjectById(s)).filter(s => s && s.energy > 1000).sort((a, b) => b.energy - a.energy)[0]
+    return container && container.id
+}
+
+Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
+    this.memory.centerPos.x = centerPosX
+    this.memory.centerPos.y = centerPosY
+    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
 }
 
 Room.prototype.visualLayout = function (centerPosX = 25, centerPosY = 25) {
@@ -50,14 +57,14 @@ Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
 // Room Properties -------------------------------------------------------------------------------
 
 Object.defineProperty(Room.prototype, 'my', {
-    get: function () {
+    get() {
         return this.controller && this.controller.my
     },
     configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'level', {
-    get: function () {
+    get() {
         return this.controller && this.controller.level
     },
     configurable: true
@@ -67,7 +74,7 @@ Object.defineProperty(Room.prototype, 'owner', {
     get() {
         return this.controller && this.controller.owner ? this.controller.owner.username : undefined
     },
-    configurable: true,
+    configurable: true
 })
 
 // Structure Properties --------------------------------------------------------------------------
@@ -77,33 +84,33 @@ Object.defineProperty(Room.prototype, 'structures', {
         if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
         return this._allStructures
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'hostileStructures', {
     get() {
-        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
+        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: s => s.hitsMax })
         return this._hostileStructures
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'centerLink', {
-    get: function () {
+    get() {
         return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
     },
     configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'upgradeLink', {
-    get: function () {
+    get() {
         return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
     },
     configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'wall', {
-    get: function () {
+    get() {
         return this[STRUCTURE_WALL]
     },
     configurable: true
@@ -116,7 +123,7 @@ Object.defineProperty(Room.prototype, 'creeps', {
         if (!this._creeps) this._creeps = this.find(FIND_MY_CREEPS)
         return this._creeps
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'hostiles', {
@@ -124,33 +131,33 @@ Object.defineProperty(Room.prototype, 'hostiles', {
         if (!this._hostiles) this._hostiles = this.find(FIND_HOSTILE_CREEPS)
         return this._hostiles
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'invaders', {
     get() {
-        if (!this._invaders) this._invaders = _.filter(this.hostiles, i => i.owner.username === 'Invader')
+        if (!this._invaders) this._invaders = _.filter(this.hostiles, c => c.owner.username === 'Invader')
         return this._invaders
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'sourceKeepers', {
     get() {
-        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
+        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, c => c.owner.username === 'Source Keeper')
         return this._sourceKeepers
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'playerHostiles', {
     get() {
         if (!this._playerHostiles) {
-            this._playerHostiles = _.filter(this.hostiles, i => i.owner.username !== 'Invader' && i.owner.username !== 'Source Keeper')
+            this._playerHostiles = _.filter(this.hostiles, c => c.owner.username !== 'Invader' && c.owner.username !== 'Source Keeper')
         }
         return this._playerHostiles
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'dangerousHostiles', {
@@ -163,7 +170,7 @@ Object.defineProperty(Room.prototype, 'dangerousHostiles', {
         }
         return this._dangerousHostiles
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
@@ -172,7 +179,7 @@ Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
                 i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
         return this._dangerousPlayerHostiles
     },
-    configurable: true,
+    configurable: true
 })
 
 // Other Properties ------------------------------------------------------------------------------
@@ -182,7 +189,7 @@ Object.defineProperty(Room.prototype, 'flags', {
         if (!this._flags) this._flags = this.find(FIND_FLAGS)
         return this._flags
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'constructionSites', {
@@ -190,7 +197,7 @@ Object.defineProperty(Room.prototype, 'constructionSites', {
         if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
         return this._constructionSites
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'tombstones', {
@@ -198,27 +205,27 @@ Object.defineProperty(Room.prototype, 'tombstones', {
         if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
         return this._tombstones
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'drops', {
     get() {
-        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
+        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), r => r.resourceType)
         return this._drops;
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'droppedEnergy', {
     get() {
         return this.drops[RESOURCE_ENERGY] || []
     },
-    configurable: true,
+    configurable: true
 })
 
 Object.defineProperty(Room.prototype, 'droppedPower', {
     get() {
         return this.drops[RESOURCE_POWER] || []
     },
-    configurable: true,
+    configurable: true
 })

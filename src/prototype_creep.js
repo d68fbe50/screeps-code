@@ -50,11 +50,23 @@ Creep.prototype.run = function () {
 }
 
 Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
-    if (this.store.getUsedCapacity() === 0 || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
-    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
+    if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
+    const resourceType = Object.keys(this.store).find(r => r !== excludeResourceType && this.store[r] > 0)
     const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
     if (putTarget) this.putTo(putTarget, resourceType)
     else this.drop(resourceType)
+    return false
+}
+
+Creep.prototype.getEnergy = function (energyPercent = 0.5) {
+    if (this.energy / this.store.getCapacity() >= energyPercent) {
+        delete this.memory.energyStructureId
+        return true
+    }
+    if (!this.clearResources(RESOURCE_ENERGY)) return false
+    if (!this.memory.energyStructureId) this.memory.energyStructureId = this.room.getAvailableEnergyStructureId()
+    const structure = Game.getObjectById(this.memory.energyStructureId)
+    this.getFrom(structure)
     return false
 }
 
@@ -80,7 +92,7 @@ Creep.prototype.buildStructure = function () {
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % 100) || !needRepairWallId) {
-        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(i => i.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
+        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(w => w.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
             delete this.room.memory.needRepairWallId
@@ -95,6 +107,8 @@ Creep.prototype.repairWall = function () {
     this.repairTo(needRepairWall)
     return true
 }
+
+// simple behavior -------------------------------------------------------------------------------
 
 Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
     let result
@@ -146,5 +160,55 @@ Creep.prototype.reserve = function (controller) {
     const result = this.reserveController(controller)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 1 })
 }
+
+// Creep Property -------------------------------------------------------------------------------
+
+Object.defineProperty(Creep.prototype, 'boosts', {
+    get() {
+        if (!this._boosts) {
+            this._boosts = _.compact(_.unique(_.map(this.body, bodyPart => bodyPart.boost)))
+        }
+        return this._boosts
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'boostCounts', {
+    get() {
+        if (!this._boostCounts) {
+            this._boostCounts = _.countBy(this.body, bodyPart => bodyPart.boost)
+        }
+        return this._boostCounts
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'energy', {
+    get() {
+        return this.store[RESOURCE_ENERGY]
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'isEmpty', {
+    get() {
+        return this.store.getUsedCapacity() <= 0
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'isFull', {
+    get() {
+        return this.store.getFreeCapacity() <= 0
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'inRampart', {
+    get() {
+        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
+    },
+    configurable: true
+})
 
 module.exports = { roleRequires }
