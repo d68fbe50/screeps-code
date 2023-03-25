@@ -14,8 +14,8 @@ Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERG
 }
 
 Room.prototype.getAvailableEnergyStructureId = function () {
-    if (this.storage && this.storage.energy > 10000) return this.storage
-    if (this.terminal && this.terminal.energy > 10000) return this.terminal
+    if (this.storage && this.storage.energy > 10000) return this.storage.id
+    if (this.terminal && this.terminal.energy > 10000) return this.terminal.id
     const container = this.memory.sourceContainerList.map(s => Game.getObjectById(s)).filter(s => s && s.energy > 1000).sort((a, b) => b.energy - a.energy)[0]
     return container && container.id
 }

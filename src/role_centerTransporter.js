@@ -1,3 +1,5 @@
+const TASK_TYPE = 'TaskCenterTransport'
+
 const prepare = function (creep) {
     const { centerPosX, centerPosY } = creep.memory.config
     if (centerPosX && centerPosY) {
@@ -11,9 +13,10 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
+    if (creep.room.memory.TaskCenterTransport.length === 0) return false
     if (!creep.clearResources()) return false
 
-    const task = creep.room.getCenterTask()
+    const task = creep.room.getFirstTask(TASK_TYPE)
     if (!task) return false
     const key = task.key
     const { source, resourceType, amount } = task.data
@@ -24,10 +27,10 @@ const source = function (creep) {
 
     const result = creep.getFrom(creep.room[source], resourceType, getAmount)
     if (result === OK || result === ERR_FULL) return true
-    else if (result === ERR_NOT_ENOUGH_RESOURCES) creep.room.removeCenterTask(key)
+    else if (result === ERR_NOT_ENOUGH_RESOURCES) creep.room.removeTask(TASK_TYPE, key)
     else if (result === ERR_NOT_IN_RANGE) return false
     else {
-        creep.room.removeCenterTask(key)
+        creep.room.removeTask(TASK_TYPE, key)
         creep.log(`source 阶段异常，错误码 ${result}，任务数据 ${JSON.stringify(task)}`, 'error')
     }
 
@@ -35,7 +38,7 @@ const source = function (creep) {
 }
 
 const target = function (creep) {
-    const task = creep.room.getCenterTask(creep.memory.taskKey)
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) return true
     const key = task.key
     const { target, resourceType } = task.data
@@ -49,10 +52,10 @@ const target = function (creep) {
     } else if (result === ERR_NOT_ENOUGH_RESOURCES) return true
     else if (result === ERR_NOT_IN_RANGE) return false
     else if (result === ERR_FULL) {
-        creep.room.removeCenterTask(key)
+        creep.room.removeTask(TASK_TYPE, key)
         target !== 'centerLink' && creep.log(`${target} 满了，请尽快处理`, 'warning')
     } else {
-        creep.room.removeCenterTask(key)
+        creep.room.removeTask(TASK_TYPE, key)
         creep.log(`target 阶段异常，错误码 ${result}，任务数据 ${JSON.stringify(task)}`, 'error')
     }
 

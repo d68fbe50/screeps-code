@@ -1,22 +1,24 @@
 const { roleRequires } = require('./prototype_creep')
 
 const importantRoles = ['harvester', 'transporter']
+const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
     if (this.room.memory.lockSpawnTime > Game.time) return
+    else delete this.room.memory.lockSpawnTime
     if (this.spawning) {
         if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
         return
     }
-    delete this.room.memory.lockSpawnTime
-    const task = this.room.getSpawnTask()
+    if (this.room.memory.TaskSpawn.length === 0) return
+    const task = this.room.getFirstTask(TASK_TYPE)
     if (!task) return
 
     const { key, data } = task
     const role = data.role
     const roleRequire = roleRequires[role]
     if (!roleRequire || !roleRequire.bodys) {
-        this.room.removeSpawnTask(key)
+        this.room.removeTask(TASK_TYPE, key)
         this.log(`${key} 找不到角色或身体配置`, 'error')
         return
     }
@@ -24,10 +26,10 @@ StructureSpawn.prototype.run = function () {
     const bodys = calcBodyPart(roleRequire.bodys, role === 'starter' ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
-    if (result === OK || result === ERR_NAME_EXISTS) this.room.removeSpawnTask(key)
-    else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockSpawnTask(key, 30)
+    if (result === OK || result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)
+    else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockTask(TASK_TYPE, key, 30)
     else {
-        this.room.removeSpawnTask(key)
+        this.room.removeTask(TASK_TYPE, key)
         this.log(`${key} 生成失败，错误码 ${result}，任务数据 ${JSON.stringify(task)}`, 'error')
     }
 }

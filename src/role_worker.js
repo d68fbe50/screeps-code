@@ -1,6 +1,8 @@
-const workTaskActions = require("./task_work");
+const TASK_TYPE = 'TaskWork'
+const taskActions = require("./task_work");
 
 const isNeed = function (creepMemory, creepName) {
+    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.taskKey, -1)
     if (!creepMemory.dontNeed) return true
     Memory.rooms[creepMemory.home].workerList = _.pull(Memory.rooms[creepMemory.home].workerList, creepName)
     return false
@@ -12,26 +14,37 @@ const prepare = function (creep) {
 }
 
 const source = function (creep) {
-    const taskKey = creep.memory.taskKey
-    if (!taskKey) return false
-    const task = creep.room.getWorkTask(taskKey)
-    if (!task) return false
-    const action = workTaskActions[taskKey]
+    if (creep.ticksToLive < 30) return creep.suicide()
+    if (creep.room.memory[TASK_TYPE].length === 0) return false
+
+    let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
+    if (!task) {
+        task = creep.room.getExpectTask(TASK_TYPE)
+        if (task) {
+            creep.memory.taskKey = task.key
+            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, 1)
+        } else {
+            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, -1)
+            delete creep.memory.taskKey
+            return false
+        }
+    }
+
+    const action = taskActions[task.key]
     if (!action || !action.source) {
-        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        creep.log(`任务逻辑不存在：${task.key}`, 'error')
         return false
     }
     return action.source(creep)
 }
 
 const target = function (creep) {
-    const taskKey = creep.memory.taskKey
-    if (!taskKey) return true
-    const task = creep.room.getWorkTask(taskKey)
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) return true
-    const action = workTaskActions[taskKey]
+
+    const action = taskActions[task.key]
     if (!action || !action.target) {
-        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        creep.log(`任务逻辑不存在：${task.key}`, 'error')
         return true
     }
     return action.target(creep)

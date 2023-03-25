@@ -1,6 +1,6 @@
 const roleShortNames = {
-    centerTransporter: 't',
-    claimer: 'c',
+    centerTransporter: 'c',
+    claimer: 'r',
     defender: 'd',
     depoDefender: 'dp',
     depoHarvester: 'dp',

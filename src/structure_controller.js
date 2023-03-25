@@ -4,6 +4,7 @@ StructureController.prototype.run = function () {
     visualTaskText(this.room)
     onLevelChange(this)
     if (!(Game.time % 10)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
+    if (!(Game.time % 10)) this.room.addWorkTask('upgrade')
     if (!(Game.time % 100)) this.room.update()
 }
 
@@ -29,10 +30,10 @@ function collectRoomStats(controller) {
 
 function visualTaskText(room) {
     let visualTextY = 2
-    room.visual.text(room.printAllTaskKeys('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTaskKeys('TaskSpawn'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTaskKeys('TaskTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTaskKeys('TaskWork'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTasks('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTasks('TaskSpawn'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTasks('TaskTransport'), 1, visualTextY++, { align: 'left' })
+    room.visual.text(room.printAllTasks('TaskWork'), 1, visualTextY++, { align: 'left' })
 }
 
 function onLevelChange(controller) {

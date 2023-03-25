@@ -1,6 +1,8 @@
-const transportTaskActions = require('./task_transport')
+const TASK_TYPE = 'TaskTransport'
+const taskActions = require('./task_transport')
 
 const isNeed = function (creepMemory, creepName) {
+    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.taskKey, -1)
     if (!creepMemory.dontNeed) return true
     Memory.rooms[creepMemory.home].transporterList = _.pull(Memory.rooms[creepMemory.home].transporterList, creepName)
     return false
@@ -13,30 +15,41 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive < 30) {
-        creep.room.memory.lockSpawn = Game.time + 2
+        creep.room.memory.lockSpawnTime = Game.time + 2
         return creep.suicide()
     }
-    const taskKey = creep.memory.taskKey
-    if (!taskKey) return false
-    const task = creep.room.getTransportTask(taskKey)
-    if (!task) return false
-    const action = transportTaskActions[taskKey]
+    if (creep.room.memory[TASK_TYPE].length === 0) return false
+
+    let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
+    if (!task) {
+        task = creep.room.getExpectTask(TASK_TYPE)
+        if (task) {
+            creep.memory.taskKey = task.key
+            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, 1)
+        } else {
+            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, -1)
+            delete creep.memory.taskKey
+            return false
+        }
+    }
+
+    const action = taskActions[task.key]
     if (!action || !action.source) {
-        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        creep.log(`任务逻辑不存在：${task.key}`, 'error')
         return false
     }
     return action.source(creep)
 }
 
 const target = function (creep) {
-    if (creep.ticksToLive < 30 && !creep.room.memory.lockSpawn) creep.room.memory.lockSpawn = Game.time + creep.ticksToLive + 2
-    const taskKey = creep.memory.taskKey
-    if (!taskKey) return true
-    const task = creep.room.getTransportTask(taskKey)
+    if (creep.ticksToLive < 30 && !creep.room.memory.lockSpawnTime) creep.room.memory.lockSpawnTime = Game.time + creep.ticksToLive + 2
+
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) return true
-    const action = transportTaskActions[taskKey]
+
+    const action = taskActions[task.key]
     if (!action || !action.target) {
-        creep.log(`任务逻辑不存在：${taskKey}`, 'error')
+        creep.log(`任务逻辑不存在：${task.key}`, 'error')
         return true
     }
     return action.target(creep)
