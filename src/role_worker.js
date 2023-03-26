@@ -1,15 +1,15 @@
 const TASK_TYPE = 'TaskWork'
-const taskActions = require("./task_work");
+const taskActions = require("./task_workActions");
 
 const isNeed = function (creepMemory, creepName) {
     Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.taskKey, -1)
     if (!creepMemory.dontNeed) return true
-    Memory.rooms[creepMemory.home].workerList = _.pull(Memory.rooms[creepMemory.home].workerList, creepName)
+    Memory.rooms[creepMemory.home].workers = _.pull(Memory.rooms[creepMemory.home].workers, creepName)
     return false
 }
 
 const prepare = function (creep) {
-    if (!Memory.rooms[creep.room.name].workerList.includes(creep.name)) Memory.rooms[creep.room.name].workerList.push(creep.name)
+    if (!Memory.rooms[creep.room.name].workers.includes(creep.name)) Memory.rooms[creep.room.name].workers.push(creep.name)
     return true
 }
 

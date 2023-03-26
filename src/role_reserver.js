@@ -16,8 +16,8 @@ const prepare = function (creep) {
 }
 
 const target = function (creep) {
-    if (creep.hits < creep.hitsMax && !creep.room.memory.remoteSourceLock) {
-        creep.room.memory.remoteSourceLock = Game.time + 1500
+    if (creep.hits < creep.hitsMax && !creep.room.memory.remoteLock) {
+        creep.room.memory.remoteLock = Game.time + 1500
         creep.memory.dontNeed = true
         // TODO: add delayTask
     }

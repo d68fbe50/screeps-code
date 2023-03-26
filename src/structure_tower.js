@@ -1,6 +1,5 @@
 const repairInterval = 3
 const repairHitsPercent = 0.5
-const repairWallHitsMax = 10000
 
 StructureTower.prototype.run = function () {
     if (this.energy < 10) return this.room.addTransportTask('fillTower')
@@ -21,7 +20,8 @@ function attackEnemy(tower) {
 function repairStructure(tower) {
     if (Game.time % repairInterval) return false
     if (!tower.room._towerRepairTargets) {
-        tower.room._towerRepairTargets = [...tower.room.rampart.filter(i => i.hits < repairWallHitsMax), ...tower.room.road.filter(i => i.hits / i.hitsMax < repairHitsPercent)]
+        // hits 设 301 防止刚放置的 rampart 消失
+        tower.room._towerRepairTargets = [...tower.room.rampart.filter(i => i.hits <= 301), ...tower.room.road.filter(i => i.hits / i.hitsMax < repairHitsPercent)]
     }
     if (tower.room._towerRepairTargets.length === 0) return false
     tower.repair(tower.pos.findClosestByRange(tower.room._towerRepairTargets))

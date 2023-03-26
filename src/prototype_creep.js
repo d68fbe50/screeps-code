@@ -1,6 +1,7 @@
-const { wallHitsMax } = require('./config')
+const wallFocusTime = 100
+const wallHitsMax = 100000
 
-const roleRequires = { // 注意与 config.js 的 ROLE_TYPES 保持一致
+const roleRequires = { // 注意与 prototype_taskQueue.js 的 ROLE_TYPES 保持一致
     centerTransporter: require('./role_centerTransporter'),
     claimer: require('./role_claimer'),
     defender: require('./role_defender'),
@@ -51,7 +52,7 @@ Creep.prototype.run = function () {
 
 Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
-    const resourceType = Object.keys(this.store).find(r => r !== excludeResourceType && this.store[r] > 0)
+    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
     if (putTarget) this.putTo(putTarget, resourceType)
     else this.drop(resourceType)
@@ -79,15 +80,18 @@ Creep.prototype.revertTask = function (taskType) {
 
 // complex behavior ------------------------------------------------------------------------------
 
-Creep.prototype.getEnergy = function (ignoreLimit = false, energyPercent = 0.5) {
+Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
         delete this.memory.energySourceId
+        delete this.memory.dontPullMe
         return true
     }
     if (!this.clearResources(RESOURCE_ENERGY)) return false
-    if (!this.memory.energySourceId) this.memory.energySourceId = this.room.getEnergySourceId(ignoreLimit)
-    const source = Game.getObjectById(this.memory.energySourceId)
-    this.getFrom(source)
+    if (!this.memory.energySourceId) this.memory.energySourceId = this.room.getEnergySourceId(ignoreLimit, includeSource)
+    const energySource = Game.getObjectById(this.memory.energySourceId)
+    if (!energySource) return false
+    const result = this.getFrom(energySource)
+    if (result && energySource && energySource.energyCapacity) this.memory.dontPullMe = true // 采矿时禁止对穿
     return false
 }
 
@@ -98,22 +102,29 @@ Creep.prototype.buildStructure = function () {
         this.buildTo(constructionSite)
         return true
     }
-    if (constructionSiteId) { // !constructionSite
+    if (constructionSiteId) {
+        const pos = this.room.memory.constructionSitePos && new RoomPosition(this.room.memory.constructionSitePos.x, this.room.memory.constructionSitePos.y, this.room.name)
+        const newStructure = pos && pos.lookFor(LOOK_STRUCTURES).find(i => i.structureType === this.room.memory.constructionSiteType)
+        if (newStructure) newStructure.onBuildComplete && newStructure.onBuildComplete()
         delete this.room.memory.constructionSiteId
-        this.room.update() // wheel.structureCache.js
+        delete this.room.memory.constructionSiteType
+        delete this.room.memory.constructionSitePos
+        this.room.update()
         return true
     }
     const closestConstructionSite = this.pos.findClosestByRange(this.room.constructionSites)
-    if (closestConstructionSite) { // !constructionSite && !constructionSiteId
+    if (closestConstructionSite) {
         this.room.memory.constructionSiteId = closestConstructionSite.id
+        this.room.memory.constructionSiteType = closestConstructionSite.structureType
+        this.room.memory.constructionSitePos = { x: closestConstructionSite.pos.x, y: closestConstructionSite.pos.y }
         return true
     } else return false
 }
 
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
-    if (!(Game.time % 100) || !needRepairWallId) {
-        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(w => w.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
+    if (!(Game.time % wallFocusTime) || !needRepairWallId) {
+        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(i => i.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
             delete this.room.memory.needRepairWallId
@@ -148,7 +159,7 @@ Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount
 
 Creep.prototype.buildTo = function (constructionSite) {
     const result = this.build(constructionSite)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(constructionSite, { range: 3 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(constructionSite)
     return result
 }
 
@@ -160,7 +171,7 @@ Creep.prototype.dismantleTo = function (structure) {
 
 Creep.prototype.repairTo = function (structure) {
     const result = this.repair(structure)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure, { range: 3 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure)
     return result
 }
 
@@ -187,7 +198,7 @@ Creep.prototype.reserve = function (controller) {
 Object.defineProperty(Creep.prototype, 'boosts', {
     get() {
         if (!this._boosts) {
-            this._boosts = _.compact(_.unique(_.map(this.body, bodyPart => bodyPart.boost)))
+            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
         }
         return this._boosts
     },
@@ -197,7 +208,7 @@ Object.defineProperty(Creep.prototype, 'boosts', {
 Object.defineProperty(Creep.prototype, 'boostCounts', {
     get() {
         if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, bodyPart => bodyPart.boost)
+            this._boostCounts = _.countBy(this.body, i => i.boost)
         }
         return this._boostCounts
     },

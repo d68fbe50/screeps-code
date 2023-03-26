@@ -1,5 +1,3 @@
-const { LAYOUT_DATA } = require('./config_layout')
-
 Room.prototype.log = function (content, type, notifyNow, prefix) {
     prefix = `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${this.name}">[${this.name}]</a>${prefix ? prefix : ''}`
     log(content, type, notifyNow, prefix)
@@ -13,12 +11,13 @@ Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERG
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
 }
 
-Room.prototype.getEnergySourceId = function (ignoreLimit) {
+Room.prototype.getEnergySourceId = function (ignoreLimit, includeSource) {
     if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return this.storage.id
     if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return this.terminal.id
-    const container = this.memory.sourceContainerList.map(s => Game.getObjectById(s)).filter(s => s && s.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.energy - a.energy)[0]
+    const container = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.energy - a.energy)[0]
     if (container) return container.id
-    const source = this.source.filter(s => s && s.energy > (ignoreLimit ? 0 : 500) && s.pos.availableNeighbors().length > 0).sort((a, b) => b.energy - a.energy)[0]
+    if (!includeSource) return undefined
+    const source = this.source.filter(i => i && i.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.pos.availableNeighbors().length - a.pos.availableNeighbors().length)[0]
     if (source) return source.id
 }
 
@@ -28,11 +27,27 @@ Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
     this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
 }
 
+Room.prototype.updateLayout = function () {
+    if (this.level === 1) return
+    if (!this.memory.centerPos.x || !this.memory.centerPos.y) return this.log('自动布局前需要设置房间中心点！', 'error')
+    let needBuild = false
+    Object.keys(LAYOUT_DATA).forEach(level => {
+        level <= this.level && Object.keys(LAYOUT_DATA[level]).forEach(type => {
+            LAYOUT_DATA[level][type].forEach(posXY => {
+                const pos = new RoomPosition(posXY[0]-25+this.memory.centerPos.x, posXY[1]-25+this.memory.centerPos.y, this.name)
+                const result = pos.createConstructionSite(type)
+                if (result) needBuild = true
+            })
+        })
+    })
+    if (needBuild) this.addWorkTask('build', 1, 3)
+}
+
 Room.prototype.visualLayout = function (centerPosX = 25, centerPosY = 25) {
-    Object.keys(LAYOUT_DATA).forEach(l => {
-        Object.keys(LAYOUT_DATA[l]).forEach(s => {
-            LAYOUT_DATA[l][s].forEach(p => {
-                this.visual.structure(p[0]-25+centerPosX, p[1]-25+centerPosY, s)
+    Object.keys(LAYOUT_DATA).forEach(level => {
+        Object.keys(LAYOUT_DATA[level]).forEach(type => {
+            LAYOUT_DATA[level][type].forEach(posXY => {
+                this.visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
             })
         })
     })
@@ -91,7 +106,7 @@ Object.defineProperty(Room.prototype, 'structures', {
 
 Object.defineProperty(Room.prototype, 'hostileStructures', {
     get() {
-        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: s => s.hitsMax })
+        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
         return this._hostileStructures
     },
     configurable: true
@@ -138,7 +153,7 @@ Object.defineProperty(Room.prototype, 'hostiles', {
 
 Object.defineProperty(Room.prototype, 'invaders', {
     get() {
-        if (!this._invaders) this._invaders = _.filter(this.hostiles, c => c.owner.username === 'Invader')
+        if (!this._invaders) this._invaders = _.filter(this.hostiles, i => i.owner.username === 'Invader')
         return this._invaders
     },
     configurable: true
@@ -146,7 +161,7 @@ Object.defineProperty(Room.prototype, 'invaders', {
 
 Object.defineProperty(Room.prototype, 'sourceKeepers', {
     get() {
-        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, c => c.owner.username === 'Source Keeper')
+        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
         return this._sourceKeepers
     },
     configurable: true
@@ -155,7 +170,7 @@ Object.defineProperty(Room.prototype, 'sourceKeepers', {
 Object.defineProperty(Room.prototype, 'playerHostiles', {
     get() {
         if (!this._playerHostiles) {
-            this._playerHostiles = _.filter(this.hostiles, c => c.owner.username !== 'Invader' && c.owner.username !== 'Source Keeper')
+            this._playerHostiles = _.filter(this.hostiles, i => i.owner.username !== 'Invader' && i.owner.username !== 'Source Keeper')
         }
         return this._playerHostiles
     },
@@ -212,7 +227,7 @@ Object.defineProperty(Room.prototype, 'tombstones', {
 
 Object.defineProperty(Room.prototype, 'drops', {
     get() {
-        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), r => r.resourceType)
+        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
         return this._drops;
     },
     configurable: true
@@ -231,3 +246,43 @@ Object.defineProperty(Room.prototype, 'droppedPower', {
     },
     configurable: true
 })
+
+const LAYOUT_DATA = {
+    1: {
+        spawn: [ [25,22] ]
+    },
+    2: {
+        extension: [ [22,23], [23,22], [23,23], [23,24], [24,23] ]
+    },
+    3: {
+        tower: [ [21,24] ],
+        extension: [ [26,23], [27,22], [27,23], [27,24], [28,23] ],
+        road: [
+            [21,23], [21,27], [22,22], [22,24], [22,26], [22,28], [23,21], [23,25], [23,29], [24,22],
+            [24,24], [24,26], [24,28], [25,23], [25,27], [26,22], [26,24], [26,26], [26,28], [27,21],
+            [27,25], [27,29], [28,22], [28,24], [28,26], [28,28], [29,23], [29,27]
+        ]
+    },
+    4: {
+        extension: [ [22,27], [23,26], [23,27], [23,28], [24,27], [26,27], [27,26], [27,27], [27,28], [28,27] ],
+        storage: [ [25,26] ]
+    },
+    5: {
+        tower: [ [29,24] ],
+        extension: [ [21,21], [22,21], [24,21], [25,21], [26,21], [28,21], [29,21], [21,22], [29,22], [21,25] ],
+        link: [ [25,24] ]
+    },
+    6: {
+        extension: [ [22,25], [28,25], [29,25], [21,28], [25,28], [29,28], [21,29], [25,29], [29,29] ],
+        terminal: [ [26,25] ]
+    },
+    7: {
+        tower: [ [21,26] ],
+        spawn: [ [22,29] ]
+    },
+    8: {
+        tower: [ [29,26], [24,29], [26,29] ],
+        spawn: [ [28,29] ],
+        powerSpawn: [ [24,25] ]
+    }
+}

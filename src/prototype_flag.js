@@ -40,7 +40,7 @@ Flag.prototype.run = function () {
 }
 
 function findClosestMyRoom(fromRoomName) {
-    const myRoomNameList = Object.keys(Game.rooms).filter(r => r.my)
-    const roomName = _.sortBy(myRoomNameList, r => Game.market.calcTransactionCost(1000, fromRoomName, r))[0]
+    const myRoomNames = Object.keys(Game.rooms).filter(i => i.my)
+    const roomName = _.sortBy(myRoomNames, i => Game.market.calcTransactionCost(1000, fromRoomName, i))[0]
     return Game.rooms[roomName]
 }

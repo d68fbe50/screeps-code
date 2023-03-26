@@ -1,10 +1,44 @@
-const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = require('./config')
+const { TRANSPORT_TYPES } = require('./task_transportActions')
+const { WORK_TYPES } = require('./task_workActions')
 
-Room.prototype.addCenterTask = function (key, priority, source, target, resourceType, amount) {
+const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
+    centerTransporter: 7, // priority
+    claimer: 0,
+    defender: 6,
+    depoDefender: 0,
+    depoHarvester: 0,
+    harvester: 9,
+    helper: 0,
+    mineHarvester: 0,
+    powerAttacker: 0,
+    powerDefender: 0,
+    powerHealer: 0,
+    powerTransporter: 0,
+    remoteHarvester: 0,
+    remoteDefender: 0,
+    remoteTransporter: 0,
+    reserver: 0,
+    squadAttacker: 5,
+    squadDismantler: 5,
+    squadHealer: 5,
+    squadRanged: 5,
+    starter: 0,
+    transporter: 8,
+    upgrader: 0,
+    worker: 0
+}
+
+const SUBMIT_STRUCTURE_TYPES = {
+    centerLink: 9,
+    factory: 3,
+    storage: 5,
+    terminal: 7
+}
+
+Room.prototype.addCenterTask = function (key, source, target, resourceType, amount) {
     if (!(key in SUBMIT_STRUCTURE_TYPES)) return false
-    if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[key]
     const data = { source, target, resourceType, amount }
-    return this.addTask('TaskCenter', key, data, priority)
+    return this.addTask('TaskCenter', key, data, SUBMIT_STRUCTURE_TYPES[key])
 }
 
 Room.prototype.handleCenterTask = function (key, amount) {
@@ -15,24 +49,21 @@ Room.prototype.handleCenterTask = function (key, amount) {
     return this.updateTask(taskType, key, { data })
 }
 
-Room.prototype.addSpawnTask = function (key, creepMemory, priority) {
+Room.prototype.addSpawnTask = function (key, creepMemory) {
     if (key in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
-    if (priority === undefined) priority = ROLE_TYPES[creepMemory.role]
-    const result = this.addTask('TaskSpawn', key, creepMemory, priority)
-    if (result) Memory.allCreepNameList.push(key)
+    const result = this.addTask('TaskSpawn', key, creepMemory, ROLE_TYPES[creepMemory.role])
+    if (result) Memory.allCreeps.push(key)
     return result
 }
 
-Room.prototype.addTransportTask = function (key, priority) {
+Room.prototype.addTransportTask = function (key) {
     if (!(key in TRANSPORT_TYPES)) return false
-    if (priority === undefined) priority = TRANSPORT_TYPES[key]
-    return this.addTask('TaskTransport', key, undefined, priority)
+    return this.addTask('TaskTransport', key, undefined, TRANSPORT_TYPES[key])
 }
 
-Room.prototype.addWorkTask = function (key, priority, minUnits, maxUnits) {
+Room.prototype.addWorkTask = function (key, minUnits, maxUnits) {
     if (!(key in WORK_TYPES)) return false
-    if (priority === undefined) priority = WORK_TYPES[key]
-    return this.addTask('TaskWork', key, undefined, priority, undefined, minUnits, 0, maxUnits)
+    return this.addTask('TaskWork', key, undefined, WORK_TYPES[key], undefined, minUnits, 0, maxUnits)
 }
 
 // TaskBase --------------------------------------------------------------------------------------
@@ -54,7 +85,9 @@ Room.prototype.getFirstTask = function (type) {
 
 Room.prototype.getExpectTask = function (type) {
     if (!type) return undefined
-    return this.memory[type].find(i => i.nowUnits < i.minUnits || i.nowUnits < i.maxUnits)
+    let task = this.memory[type].find(i => i.nowUnits < i.minUnits)
+    if (!task) task = this.memory[type].find(i => i.nowUnits < i.maxUnits)
+    return task
 }
 
 Room.prototype.addTask = function (type, key, data = {}, priority = 0, lockTime = 0, minUnits = 1, nowUnits = 0, maxUnits = 1) {

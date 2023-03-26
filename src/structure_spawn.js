@@ -1,11 +1,11 @@
 const { roleRequires } = require('./prototype_creep')
 
-const importantRoles = ['harvester', 'transporter']
+const importantRoles = ['starter', 'harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
-    if (this.room.memory.lockSpawnTime > Game.time) return
-    else delete this.room.memory.lockSpawnTime
+    if (this.room.memory.spawnLock > Game.time) return
+    else delete this.room.memory.spawnLock
     if (this.spawning) {
         if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
         return
@@ -23,7 +23,7 @@ StructureSpawn.prototype.run = function () {
         return
     }
 
-    const bodys = calcBodyPart(roleRequire.bodys, role === 'starter' ? this.room.energyAvailable : this.room.energyCapacityAvailable)
+    const bodys = calcBodyPart(roleRequire.bodys, importantRoles.includes(role) ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
     if (result === OK || result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)
@@ -40,7 +40,8 @@ StructureSpawn.prototype.onBuildComplete = function () {
 
 function calcBodyPart(bodysRequire, energyAmount) {
     const energyLevels = [10000, 5600, 2300, 1800, 1300, 800, 550, 300]
-    const level = 7 - energyLevels.findIndex(i => i <= energyAmount)
+    let index = energyLevels.findIndex(i => i <= energyAmount)
+    const level = 7 - (index === -1 ? 7 : index)
     const bodys = []
     Object.keys(bodysRequire[level]).forEach(i => bodys.push(...Array(bodysRequire[level][i]).fill(i)))
     return bodys

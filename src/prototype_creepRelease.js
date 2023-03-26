@@ -81,27 +81,31 @@ Room.prototype.addReserver = function (flagName) {
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
-Room.prototype.addTransporter = function () {
+Room.prototype.addTransporter = function (amount = 1) {
     const role = 'transporter'
-    const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, { role, home: this.name })
-    this.log(`${role}: ${creepName} 发布成功！`, 'success')
+    for (let i = 1; i <= amount; i++) {
+        const creepName = getAvailableCreepName(roleShortNames[role])
+        this.addSpawnTask(creepName, { role, home: this.name })
+        this.log(`${role}: ${creepName} 发布成功！`, 'success')
+    }
 }
 
 Room.prototype.addUpgrader = function () {
     //
 }
 
-Room.prototype.addWorker = function () {
+Room.prototype.addWorker = function (amount = 1) {
     const role = 'worker'
-    const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, { role, home: this.name })
-    this.log(`${role}: ${creepName} 发布成功！`, 'success')
+    for (let i = 1; i <= amount; i++) {
+        const creepName = getAvailableCreepName(roleShortNames[role])
+        this.addSpawnTask(creepName, {role, home: this.name})
+        this.log(`${role}: ${creepName} 发布成功！`, 'success')
+    }
 }
 
 function getAvailableCreepName(prefix = 'creep') {
     let count = 1
-    while (Memory.allCreepNameList.includes(prefix + count)) {
+    while (Memory.allCreeps.includes(prefix + count)) {
         if (count++ > 1000) return prefix + Game.time
     }
     return prefix + count

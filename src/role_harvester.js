@@ -23,7 +23,7 @@ const prepare = function (creep) {
         const container = source.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } })[0]
         if (container) {
             creep.memory.containerId = container.id
-            container.register()
+            container.onBuildComplete()
         }
     }
     creep.memory.sourceId = source.id
@@ -44,9 +44,10 @@ const target = function (creep) {
         return
     }
     if (creep.memory.containerId) {
+        /** @type StructureContainer */
         const container = Game.getObjectById(creep.memory.containerId)
         if (!container) return delete creep.memory.containerId
-        if (!(Game.time % 10)) container.register()
+        if (!(Game.time % 100)) container.onBuildComplete()
         if (!creep.pos.isEqualTo(container)) return creep.moveTo(container)
         if (container.hits / container.hitsMax < 0.5 && creep.energy >= 6) return creep.repairTo(container)
         if (!container.isFull) creep.getFrom(source)
@@ -56,7 +57,10 @@ const target = function (creep) {
         const constructionSite = Game.getObjectById(creep.memory.constructionSiteId)
         if (!constructionSite) {
             const container = source.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } })[0]
-            if (container) creep.memory.containerId = container.id
+            if (container) {
+                creep.memory.containerId = container.id
+                container.onBuildComplete()
+            }
             return delete creep.memory.constructionSiteId
         }
         if (creep.energy >= 5 * 6) return creep.buildTo(constructionSite)

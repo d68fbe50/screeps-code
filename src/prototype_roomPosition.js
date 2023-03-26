@@ -1,18 +1,18 @@
 RoomPosition.prototype.lookForStructure = function(structureType) {
-    return _.find(this.lookFor(LOOK_STRUCTURES), s => s.structureType === structureType)
+    return _.find(this.lookFor(LOOK_STRUCTURES), i => i.structureType === structureType)
 }
 
 RoomPosition.prototype.isWalkable = function(ignoreCreeps = false) {
     if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) return false
     if (this.isVisible) {
         if (ignoreCreeps === false && this.lookFor(LOOK_CREEPS).length > 0) return false
-        if (_.filter(this.lookFor(LOOK_STRUCTURES), s => !s.isWalkable).length > 0) return false
+        if (_.filter(this.lookFor(LOOK_STRUCTURES), i => !i.isWalkable).length > 0) return false
     }
     return true
 }
 
 RoomPosition.prototype.availableNeighbors = function(ignoreCreeps = false) {
-    return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps))
+    return _.filter(this.neighbors, i => i.isWalkable(ignoreCreeps))
 }
 
 Object.defineProperty(RoomPosition.prototype, 'isEdge', {

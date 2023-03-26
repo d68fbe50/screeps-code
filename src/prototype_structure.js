@@ -2,13 +2,6 @@ Structure.prototype.log = function (content, type, notifyNow) {
     this.room.log(content, type, notifyNow, `[${this.pos.x},${this.pos.y}] [${this.structureType}]`)
 }
 
-StructureContainer.prototype.register = function () {
-    if (!this.room.my) return false
-    if (this.room.memory.sourceContainerList.includes(this.id)) return true
-    this.room.memory.sourceContainerList = _.uniq([...this.room.memory.sourceContainerList, this.id])
-    return true
-}
-
 Object.defineProperty(Structure.prototype, 'isWalkable', {
     get() {
         return this.structureType === STRUCTURE_ROAD

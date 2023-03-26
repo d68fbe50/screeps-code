@@ -1,19 +1,30 @@
 // 消除代码提示用的，不代表正确
 
-interface global { }
-interface Game { }
-interface Room { source, mineral, wall, rampart }
-interface Structure { run, store }
+interface Room { container, mineral, rampart, source, wall }
+interface Structure { run, onBuildComplete, store }
 interface Creep { run }
 interface PowerCreep { run }
 interface Flag { run }
 
-interface Memory { allCreepNameList, stats }
-interface RoomMemory { centerLinkId, upgradeLinkId, rcl, centerPos, lockSpawnTime, remoteSourceLock, transporterList, workerList, constructionSiteId, needRepairWallId, sourceContainerList,
-    TaskCenter, TaskSpawn, TaskTransport, TaskWork, TaskTest }
-interface SpawnMemory { }
-interface CreepMemory { role, home, config, ready, working, needFillSpawnExtId, needFillTowerId, energySourceId, taskKey, taskBegin }
-interface PowerCreepMemory { }
+interface Memory { allCreeps, delayTasks, stats }
+interface RoomMemory {
+    rcl, centerPos,
+    spawnLock, remoteLock,
+    TaskCenter, TaskSpawn, TaskTransport, TaskWork, TaskTest,
+    transporters, workers,
+    constructionSiteId, constructionSiteType, constructionSitePos,
+    sourceContainerIds, upgradeContainerId,
+    centerLinkId, upgradeLinkId,
+    needRepairWallId
+}
+interface CreepMemory {
+    role, home, config,
+    ready, working, dontPullMe,
+    taskKey, taskBegin,
+    needFillSpawnExtId, needFillTowerId,
+    energySourceId
+}
+interface PowerCreepMemory {}
 interface FlagMemory { checked }
 
 interface roleRequire { isNeed, prepare, source, target, bodys }

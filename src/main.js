@@ -1,5 +1,6 @@
 require('./mount')
 const { roleRequires } = require('./prototype_creep')
+const { manageDelayTask } = require('./utils_delayQueue')
 
 console.log('[全局重置]')
 
@@ -13,6 +14,7 @@ module.exports.loop = function () {
     Object.values(Game.flags).forEach(i => i.run && i.run())
 
     handleNotExistCreep()
+    manageDelayTask()
     clearFlag()
     collectStats()
 
@@ -20,8 +22,8 @@ module.exports.loop = function () {
 }
 
 function checkMemory() {
-    if (!Memory.allCreepNameList) Memory.allCreepNameList = []
-    if (!(Game.time % 1000)) Memory.allCreepNameList = _.uniq(Memory.allCreepNameList)
+    if (!Memory.allCreeps) Memory.allCreeps = []
+    if (!Memory.delayTasks) Memory.delayTasks = []
     if (!Memory.stats) Memory.stats = {}
     if (!Memory.stats.rooms) Memory.stats.rooms = {}
 }
@@ -34,7 +36,7 @@ function handleNotExistCreep() {
         const roleRequire = roleRequires[role]
         if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) { // 注意顺序
             delete Memory.creeps[creepName]
-            Memory.allCreepNameList = _.pull(Memory.allCreepNameList, creepName)
+            Memory.allCreeps = _.pull(Memory.allCreeps, creepName)
             log(`unallowed spawn creep: ${creepName}`, 'notify')
             continue
         }

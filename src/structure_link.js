@@ -8,7 +8,7 @@ StructureLink.prototype.run = function () {
 
 StructureLink.prototype.onBuildComplete = function () {
     const structuresInRange = this.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_TERMINAL || s.structureType === STRUCTURE_FACTORY
+        filter: i => i.structureType === STRUCTURE_STORAGE || i.structureType === STRUCTURE_TERMINAL || i.structureType === STRUCTURE_FACTORY
     })
     if (structuresInRange[0]) {
         this.room.addCenterTransporter(this.room.memory.centerPos.x, this.room.memory.centerPos.y)
@@ -19,7 +19,7 @@ StructureLink.prototype.onBuildComplete = function () {
     if (sourcesInRange[0]) return
 
     const controllersInRange = this.pos.findInRange(FIND_STRUCTURES, 4, {
-        filter: s => s.structureType === STRUCTURE_CONTROLLER
+        filter: i => i.structureType === STRUCTURE_CONTROLLER
     })
     if (controllersInRange[0]) return this.room.memory.upgradeLinkId = this.id
 }
@@ -35,14 +35,14 @@ function supportUpgradeLink(link) {
 function runCenterLink(link) {
     if (link.energy < 600) return
     if (supportUpgradeLink(link)) return
-    link.room.addCenterTask('centerLink', undefined, 'centerLink', 'storage', RESOURCE_ENERGY, link.energy)
+    link.room.addCenterTask('centerLink', 'centerLink', 'storage', RESOURCE_ENERGY, link.energy)
 }
 
 function runUpgradeLink(link) {
     if (link.energy > 100) return
     if (!link.room.centerLink || link.room.centerLink.cooldown > 0) return
     const amount = Math.min(link.store.getFreeCapacity(RESOURCE_ENERGY), link.room.centerLink.store.getFreeCapacity(RESOURCE_ENERGY))
-    link.room.addCenterTask('centerLink', undefined, 'storage', 'centerLink', RESOURCE_ENERGY, amount)
+    link.room.addCenterTask('centerLink', 'storage', 'centerLink', RESOURCE_ENERGY, amount)
 }
 
 function runSourceLink(link) {
