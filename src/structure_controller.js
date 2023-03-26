@@ -1,7 +1,7 @@
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
     collectRoomStats(this)
-    visualTaskText(this.room)
+    visualTaskDetails(this.room)
     onLevelChange(this)
     if (!(Game.time % 10)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
     if (!(Game.time % 10)) this.room.addWorkTask('upgrade')
@@ -13,7 +13,7 @@ function checkRoomMemory(room) {
     if (!room.memory.centerPos) room.memory.centerPos = {}
     if (!room.memory.sourceContainerList) room.memory.sourceContainerList = []
     if (!(Game.time % 1000)) room.memory.sourceContainerList = room.memory.sourceContainerList.filter(s => Game.getObjectById(s))
-    if (!room.memory.TaskCenterTransport) room.memory.TaskCenterTransport = []
+    if (!room.memory.TaskCenter) room.memory.TaskCenter = []
     if (!room.memory.TaskSpawn) room.memory.TaskSpawn = []
     if (!room.memory.TaskTransport) room.memory.TaskTransport = []
     if (!room.memory.TaskWork) room.memory.TaskWork = []
@@ -28,12 +28,16 @@ function collectRoomStats(controller) {
     Memory.stats.rooms[controller.room.name].energy = controller.room[RESOURCE_ENERGY] // wheel_structureCache.js
 }
 
-function visualTaskText(room) {
+function visualTaskDetails(room) {
     let visualTextY = 2
-    room.visual.text(room.printAllTasks('TaskCenterTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTasks('TaskSpawn'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTasks('TaskTransport'), 1, visualTextY++, { align: 'left' })
-    room.visual.text(room.printAllTasks('TaskWork'), 1, visualTextY++, { align: 'left' })
+    let text = 'TaskCenter : ' + room.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}: ${i.data.resourceType}*${i.data.amount}]`).join(' ')
+    room.visual.text(text, 1, visualTextY++, { align: 'left' })
+    text = 'TaskSpawn : ' + room.memory['TaskSpawn'].map(i => `[${i.data.role}: ${i.key}]`).join(' ')
+    room.visual.text(text, 1, visualTextY++, { align: 'left' })
+    text = 'TaskTransport : ' + room.memory['TaskTransport'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
+    room.visual.text(text, 1, visualTextY++, { align: 'left' })
+    text = 'TaskWork : ' + room.memory['TaskWork'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
+    room.visual.text(text, 1, visualTextY++, { align: 'left' })
 }
 
 function onLevelChange(controller) {

@@ -58,15 +58,36 @@ Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛�
     return false
 }
 
-Creep.prototype.getEnergy = function (energyPercent = 0.5) {
+// task func -------------------------------------------------------------------------------------
+
+Creep.prototype.receiveTask = function (taskType) {
+    const task = this.room.getExpectTask(taskType)
+    if (task) {
+        this.memory.taskKey = task.key
+        this.memory.taskBegin = Game.time
+        this.room.updateTaskUnit(taskType, this.memory.taskKey, 1)
+        return task
+    } else return undefined
+}
+
+Creep.prototype.revertTask = function (taskType) {
+    this.room.updateTaskUnit(taskType, this.memory.taskKey, -1)
+    delete this.memory.taskKey
+    delete this.memory.taskBegin
+    return true
+}
+
+// complex behavior ------------------------------------------------------------------------------
+
+Creep.prototype.getEnergy = function (ignoreLimit = false, energyPercent = 0.5) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
-        delete this.memory.energyStructureId
+        delete this.memory.energySourceId
         return true
     }
     if (!this.clearResources(RESOURCE_ENERGY)) return false
-    if (!this.memory.energyStructureId) this.memory.energyStructureId = this.room.getAvailableEnergyStructureId()
-    const structure = Game.getObjectById(this.memory.energyStructureId)
-    this.getFrom(structure)
+    if (!this.memory.energySourceId) this.memory.energySourceId = this.room.getEnergySourceId(ignoreLimit)
+    const source = Game.getObjectById(this.memory.energySourceId)
+    this.getFrom(source)
     return false
 }
 
@@ -115,13 +136,13 @@ Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amou
     if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
     else if (target instanceof Resource) result = this.pickup(target)
     else result = this.harvest(target)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 1 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(target)
     return result
 }
 
 Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
     const result = this.transfer(target, resourceType, amount)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(target, { range: 1 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(target)
     return result
 }
 
@@ -133,7 +154,7 @@ Creep.prototype.buildTo = function (constructionSite) {
 
 Creep.prototype.dismantleTo = function (structure) {
     const result = this.dismantle(structure)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure, { range: 1 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure)
     return result
 }
 
@@ -152,13 +173,13 @@ Creep.prototype.upgrade = function (controller) {
 Creep.prototype.claim = function (controller) {
     if (!controller) controller = this.room.controller
     const result = this.claimController(controller)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 1 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
 }
 
 Creep.prototype.reserve = function (controller) {
     if (!controller) controller = this.room.controller
     const result = this.reserveController(controller)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 1 })
+    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
 }
 
 // Creep Property -------------------------------------------------------------------------------

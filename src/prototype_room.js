@@ -13,11 +13,13 @@ Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERG
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
 }
 
-Room.prototype.getAvailableEnergyStructureId = function () {
-    if (this.storage && this.storage.energy > 10000) return this.storage.id
-    if (this.terminal && this.terminal.energy > 10000) return this.terminal.id
-    const container = this.memory.sourceContainerList.map(s => Game.getObjectById(s)).filter(s => s && s.energy > 1000).sort((a, b) => b.energy - a.energy)[0]
-    return container && container.id
+Room.prototype.getEnergySourceId = function (ignoreLimit) {
+    if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return this.storage.id
+    if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return this.terminal.id
+    const container = this.memory.sourceContainerList.map(s => Game.getObjectById(s)).filter(s => s && s.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.energy - a.energy)[0]
+    if (container) return container.id
+    const source = this.source.filter(s => s && s.energy > (ignoreLimit ? 0 : 500) && s.pos.availableNeighbors().length > 0).sort((a, b) => b.energy - a.energy)[0]
+    if (source) return source.id
 }
 
 Room.prototype.setCenterPos = function (centerPosX, centerPosY) {

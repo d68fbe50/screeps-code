@@ -1,4 +1,4 @@
-const TASK_TYPE = 'TaskCenterTransport'
+const TASK_TYPE = 'TaskCenter'
 
 const prepare = function (creep) {
     const { centerPosX, centerPosY } = creep.memory.config
@@ -13,7 +13,7 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
-    if (creep.room.memory.TaskCenterTransport.length === 0) return false
+    if (creep.room.memory.TaskCenter.length === 0) return false
     if (!creep.clearResources()) return false
 
     const task = creep.room.getFirstTask(TASK_TYPE)

@@ -1,7 +1,11 @@
 const TASK_TYPE = 'TaskTransport'
 
+const sourceContainerEnergy = {
+    //
+}
+
 const fillExtension = {
-    source: (creep) => creep.getEnergy(),
+    source: (creep) => creep.getEnergy(true),
     target: (creep) => {
         if (creep.room.energyAvailable === creep.room.energyCapacityAvailable) return creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
         if (creep.energy === 0) return true
@@ -15,7 +19,7 @@ const fillExtension = {
 }
 
 const fillTower = {
-    source: (creep) => creep.getEnergy(),
+    source: (creep) => creep.getEnergy(true),
     target: (creep) => {
         if (creep.energy === 0) return true
         let target = Game.getObjectById(creep.memory.needFillTowerId)

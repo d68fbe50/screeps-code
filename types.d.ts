@@ -10,9 +10,9 @@ interface Flag { run }
 
 interface Memory { allCreepNameList, stats }
 interface RoomMemory { centerLinkId, upgradeLinkId, rcl, centerPos, lockSpawnTime, remoteSourceLock, transporterList, workerList, constructionSiteId, needRepairWallId, sourceContainerList,
-    TaskCenterTransport, TaskSpawn, TaskTransport, TaskWork, TaskTest }
+    TaskCenter, TaskSpawn, TaskTransport, TaskWork, TaskTest }
 interface SpawnMemory { }
-interface CreepMemory { role, home, config, ready, working, needFillSpawnExtId, needFillTowerId, energyStructureId }
+interface CreepMemory { role, home, config, ready, working, needFillSpawnExtId, needFillTowerId, energySourceId, taskKey, taskBegin }
 interface PowerCreepMemory { }
 interface FlagMemory { checked }
 

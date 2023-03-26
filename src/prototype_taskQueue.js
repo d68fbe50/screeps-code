@@ -1,18 +1,14 @@
 const { SUBMIT_STRUCTURE_TYPES, ROLE_TYPES, TRANSPORT_TYPES, WORK_TYPES } = require('./config')
 
-Room.prototype.printAllTasks = function (taskType) {
-    return taskType + ' : ' + this.memory[taskType].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
-}
-
 Room.prototype.addCenterTask = function (key, priority, source, target, resourceType, amount) {
     if (!(key in SUBMIT_STRUCTURE_TYPES)) return false
     if (priority === undefined) priority = SUBMIT_STRUCTURE_TYPES[key]
     const data = { source, target, resourceType, amount }
-    return this.addTask('TaskCenterTransport', key, data, priority)
+    return this.addTask('TaskCenter', key, data, priority)
 }
 
 Room.prototype.handleCenterTask = function (key, amount) {
-    const taskType = 'TaskCenterTransport'
+    const taskType = 'TaskCenter'
     const data = this.getTask(taskType, key).data
     data.amount -= amount
     if (data.amount <= 0) return this.removeTask(taskType, key)

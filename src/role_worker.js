@@ -19,15 +19,13 @@ const source = function (creep) {
 
     let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) {
-        task = creep.room.getExpectTask(TASK_TYPE)
-        if (task) {
-            creep.memory.taskKey = task.key
-            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, 1)
-        } else {
-            creep.room.updateTaskUnit(TASK_TYPE, creep.memory.taskKey, -1)
-            delete creep.memory.taskKey
-            return false
-        }
+        task = creep.receiveTask(TASK_TYPE)
+        if (!task) return false
+    }
+
+    if (!creep.memory.taskBegin || Game.time - creep.memory.taskBegin > 100) {
+        creep.revertTask(TASK_TYPE)
+        return false
     }
 
     const action = taskActions[task.key]
