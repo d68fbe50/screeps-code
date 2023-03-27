@@ -15,6 +15,7 @@ const prepare = function (creep) {
 
 const source = function (creep) {
     if (creep.ticksToLive < 30) {
+        if (!creep.clearResources()) return false
         creep.room.memory.spawnLock = Game.time + 2
         return creep.suicide()
     }
@@ -22,6 +23,7 @@ const source = function (creep) {
 
     let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) {
+        delete creep.memory.taskKey
         task = creep.receiveTask(TASK_TYPE)
         if (!task) return false
     }
@@ -43,7 +45,10 @@ const target = function (creep) {
     if (creep.ticksToLive < 30 && !creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
 
     const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
-    if (!task) return true
+    if (!task) {
+        delete creep.memory.taskKey
+        return true
+    }
 
     const action = taskActions[task.key]
     if (!action || !action.target) {

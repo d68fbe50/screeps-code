@@ -14,10 +14,15 @@ Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERG
 Room.prototype.getEnergySourceId = function (ignoreLimit, includeSource) {
     if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return this.storage.id
     if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return this.terminal.id
-    const container = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.energy - a.energy)[0]
+    const container = this.memory.sourceContainerIds
+        .map(i => Game.getObjectById(i))
+        .filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
+        .sort((a, b) => b.energy - a.energy)[0]
     if (container) return container.id
     if (!includeSource) return undefined
-    const source = this.source.filter(i => i && i.energy > (ignoreLimit ? 0 : 500)).sort((a, b) => b.pos.availableNeighbors().length - a.pos.availableNeighbors().length)[0]
+    const source = this.source
+        .filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
+        .sort((a, b) => b.pos.availableNeighbors().length - a.pos.availableNeighbors().length)[0]
     if (source) return source.id
 }
 
@@ -64,7 +69,6 @@ Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
         log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
         return
     }
-    // TODO
     this.controller.unclaim()
     log(`room: ${this.name} 已移除！`, 'error')
     log(`room: ${this.name} 已移除！`, 'error')

@@ -22,6 +22,7 @@ function checkRoomMemory(room) {
     if (!room.memory.TaskSpawn) room.memory.TaskSpawn = []
     if (!room.memory.TaskTransport) room.memory.TaskTransport = []
     if (!room.memory.TaskWork) room.memory.TaskWork = []
+    if (!room.memory.remoteLocks) room.memory.remoteLocks = {}
     if (!room.memory.transporters) room.memory.transporters = []
     if (!room.memory.workers) room.memory.workers = []
 }
@@ -33,7 +34,7 @@ function onLevelChange(controller) {
     controller.room.updateLayout()
     if (level === 1) {
         controller.room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
-        controller.room.addWorkTask('upgrade', 0, 3)
+        controller.room.addWorkTask('upgrade', 0, 5)
         addWorkerDelay(controller.room.name, 5)
     } else if (level === 2) {
         //

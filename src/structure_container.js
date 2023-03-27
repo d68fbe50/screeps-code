@@ -17,7 +17,7 @@ StructureContainer.prototype.onBuildComplete = function () {
 }
 
 function runSourceContainer(container) {
-    if (container.energy > 1000 || container.room.storage || container.room.terminal) container.room.addTransportTask('sourceContainerOut')
+    if (container.energy > 1000 && (container.room.storage || container.room.terminal)) container.room.addTransportTask('sourceContainerOut')
 }
 
 function runUpgradeContainer(container) {

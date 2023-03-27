@@ -14,11 +14,15 @@ const prepare = function (creep) {
 }
 
 const source = function (creep) {
-    if (creep.ticksToLive < 30) return creep.suicide()
+    if (creep.ticksToLive < 30) {
+        if (!creep.clearResources()) return false
+        return creep.suicide()
+    }
     if (creep.room.memory[TASK_TYPE].length === 0) return false
 
     let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
     if (!task) {
+        delete creep.memory.taskKey
         task = creep.receiveTask(TASK_TYPE)
         if (!task) return false
     }
@@ -38,7 +42,10 @@ const source = function (creep) {
 
 const target = function (creep) {
     const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
-    if (!task) return true
+    if (!task) {
+        delete creep.memory.taskKey
+        return true
+    }
 
     const action = taskActions[task.key]
     if (!action || !action.target) {

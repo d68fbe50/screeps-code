@@ -40,7 +40,7 @@ const upgrade = {
             return true
         }
         const result = creep.upgrade()
-        if (result) creep.memory.dontPullMe = true
+        if (result === OK) creep.memory.dontPullMe = true
     }
 }
 

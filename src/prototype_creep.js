@@ -39,6 +39,8 @@ Creep.prototype.run = function () {
     const roleRequire = roleRequires[this.memory.role]
     if (!roleRequire) return this.log('no role!', 'error')
 
+    if (!this.memory.config) this.memory.config = {}
+
     if (!this.memory.ready) {
         if (roleRequire.prepare) this.memory.ready = roleRequire.prepare(this)
         else this.memory.ready = true
@@ -124,7 +126,9 @@ Creep.prototype.buildStructure = function () {
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % wallFocusTime) || !needRepairWallId) {
-        const minHitsWall = [...this.room.wall, ...this.room.rampart].filter(i => i.hits < wallHitsMax).sort((a, b) => a.hits - b.hits)[0]
+        const minHitsWall = [...this.room.wall, ...this.room.rampart]
+            .filter(i => i.hits < wallHitsMax)
+            .sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
             delete this.room.memory.needRepairWallId
@@ -179,18 +183,21 @@ Creep.prototype.upgrade = function (controller) {
     if (!controller) controller = this.room.controller
     const result = this.upgradeController(controller)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 3 })
+    return result
 }
 
 Creep.prototype.claim = function (controller) {
     if (!controller) controller = this.room.controller
     const result = this.claimController(controller)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
+    return result
 }
 
 Creep.prototype.reserve = function (controller) {
     if (!controller) controller = this.room.controller
     const result = this.reserveController(controller)
     if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
+    return result
 }
 
 // Creep Property -------------------------------------------------------------------------------

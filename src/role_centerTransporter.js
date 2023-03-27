@@ -7,6 +7,7 @@ const prepare = function (creep) {
             creep.moveTo(centerPosX, centerPosY)
             return false
         }
+        creep.memory.dontPullMe = true
     }
     return true
 }

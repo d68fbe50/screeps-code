@@ -52,7 +52,7 @@ Room.prototype.handleCenterTask = function (key, amount) {
 Room.prototype.addSpawnTask = function (key, creepMemory) {
     if (key in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
     const result = this.addTask('TaskSpawn', key, creepMemory, ROLE_TYPES[creepMemory.role])
-    if (result) Memory.allCreeps.push(key)
+    if (result && !Memory.allCreeps.includes(key)) Memory.allCreeps.push(key)
     return result
 }
 

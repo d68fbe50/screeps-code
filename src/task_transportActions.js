@@ -19,6 +19,7 @@ const fillExtension = {
     target: (creep) => {
         if (creep.room.energyAvailable === creep.room.energyCapacityAvailable) {
             creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+            delete creep.memory.needFillSpawnExtId
             return true
         }
         if (creep.isEmpty) return true
@@ -40,6 +41,7 @@ const fillTower = {
             target = creep.pos.findClosestByRange(creep.room.tower, { filter: i => i.energy < 800 })
             if (!target) {
                 creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+                delete creep.memory.needFillTowerId
                 return true
             }
             creep.memory.needFillTowerId = target.id
@@ -65,7 +67,10 @@ const powerSpawnPower = {}
 const sourceContainerOut = {
     source: (creep) => {
         if (creep.isFull) return true
-        const container = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i).sort((a, b) => b.energy - a.energy)[0]
+        const container = creep.room.memory.sourceContainerIds
+            .map(i => Game.getObjectById(i))
+            .filter(i => !!i)
+            .sort((a, b) => b.energy - a.energy)[0]
         if (!container) {
             creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
             return false

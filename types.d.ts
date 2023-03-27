@@ -9,7 +9,7 @@ interface Flag { run }
 interface Memory { allCreeps, delayTasks, stats }
 interface RoomMemory {
     rcl, centerPos,
-    spawnLock, remoteLock,
+    spawnLock, remoteLocks,
     TaskCenter, TaskSpawn, TaskTransport, TaskWork, TaskTest,
     transporters, workers,
     constructionSiteId, constructionSiteType, constructionSitePos,
