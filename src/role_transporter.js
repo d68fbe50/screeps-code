@@ -13,49 +13,53 @@ const prepare = function (creep) {
     return true
 }
 
-const source = function (creep) {
-    if (creep.ticksToLive < 30) {
-        if (!creep.clearResources()) return false
-        creep.room.memory.spawnLock = Game.time + 2
-        return creep.suicide()
-    }
-    if (creep.room.memory[TASK_TYPE].length === 0) return false
-
-    let task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
-    if (!task) {
-        delete creep.memory.taskKey
-        task = creep.receiveTask(TASK_TYPE)
-        if (!task) return false
-    }
-
-    if (!creep.memory.taskBegin || Game.time - creep.memory.taskBegin > 100) {
-        creep.revertTask(TASK_TYPE)
+const deathPrepare = function (creep) {
+    if (creep.ticksToLive > 30) return false
+    if (creep.memory.working) {
+        if (!creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
         return false
     }
+    if (!creep.clearResources()) return true
+    creep.room.memory.spawnLock = Game.time + 2
+    creep.suicide()
+    return true
+}
 
+const source = function (creep) {
+    if (creep.room.memory[TASK_TYPE].length === 0) {
+        creep.memory.task = {}
+        return false
+    }
+    if (!creep.memory.task.key) {
+        if (!creep.receiveTask(TASK_TYPE)) return false
+    }
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
+    if (!task) {
+        creep.memory.task = {}
+        return false
+    }
     const action = taskActions[task.key]
     if (!action || !action.source) {
-        creep.log(`任务逻辑不存在：${task.key}`, 'error')
+        creep.log(`${TASK_TYPE}:source 任务逻辑不存在：${task.key}`, 'error')
         return false
     }
     return action.source(creep)
 }
 
 const target = function (creep) {
-    if (creep.ticksToLive < 30 && !creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
-
-    const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
     if (!task) {
-        delete creep.memory.taskKey
+        creep.memory.task = {}
         return true
     }
-
     const action = taskActions[task.key]
     if (!action || !action.target) {
-        creep.log(`任务逻辑不存在：${task.key}`, 'error')
+        creep.log(`${TASK_TYPE}:target 任务逻辑不存在：${task.key}`, 'error')
         return true
     }
-    return action.target(creep)
+    const result = action.target(creep)
+    if (result) creep.revertTask(TASK_TYPE)
+    return result
 }
 
 const bodys = [
@@ -69,4 +73,4 @@ const bodys = [
     { carry: 32, move: 16 }
 ]
 
-module.exports = { isNeed, prepare, source, target, bodys }
+module.exports = { isNeed, prepare, deathPrepare, source, target, bodys }

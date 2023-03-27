@@ -1,7 +1,7 @@
 const wallFocusTime = 100
 const wallHitsMax = 100000
 
-const roleRequires = { // 注意与 prototype_taskQueue.js 的 ROLE_TYPES 保持一致
+const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes 保持一致
     centerTransporter: require('./role_centerTransporter'),
     claimer: require('./role_claimer'),
     defender: require('./role_defender'),
@@ -40,12 +40,15 @@ Creep.prototype.run = function () {
     if (!roleRequire) return this.log('no role!', 'error')
 
     if (!this.memory.config) this.memory.config = {}
+    if (!this.memory.task) this.memory.task = {}
 
     if (!this.memory.ready) {
         if (roleRequire.prepare) this.memory.ready = roleRequire.prepare(this)
         else this.memory.ready = true
     }
     if (!this.memory.ready) return
+
+    if (roleRequire.deathPrepare && roleRequire.deathPrepare(this)) return
 
     const working = roleRequire.source ? this.memory.working : true
     if (working) roleRequire.target && roleRequire.target(this) && (this.memory.working = !this.memory.working)
@@ -63,20 +66,18 @@ Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛�
 
 // task func -------------------------------------------------------------------------------------
 
-Creep.prototype.receiveTask = function (taskType) {
-    const task = this.room.getExpectTask(taskType)
+Creep.prototype.receiveTask = function (type) {
+    const task = this.room.getExpectTask(type)
     if (task) {
-        this.memory.taskKey = task.key
-        this.memory.taskBegin = Game.time
-        this.room.updateTaskUnit(taskType, this.memory.taskKey, 1)
-        return task
-    } else return undefined
+        this.memory.task = { key: task.key }
+        this.room.updateTaskUnit(type, task.key, 1)
+    }
+    return task
 }
 
-Creep.prototype.revertTask = function (taskType) {
-    this.room.updateTaskUnit(taskType, this.memory.taskKey, -1)
-    delete this.memory.taskKey
-    delete this.memory.taskBegin
+Creep.prototype.revertTask = function (type) {
+    this.room.updateTaskUnit(type, this.memory.task.key, -1)
+    this.memory.task = {}
     return true
 }
 

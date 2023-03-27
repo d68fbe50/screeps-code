@@ -1,7 +1,11 @@
-const { TRANSPORT_TYPES } = require('./task_transportActions')
-const { WORK_TYPES } = require('./task_workActions')
+const centerTaskTypes = {
+    centerLink: 9,
+    factory: 3,
+    storage: 5,
+    terminal: 7
+}
 
-const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
+const spawnTaskTypes = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
     centerTransporter: 7, // priority
     claimer: 0,
     defender: 6,
@@ -28,17 +32,32 @@ const ROLE_TYPES = { // 注意与 prototype_creep.js 的 roleRequires 保持一�
     worker: 0
 }
 
-const SUBMIT_STRUCTURE_TYPES = {
-    centerLink: 9,
-    factory: 3,
-    storage: 5,
-    terminal: 7
+const transportTaskTypes = {
+    fillExtension: 9,
+    fillTower: 7,
+    labEnergy: 5,
+    labIn: 5,
+    labOut: 5,
+    nukerEnergy: 0,
+    nukerG: 0,
+    powerSpawnEnergy: 1,
+    powerSpawnPower: 1,
+    sourceContainerOut: 0,
+    upgradeContainerIn: 0
 }
 
+const workTaskTypes = {
+    build: 9,
+    repair: 6,
+    upgrade: 3
+}
+
+// task prototype --------------------------------------------------------------------------------
+
 Room.prototype.addCenterTask = function (key, source, target, resourceType, amount) {
-    if (!(key in SUBMIT_STRUCTURE_TYPES)) return false
+    if (!(key in centerTaskTypes)) return false
     const data = { source, target, resourceType, amount }
-    return this.addTask('TaskCenter', key, data, SUBMIT_STRUCTURE_TYPES[key])
+    return this.addTask('TaskCenter', key, data, centerTaskTypes[key])
 }
 
 Room.prototype.handleCenterTask = function (key, amount) {
@@ -50,20 +69,20 @@ Room.prototype.handleCenterTask = function (key, amount) {
 }
 
 Room.prototype.addSpawnTask = function (key, creepMemory) {
-    if (key in Game.creeps || !creepMemory || !(creepMemory.role in ROLE_TYPES)) return false
-    const result = this.addTask('TaskSpawn', key, creepMemory, ROLE_TYPES[creepMemory.role])
+    if (key in Game.creeps || !creepMemory || !(creepMemory.role in spawnTaskTypes)) return false
+    const result = this.addTask('TaskSpawn', key, creepMemory, spawnTaskTypes[creepMemory.role])
     if (result && !Memory.allCreeps.includes(key)) Memory.allCreeps.push(key)
     return result
 }
 
 Room.prototype.addTransportTask = function (key) {
-    if (!(key in TRANSPORT_TYPES)) return false
-    return this.addTask('TaskTransport', key, undefined, TRANSPORT_TYPES[key])
+    if (!(key in transportTaskTypes)) return false
+    return this.addTask('TaskTransport', key, undefined, transportTaskTypes[key])
 }
 
 Room.prototype.addWorkTask = function (key, minUnits, maxUnits) {
-    if (!(key in WORK_TYPES)) return false
-    return this.addTask('TaskWork', key, undefined, WORK_TYPES[key], undefined, minUnits, 0, maxUnits)
+    if (!(key in workTaskTypes)) return false
+    return this.addTask('TaskWork', key, undefined, workTaskTypes[key], undefined, minUnits, 0, maxUnits)
 }
 
 // TaskBase --------------------------------------------------------------------------------------
@@ -78,12 +97,12 @@ Room.prototype.getTaskIndex = function (type, key) {
     return this.memory[type].findIndex(i => i.key === key)
 }
 
-Room.prototype.getFirstTask = function (type) {
+Room.prototype.getFirstTask = function (type) { // 用于 centerTask & spawnTask
     if (!type) return undefined
     return this.memory[type].find(i => !i.lockTime || Game.time > i.lockTime)
 }
 
-Room.prototype.getExpectTask = function (type) {
+Room.prototype.getExpectTask = function (type) { // 用于 transportTask & workTask
     if (!type) return undefined
     let task = this.memory[type].find(i => i.nowUnits < i.minUnits)
     if (!task) task = this.memory[type].find(i => i.nowUnits < i.maxUnits)
@@ -123,22 +142,6 @@ Room.prototype.updateTaskPriority = function (type, key, priority) {
     return this.addTask(type, key, _.cloneDeep(t.data), priority, t.lockTime, t.minUnits, t.nowUnits, t.maxUnits)
 }
 
-Room.prototype.lockTask = function (type, key, tick) {
-    if (!type || !key || tick === undefined) return false
-    const index = this.getTaskIndex(type, key)
-    if (index === -1) return false
-    this.memory[type][index].lockTime = Game.time + tick
-    return key
-}
-
-Room.prototype.unlockTask = function (type, key) {
-    if (!type || !key) return false
-    const index = this.getTaskIndex(type, key)
-    if (index === -1) return false
-    this.memory[type][index].lockTime = 0
-    return key
-}
-
 Room.prototype.updateTaskUnit = function (type, key, amount) {
     if (!type || !key || !amount) return false
     const index = this.getTaskIndex(type, key)
@@ -147,17 +150,24 @@ Room.prototype.updateTaskUnit = function (type, key, amount) {
     return key
 }
 
+Room.prototype.lockTask = function (type, key, tick) {
+    if (!type || !key || tick === undefined) return false
+    const index = this.getTaskIndex(type, key)
+    if (index === -1) return false
+    this.memory[type][index].lockTime = Game.time + tick
+    return key
+}
+
 Room.prototype.testTaskQueue = function () {
     this.memory.TaskTest = []
     this.addTask('TaskTest', 'test1', { data1: 'oldValue1' }, 1)
-    this.addTask('TaskTest', 'test2', undefined, 2, 20)
+    this.addTask('TaskTest', 'test2', undefined, 2)
     this.addTask('TaskTest', 'test3', undefined, 3)
     this.removeTask('TaskTest', 'test3')
     this.updateTask('TaskTest', 'test1', { data: { data1: 'value1' }, maxUnits: 2 })
     this.updateTaskPriority('TaskTest', 'test1', 3)
-    this.lockTask('TaskTest', 'test1', 50)
-    this.unlockTask('TaskTest', 'test2')
     this.updateTaskUnit('TaskTest', 'test1', 1)
+    this.lockTask('TaskTest', 'test1', 50)
     const index = this.getTaskIndex('TaskTest', 'test1')
     const t = this.memory.TaskTest[index]
     const result = this.getFirstTask('TaskTest').key === 'test2' && t.key === 'test1' && t.lockTime > 0 && t.data && t.data.data1 === 'value1' && t.nowUnits === 1 && t.maxUnits === 2

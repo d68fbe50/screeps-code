@@ -33,7 +33,9 @@ function onLevelChange(controller) {
     controller.room.memory.rcl = level
     controller.room.updateLayout()
     if (level === 1) {
-        controller.room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
+        const sources = controller.room.source
+        sources[0] && sources[0].pos.lookFor(LOOK_FLAGS).length === 0 && sources[0].pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW)
+        sources[1] && sources[1].pos.lookFor(LOOK_FLAGS).length === 0 && sources[1].pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW)
         controller.room.addWorkTask('upgrade', 0, 5)
         addWorkerDelay(controller.room.name, 5)
     } else if (level === 2) {

@@ -18,10 +18,8 @@ interface RoomMemory {
     needRepairWallId
 }
 interface CreepMemory {
-    role, home, config,
+    role, home, config, task,
     ready, working, dontPullMe,
-    taskKey, taskBegin,
-    needFillSpawnExtId, needFillTowerId,
     energySourceId
 }
 interface PowerCreepMemory {}

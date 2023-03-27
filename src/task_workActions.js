@@ -1,11 +1,5 @@
 const TASK_TYPE = 'TaskWork'
 
-const WORK_TYPES = {
-    build: 9,
-    repair: 6,
-    upgrade: 3
-}
-
 const build = {
     source: (creep) => creep.getEnergy(),
     target: (creep) => {
@@ -15,7 +9,7 @@ const build = {
         }
         const result = creep.buildStructure()
         if (result) creep.memory.dontPullMe = true
-        else creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+        else creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
     }
 }
 
@@ -28,7 +22,7 @@ const repair = {
         }
         const result = creep.repairWall()
         if (result) creep.memory.dontPullMe = true
-        else creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+        else creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
     }
 }
 
@@ -44,4 +38,4 @@ const upgrade = {
     }
 }
 
-module.exports = { WORK_TYPES, build, repair, upgrade }
+module.exports = { build, repair, upgrade }

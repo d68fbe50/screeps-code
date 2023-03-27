@@ -23,7 +23,7 @@ StructureSpawn.prototype.run = function () {
         return
     }
 
-    const bodys = calcBodyPart(roleRequire.bodys, importantRoles.includes(role) ? this.room.energyAvailable : this.room.energyCapacityAvailable)
+    const bodys = calcBodyPart(roleRequire.bodys, role === 'starter' ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
     if (result === OK || result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)

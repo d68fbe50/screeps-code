@@ -1,32 +1,18 @@
 const TASK_TYPE = 'TaskTransport'
 
-const TRANSPORT_TYPES = {
-    fillExtension: 9,
-    fillTower: 7,
-    labEnergy: 5,
-    labIn: 5,
-    labOut: 5,
-    nukerEnergy: 0,
-    nukerG: 0,
-    powerSpawnEnergy: 1,
-    powerSpawnPower: 1,
-    sourceContainerOut: 0,
-    upgradeContainerIn: 0
-}
-
 const fillExtension = {
     source: (creep) => creep.getEnergy(true, false, 0.5),
     target: (creep) => {
         if (creep.room.energyAvailable === creep.room.energyCapacityAvailable) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
-            delete creep.memory.needFillSpawnExtId
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+            delete creep.memory.task.needFillSpawnExtId
             return true
         }
         if (creep.isEmpty) return true
-        let target = Game.getObjectById(creep.memory.needFillSpawnExtId)
+        let target = Game.getObjectById(creep.memory.task.needFillSpawnExtId)
         if (!target || target.isFull) {
             target = creep.pos.findClosestByRange([...creep.room.spawn, ...creep.room.extension], { filter: i => !i.isFull })
-            creep.memory.needFillSpawnExtId = target.id // target 一定存在
+            creep.memory.task.needFillSpawnExtId = target.id // target 一定存在
         }
         creep.putTo(target)
     }
@@ -36,15 +22,15 @@ const fillTower = {
     source: (creep) => creep.getEnergy(true, false, 0.5),
     target: (creep) => {
         if (creep.isEmpty) return true
-        let target = Game.getObjectById(creep.memory.needFillTowerId)
+        let target = Game.getObjectById(creep.memory.task.needFillTowerId)
         if (!target || target.isFull) {
             target = creep.pos.findClosestByRange(creep.room.tower, { filter: i => i.energy < 800 })
             if (!target) {
-                creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
-                delete creep.memory.needFillTowerId
+                creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+                delete creep.memory.task.needFillTowerId
                 return true
             }
-            creep.memory.needFillTowerId = target.id
+            creep.memory.task.needFillTowerId = target.id
         }
         creep.putTo(target)
     }
@@ -72,7 +58,7 @@ const sourceContainerOut = {
             .filter(i => !!i)
             .sort((a, b) => b.energy - a.energy)[0]
         if (!container) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
             return false
         }
         creep.getFrom(container)
@@ -81,7 +67,7 @@ const sourceContainerOut = {
         if (creep.isEmpty) return true
         const result = creep.putTo(creep.room.storage || creep.room.terminal)
         if (result === OK) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
             return true
         }
     }
@@ -93,15 +79,15 @@ const upgradeContainerIn = {
         if (creep.isEmpty) return true
         const container = Game.getObjectById(creep.room.memory.upgradeContainerId)
         if (!container) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
             return true
         }
         const result = creep.putTo(container)
         if (result === OK) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.taskKey)
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
             return true
         }
     }
 }
 
-module.exports = { TRANSPORT_TYPES, fillExtension, fillTower, labEnergy, labIn, labOut, nukerEnergy, nukerG, powerSpawnEnergy, powerSpawnPower, sourceContainerOut, upgradeContainerIn }
+module.exports = { fillExtension, fillTower, labEnergy, labIn, labOut, nukerEnergy, nukerG, powerSpawnEnergy, powerSpawnPower, sourceContainerOut, upgradeContainerIn }
