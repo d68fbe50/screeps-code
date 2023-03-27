@@ -12,16 +12,25 @@ StructureLink.prototype.onBuildComplete = function () {
     })
     if (structuresInRange[0]) {
         this.room.addCenterTransporter(this.room.memory.centerPos.x, this.room.memory.centerPos.y)
-        return this.room.memory.centerLinkId = this.id
+        this.room.memory.centerLinkId = this.id
+        this.log('已注册为 centerLink', 'success')
+        return
     }
 
     const sourcesInRange = this.pos.findInRange(FIND_SOURCES, 2)
-    if (sourcesInRange[0]) return
+    if (sourcesInRange[0]) {
+        this.log('已注册为 sourceLink', 'success')
+        return
+    }
 
     const controllersInRange = this.pos.findInRange(FIND_STRUCTURES, 4, {
         filter: i => i.structureType === STRUCTURE_CONTROLLER
     })
-    if (controllersInRange[0]) return this.room.memory.upgradeLinkId = this.id
+    if (controllersInRange[0]) {
+        this.room.memory.upgradeLinkId = this.id
+        this.room.setCreepAmount('worker', 1)
+        this.log('已注册为 upgradeLink', 'success')
+    }
 }
 
 function supportUpgradeLink(link) {

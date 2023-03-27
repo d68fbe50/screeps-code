@@ -25,6 +25,51 @@ const roleShortNames = {
     worker: 'w'
 }
 
+// transporter & worker --------------------------------------------------------------------------
+
+Room.prototype.addCreep = function (role, amount = 1) {
+    if (role !== 'transporter' && role !== 'worker') return
+    for (let i = 0; i < amount; i++) {
+        const dontNeedName = Object.keys(Memory.creeps).find(i => Memory.creeps[i].role === role && Memory.creeps[i].dontNeed)
+        if (dontNeedName) {
+            Memory.creeps[dontNeedName].dontNeed = undefined
+            this.log(`creep: ${dontNeedName} 已取消 dontNeed 标记`, 'success')
+            continue
+        }
+        const creepName = getAvailableCreepName(roleShortNames[role])
+        this.addSpawnTask(creepName, { role, home: this.name })
+        this.log(`${role}: ${creepName} 发布成功！`, 'success')
+    }
+}
+
+Room.prototype.removeCreep = function (role, amount = 1) {
+    if (role !== 'transporter' && role !== 'worker') return
+    for (let i = 0; i < amount; i++) {
+        const result = this.removeSpawnTaskByRole(role)
+        if (result) continue
+        const creepName = Object.keys(Memory.creeps).find(i => Memory.creeps[i].role === role && !Memory.creeps[i].dontNeed)
+        if (!creepName) return this.log(`${role}: 别删了，一滴也没有了！`, 'warning')
+        Memory.creeps[creepName].dontNeed = true
+        this.log(`creep: ${creepName} 已被标记为 dontNeed`, 'notify')
+    }
+}
+
+Room.prototype.getCreepAmount = function (role) {
+    if (role !== 'transporter' && role !== 'worker') return
+    let amount = _.filter(Memory.creeps, i => i.role === role).length
+    amount += _.filter(this.memory.TaskSpawn, i => i.data && i.data.role === role).length
+    return amount
+}
+
+Room.prototype.setCreepAmount = function (role, amount) {
+    if ((role !== 'transporter' && role !== 'worker') || amount === undefined) return
+    const changeAmount = amount - this.getCreepAmount(role)
+    if (changeAmount > 0) this.addCreep(role, changeAmount)
+    else if (changeAmount < 0) this.removeCreep(role, changeAmount * -1)
+}
+
+// Other Role ------------------------------------------------------------------------------------
+
 Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
     if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇。', 'error')
     const role = 'centerTransporter'
@@ -81,26 +126,8 @@ Room.prototype.addReserver = function (flagName) {
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
-Room.prototype.addTransporter = function (amount = 1) {
-    const role = 'transporter'
-    for (let i = 1; i <= amount; i++) {
-        const creepName = getAvailableCreepName(roleShortNames[role])
-        this.addSpawnTask(creepName, { role, home: this.name })
-        this.log(`${role}: ${creepName} 发布成功！`, 'success')
-    }
-}
-
 Room.prototype.addUpgrader = function () {
     //
-}
-
-Room.prototype.addWorker = function (amount = 1) {
-    const role = 'worker'
-    for (let i = 1; i <= amount; i++) {
-        const creepName = getAvailableCreepName(roleShortNames[role])
-        this.addSpawnTask(creepName, {role, home: this.name})
-        this.log(`${role}: ${creepName} 发布成功！`, 'success')
-    }
 }
 
 function getAvailableCreepName(prefix = 'creep') {

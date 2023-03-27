@@ -2,7 +2,7 @@ require('./mount')
 const { roleRequires } = require('./prototype_creep')
 const { manageDelayTask } = require('./utils_delayQueue')
 
-console.log('[全局重置]')
+!('sim' in Game.rooms) && console.log('[全局重置]')
 
 module.exports.loop = function () {
     checkMemory()

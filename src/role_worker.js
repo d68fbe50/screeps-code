@@ -1,20 +1,13 @@
 const TASK_TYPE = 'TaskWork'
 const taskActions = require("./task_workActions");
 
-const isNeed = function (creepMemory, creepName) {
-    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.taskKey, -1)
-    if (!creepMemory.dontNeed) return true
-    Memory.rooms[creepMemory.home].workers = _.pull(Memory.rooms[creepMemory.home].workers, creepName)
-    return false
-}
-
-const prepare = function (creep) {
-    if (!Memory.rooms[creep.room.name].workers.includes(creep.name)) Memory.rooms[creep.room.name].workers.push(creep.name)
-    return true
+const isNeed = function (creepMemory) {
+    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.task && creepMemory.task.key, -1)
+    return !creepMemory.dontNeed;
 }
 
 const deathPrepare = function (creep) {
-    if (creep.ticksToLive > 30 || creep.memory.working) return false
+    if (!creep.ticksToLive || creep.ticksToLive > 30 || creep.memory.working) return false
     if (!creep.clearResources()) return true
     creep.suicide()
     return true
@@ -68,4 +61,4 @@ const bodys = [
     { work: 16, carry: 16, move: 16 }
 ]
 
-module.exports = { isNeed, prepare, deathPrepare, source, target, bodys }
+module.exports = { isNeed, deathPrepare, source, target, bodys }

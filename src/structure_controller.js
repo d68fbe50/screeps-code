@@ -1,5 +1,3 @@
-const { addDelayTask, addDelayCallback } = require('./utils_delayQueue')
-
 const buildCheckInterval = 10
 const wallCheckInterval = 10
 const wallRepairHitsMax = 10000
@@ -9,7 +7,7 @@ StructureController.prototype.run = function () {
     this.room.container.forEach(i => i.run && i.run())
     if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build', 1, 3)
     if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair', 1, 3)
-    onLevelChange(this)
+    onLevelChange(this.room, this.level)
     visualTaskDetails(this.room)
     collectRoomStats(this)
 }
@@ -23,40 +21,25 @@ function checkRoomMemory(room) {
     if (!room.memory.TaskTransport) room.memory.TaskTransport = []
     if (!room.memory.TaskWork) room.memory.TaskWork = []
     if (!room.memory.remoteLocks) room.memory.remoteLocks = {}
-    if (!room.memory.transporters) room.memory.transporters = []
-    if (!room.memory.workers) room.memory.workers = []
 }
 
-function onLevelChange(controller) {
-    const level = controller.level
-    if (controller.room.memory.rcl === level) return
-    controller.room.memory.rcl = level
-    controller.room.updateLayout()
+function onLevelChange(room, level) {
+    if (room.memory.rcl === level) return
+    room.memory.rcl = level
+    room.updateLayout()
     if (level === 1) {
-        const sources = controller.room.source
-        sources[0] && sources[0].pos.lookFor(LOOK_FLAGS).length === 0 && sources[0].pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW)
-        sources[1] && sources[1].pos.lookFor(LOOK_FLAGS).length === 0 && sources[1].pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW)
-        controller.room.addWorkTask('upgrade', 0, 5)
-        addWorkerDelay(controller.room.name, 5)
-    } else if (level === 2) {
-        //
-    } else if (level === 3) {
-        //
-    } else if (level === 4) {
-        //
-    } else if (level === 5) {
-        //
-    } else if (level === 6) {
-        //
-    } else if (level === 7) {
-        //
+        room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
+        room.addWorkTask('upgrade', 0, 5)
+        // 等下一 tick 旗子发布 harvester 再执行
+        // 太妙了，我真是个小天才（误
+        room.memory.TaskSpawn.length > 0 ? room.setCreepAmount('worker', 5) : delete room.memory.rcl
     } else if (level === 8) {
-        controller.room.removeTask('TaskWork', 'upgrade')
+        room.removeTask('TaskWork', 'upgrade')
     }
 }
 
 function visualTaskDetails(room) {
-    let visualTextY = 25
+    let visualTextY = 2
     let text = 'TaskCenter : ' + room.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}: ${i.data.resourceType}*${i.data.amount}]`).join(' ')
     room.visual.text(text, 1, visualTextY++, { align: 'left' })
     text = 'TaskSpawn : ' + room.memory['TaskSpawn'].map(i => `[${i.data.role}: ${i.key}]`).join(' ')
@@ -73,11 +56,3 @@ function collectRoomStats(controller) {
     Memory.stats.rooms[controller.room.name].rclPercent = (controller.progress / (controller.progressTotal || 1)) * 100
     Memory.stats.rooms[controller.room.name].energy = controller.room[RESOURCE_ENERGY]
 }
-
-function addWorkerDelay(roomName, amount) {
-    addDelayTask("addWorkerInLevel1", { roomName, amount }, Game.time + 1)
-}
-
-addDelayCallback("addWorkerInLevel1", (room, data) => {
-    if (room) room.addWorker(data.amount)
-})

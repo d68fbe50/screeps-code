@@ -1,20 +1,13 @@
 const TASK_TYPE = 'TaskTransport'
 const taskActions = require('./task_transportActions')
 
-const isNeed = function (creepMemory, creepName) {
-    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.taskKey, -1)
-    if (!creepMemory.dontNeed) return true
-    Memory.rooms[creepMemory.home].transporters = _.pull(Memory.rooms[creepMemory.home].transporters, creepName)
-    return false
-}
-
-const prepare = function (creep) {
-    if (!Memory.rooms[creep.room.name].transporters.includes(creep.name)) Memory.rooms[creep.room.name].transporters.push(creep.name)
-    return true
+const isNeed = function (creepMemory) {
+    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.task && creepMemory.task.key, -1)
+    return !creepMemory.dontNeed;
 }
 
 const deathPrepare = function (creep) {
-    if (creep.ticksToLive > 30) return false
+    if (!creep.ticksToLive || creep.ticksToLive > 30) return false
     if (creep.memory.working) {
         if (!creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
         return false
@@ -73,4 +66,4 @@ const bodys = [
     { carry: 32, move: 16 }
 ]
 
-module.exports = { isNeed, prepare, deathPrepare, source, target, bodys }
+module.exports = { isNeed, deathPrepare, source, target, bodys }

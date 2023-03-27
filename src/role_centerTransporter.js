@@ -21,7 +21,7 @@ const source = function (creep) {
     if (!task) return false
     const key = task.key
     const { source, resourceType, amount } = task.data
-    creep.memory.taskKey = key
+    creep.memory.task.key = key
 
     let getAmount = creep.store.getFreeCapacity()
     if (getAmount > amount) getAmount = amount
@@ -39,7 +39,7 @@ const source = function (creep) {
 }
 
 const target = function (creep) {
-    const task = creep.room.getTask(TASK_TYPE, creep.memory.taskKey)
+    const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
     if (!task) return true
     const key = task.key
     const { target, resourceType } = task.data

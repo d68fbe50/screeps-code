@@ -61,11 +61,11 @@ Room.prototype.addCenterTask = function (key, source, target, resourceType, amou
 }
 
 Room.prototype.handleCenterTask = function (key, amount) {
-    const taskType = 'TaskCenter'
-    const data = this.getTask(taskType, key).data
+    const type = 'TaskCenter'
+    const data = this.getTask(type, key).data
     data.amount -= amount
-    if (data.amount <= 0) return this.removeTask(taskType, key)
-    return this.updateTask(taskType, key, { data })
+    if (data.amount <= 0) return this.removeTask(type, key)
+    return this.updateTask(type, key, { data })
 }
 
 Room.prototype.addSpawnTask = function (key, creepMemory) {
@@ -75,9 +75,22 @@ Room.prototype.addSpawnTask = function (key, creepMemory) {
     return result
 }
 
-Room.prototype.addTransportTask = function (key) {
+Room.prototype.removeSpawnTaskByRole = function (role) {
+    if (!role) return false
+    const type = 'TaskSpawn'
+    const task = this.memory[type].find(i => i.data && i.data.role === role)
+    if (!task) return false
+    const result = this.removeTask(type, task.key)
+    if (result) {
+        Memory.allCreeps = _.pull(Memory.allCreeps, task.key)
+        this.log(`spawnTask: ${task.key} 已移除`, 'notify')
+    }
+    return result
+}
+
+Room.prototype.addTransportTask = function (key, minUnits, maxUnits) {
     if (!(key in transportTaskTypes)) return false
-    return this.addTask('TaskTransport', key, undefined, transportTaskTypes[key])
+    return this.addTask('TaskTransport', key, undefined, transportTaskTypes[key], undefined, minUnits, 0, maxUnits)
 }
 
 Room.prototype.addWorkTask = function (key, minUnits, maxUnits) {

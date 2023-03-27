@@ -7,7 +7,7 @@ StructureSpawn.prototype.run = function () {
     if (this.room.memory.spawnLock > Game.time) return
     else delete this.room.memory.spawnLock
     if (this.spawning) {
-        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
+        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension', 1, 2)
         return
     }
     if (this.room.memory.TaskSpawn.length === 0) return
@@ -23,10 +23,14 @@ StructureSpawn.prototype.run = function () {
         return
     }
 
-    const bodys = calcBodyPart(roleRequire.bodys, role === 'starter' ? this.room.energyAvailable : this.room.energyCapacityAvailable)
+    const bodys = calcBodyPart(roleRequire.bodys, importantRoles.includes(role) ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
-    if (result === OK || result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)
+    if (result === OK) {
+        if (role === 'transporter') this.room.memory.spawnLock = Game.time + bodys.length * 3 + 30
+        this.room.removeTask(TASK_TYPE, key)
+    }
+    else if (result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)
     else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockTask(TASK_TYPE, key, 30)
     else {
         this.room.removeTask(TASK_TYPE, key)
