@@ -61,6 +61,7 @@ function collectStats() {
     Memory.stats.gclPercent = (Game.gcl.progress / Game.gcl.progressTotal) * 100
     Memory.stats.gplPercent = (Game.gpl.progress / Game.gpl.progressTotal) * 100
     Memory.stats.cpu = Game.cpu.getUsed()
+    Memory.stats.cpuLimit = Game.cpu.limit
     Memory.stats.bucket = Game.cpu.bucket
     Memory.stats.credit = Game.market.credits
 }

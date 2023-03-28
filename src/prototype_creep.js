@@ -1,3 +1,4 @@
+const roadHitsPercent = 0.5
 const wallFocusTime = 100
 const wallHitsMax = 100000
 
@@ -81,7 +82,7 @@ Creep.prototype.revertTask = function (type) {
     return true
 }
 
-// complex behavior ------------------------------------------------------------------------------
+// senior behavior ------------------------------------------------------------------------------
 
 Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
@@ -90,9 +91,15 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
         return true
     }
     if (!this.clearResources(RESOURCE_ENERGY)) return false
-    if (!this.memory.energySourceId) this.memory.energySourceId = this.room.getEnergySourceId(ignoreLimit, includeSource)
+    if (!this.memory.energySourceId) {
+        const energySources = this.room.getEnergySourceId(ignoreLimit, includeSource)
+        this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
+    }
     const energySource = Game.getObjectById(this.memory.energySourceId)
-    if (!energySource) return false
+    if (!energySource) {
+        delete this.memory.energySourceId
+        return false
+    }
     const result = this.getFrom(energySource)
     if (result && energySource && energySource.energyCapacity) this.memory.dontPullMe = true // 采矿时禁止对穿
     return false
@@ -145,59 +152,92 @@ Creep.prototype.repairWall = function () {
     return true
 }
 
-// simple behavior -------------------------------------------------------------------------------
+// base behavior -------------------------------------------------------------------------------
 
 Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
     let result
     if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
     else if (target instanceof Resource) result = this.pickup(target)
     else result = this.harvest(target)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+    }
     return result
 }
 
 Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
     const result = this.transfer(target, resourceType, amount)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+    }
     return result
 }
 
-Creep.prototype.buildTo = function (constructionSite) {
-    const result = this.build(constructionSite)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(constructionSite)
+Creep.prototype.repairRoad = function () {
+    if (this.room.my && this.room.tower.length > 0) return false
+    const road = this.pos.lookForStructure(STRUCTURE_ROAD)
+    if (road && road.hits / road.hitsMax < roadHitsPercent) return this.repair(road)
+}
+
+Creep.prototype.buildTo = function (target) {
+    const result = this.build(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+        this.repairRoad()
+    }
     return result
 }
 
-Creep.prototype.dismantleTo = function (structure) {
-    const result = this.dismantle(structure)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure)
+Creep.prototype.dismantleTo = function (target) {
+    const result = this.dismantle(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+    }
     return result
 }
 
-Creep.prototype.repairTo = function (structure) {
-    const result = this.repair(structure)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(structure)
+Creep.prototype.repairTo = function (target) {
+    const result = this.repair(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+        this.repairRoad()
+    }
     return result
 }
 
-Creep.prototype.upgrade = function (controller) {
-    if (!controller) controller = this.room.controller
-    const result = this.upgradeController(controller)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller, { range: 3 })
+Creep.prototype.upgrade = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.upgradeController(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target, {range: 3})
+        this.repairRoad()
+    }
     return result
 }
 
-Creep.prototype.claim = function (controller) {
-    if (!controller) controller = this.room.controller
-    const result = this.claimController(controller)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
+Creep.prototype.claim = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.claimController(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+    }
     return result
 }
 
-Creep.prototype.reserve = function (controller) {
-    if (!controller) controller = this.room.controller
-    const result = this.reserveController(controller)
-    if (result === ERR_NOT_IN_RANGE) this.moveTo(controller)
+Creep.prototype.reserve = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.reserveController(target)
+    if (result === ERR_NOT_IN_RANGE) {
+        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
+        this.moveTo(target)
+    }
     return result
 }
 

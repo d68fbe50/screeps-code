@@ -3,27 +3,21 @@ Room.prototype.log = function (content, type, notifyNow, prefix) {
     log(content, type, notifyNow, prefix)
 }
 
-Room.prototype.cbo = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
     return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
 }
 
-Room.prototype.cso = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
 }
 
 Room.prototype.getEnergySourceId = function (ignoreLimit, includeSource) {
-    if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return this.storage.id
-    if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return this.terminal.id
-    const container = this.memory.sourceContainerIds
-        .map(i => Game.getObjectById(i))
-        .filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
-        .sort((a, b) => b.energy - a.energy)[0]
-    if (container) return container.id
-    if (!includeSource) return undefined
-    const source = this.source
-        .filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
-        .sort((a, b) => b.pos.availableNeighbors().length - a.pos.availableNeighbors().length)[0]
-    if (source) return source.id
+    if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return [this.storage]
+    if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return [this.terminal]
+    const containers = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 0 : 1000))
+    if (containers.length > 0) return containers
+    if (!includeSource) return []
+    return this.source.filter(i => i.energy > (ignoreLimit ? 0 : 1500) && i.pos.availableNeighbors().length > 0)
 }
 
 Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
@@ -32,8 +26,26 @@ Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
     this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
 }
 
+Room.prototype.visualRoadPath = function (fromPos, toPos, range = 1) {
+    let paths = this.findPath(fromPos, toPos, {
+        ignoreCreeps: true,
+        ignoreDestructibleStructures: true,
+        ignoreRoads: true,
+        range: range
+    })
+    paths.shift()
+    paths = paths.map(i => new RoomPosition(i.x, i.y, this.name))
+    this.visual.poly(paths)
+    return paths
+}
+
+Room.prototype.constructRoadPath = function (fromPos, toPos, range = 1) {
+    let result = false
+    this.visualRoadPath(fromPos, toPos, range).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
+    return result
+}
+
 Room.prototype.updateLayout = function () {
-    if (this.level === 1) return
     if (!this.memory.centerPos.x || !this.memory.centerPos.y) return this.log('自动布局前需要设置房间中心点！', 'error')
     let needBuild = false
     Object.keys(LAYOUT_DATA).forEach(level => {
@@ -45,6 +57,8 @@ Room.prototype.updateLayout = function () {
             })
         })
     })
+    if (this.level >= 1) this.source.forEach(i => this.constructRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
+    if (this.level >= 3) this.source.forEach(i => this.constructRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
     if (needBuild) this.addWorkTask('build', 1, 3)
 }
 
@@ -94,6 +108,18 @@ Object.defineProperty(Room.prototype, 'level', {
 Object.defineProperty(Room.prototype, 'owner', {
     get() {
         return this.controller && this.controller.owner ? this.controller.owner.username : undefined
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'centerPos', {
+    get() {
+        if (!this.memory.centerPos) this.memory.centerPos = {}
+        if (!this.memory.centerPos.x || !this.memory.centerPos.y) {
+            this.log('未找到房间中心点，请设置。', 'error')
+            return
+        }
+        return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
     },
     configurable: true
 })

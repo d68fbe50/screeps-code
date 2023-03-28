@@ -15,7 +15,7 @@ global.log = function (content, type = 'info', notifyNow = false, prefix) {
     logHistory.push(content)
 }
 
-global.printLogHistory = function (amount = 10) {
+global.hLog = function (amount = 10) {
     if (amount > logHistory.length) amount = logHistory.length
     console.log(logHistory.slice(amount * -1).join('\n'))
 }
@@ -34,6 +34,14 @@ global.eo = function (orderId, addAmount) {
 
 global.cop = function (orderId, newPrice) {
     return Game.market.changeOrderPrice(orderId, newPrice)
+}
+
+global.onVisualPath = function () {
+    Memory.isVisualPath = true
+}
+
+global.offVisualPath = function () {
+    delete Memory.isVisualPath
 }
 
 Object.defineProperty(global, 'c', {

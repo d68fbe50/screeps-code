@@ -9,11 +9,10 @@ StructureController.prototype.run = function () {
     if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair', 1, 3)
     onLevelChange(this.room, this.level)
     visualTaskDetails(this.room)
-    collectRoomStats(this)
+    collectRoomStats(this.room, this)
 }
 
 function checkRoomMemory(room) {
-    if (!Memory.stats.rooms[room.name]) Memory.stats.rooms[room.name] = {}
     if (!room.memory.centerPos) room.memory.centerPos = {}
     if (!room.memory.sourceContainerIds) room.memory.sourceContainerIds = []
     if (!room.memory.TaskCenter) room.memory.TaskCenter = []
@@ -50,9 +49,13 @@ function visualTaskDetails(room) {
     room.visual.text(text, 1, visualTextY++, { align: 'left' })
 }
 
-function collectRoomStats(controller) {
+function collectRoomStats(room, controller) {
     if (Game.time % 10) return
-    Memory.stats.rooms[controller.room.name].rcl = controller.level
-    Memory.stats.rooms[controller.room.name].rclPercent = (controller.progress / (controller.progressTotal || 1)) * 100
-    Memory.stats.rooms[controller.room.name].energy = controller.room[RESOURCE_ENERGY]
+    // if (!Memory.stats.rooms[room.name]) Memory.stats.rooms[room.name] = {}
+    // Memory.stats.rooms[room.name].rcl = controller.level
+    // Memory.stats.rooms[room.name].rclPercent = (controller.progress / (controller.progressTotal || 1)) * 100
+    // Memory.stats.rooms[room.name].energy = room[RESOURCE_ENERGY]
+    Memory.stats[room.name + '-rcl'] = controller.level
+    Memory.stats[room.name + '-rclPercent'] = (controller.progress / (controller.progressTotal || 1)) * 100
+    Memory.stats[room.name + '-energy'] = room[RESOURCE_ENERGY]
 }

@@ -4,13 +4,12 @@ const importantRoles = ['starter', 'harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
-    if (this.room.memory.spawnLock > Game.time) return
-    else delete this.room.memory.spawnLock
     if (this.spawning) {
         if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension', 1, 2)
         return
     }
-    if (this.room.memory.TaskSpawn.length === 0) return
+    if (this.room.memory[TASK_TYPE].length === 0 || this.room.memory.spawnLock > Game.time) return
+    delete this.room.memory.spawnLock
     const task = this.room.getFirstTask(TASK_TYPE)
     if (!task) return
 

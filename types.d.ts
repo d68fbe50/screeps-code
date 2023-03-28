@@ -1,10 +1,10 @@
-interface Room { container, mineral, rampart, source, wall }
+interface Room { container, mineral, rampart, source, tower, wall }
 interface Structure { run, onBuildComplete, store }
 interface Creep { run }
 interface PowerCreep { run }
 interface Flag { run }
 
-interface Memory { allCreeps, delayTasks, stats }
+interface Memory { allCreeps, delayTasks, isVisualPath, stats }
 interface RoomMemory {
     rcl, centerPos,
     spawnLock, remoteLocks,
