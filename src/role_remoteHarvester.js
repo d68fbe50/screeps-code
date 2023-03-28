@@ -24,6 +24,15 @@ const target = function (creep) {
     return harvesterRequire.target(creep)
 }
 
-const bodys = harvesterRequire.bodys
+const bodys = [
+    { work: 2, carry: 1, move: 1 },
+    { work: 4, carry: 1, move: 2 },
+    { work: 6, carry: 1, move: 3 },
+    { work: 6, carry: 1, move: 3 },
+    { work: 6, carry: 1, move: 3 },
+    { work: 6, carry: 1, move: 3 },
+    { work: 6, carry: 1, move: 3 },
+    { work: 6, carry: 1, move: 3 }
+]
 
 module.exports = { isNeed, prepare, target, bodys }

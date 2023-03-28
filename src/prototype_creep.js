@@ -8,6 +8,7 @@ const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes �
     defender: require('./role_defender'),
     depoDefender: require('./role_depoDefender'),
     depoHarvester: require('./role_depoHarvester'),
+    depoTransporter: require('./role_depoTransporter'),
     harvester: require('./role_harvester'),
     helper: require('./role_helper'),
     mineHarvester: require('./role_mineHarvester'),
@@ -23,7 +24,6 @@ const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes �
     squadDismantler: require('./role_squadDismantler'),
     squadHealer: require('./role_squadHealer'),
     squadRanged: require('./role_squadRanged'),
-    starter: require('./role_starter'),
     transporter: require('./role_transporter'),
     upgrader: require('./role_upgrader'),
     worker: require('./role_worker')
@@ -92,7 +92,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     }
     if (!this.clearResources(RESOURCE_ENERGY)) return false
     if (!this.memory.energySourceId) {
-        const energySources = this.room.getEnergySourceId(ignoreLimit, includeSource)
+        const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
         this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
     }
     const energySource = Game.getObjectById(this.memory.energySourceId)
@@ -109,13 +109,13 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
 }
 
 Creep.prototype.buildStructure = function () {
-    const constructionSiteId = this.room.memory.constructionSiteId
-    const constructionSite = Game.getObjectById(constructionSiteId)
-    if (constructionSite) {
-        this.buildTo(constructionSite)
+    const csId = this.room.memory.constructionSiteId
+    const cs = Game.getObjectById(csId)
+    if (cs) {
+        this.buildTo(cs)
         return true
     }
-    if (constructionSiteId) {
+    if (csId) {
         const pos = this.room.memory.constructionSitePos && new RoomPosition(this.room.memory.constructionSitePos.x, this.room.memory.constructionSitePos.y, this.room.name)
         const newStructure = pos && pos.lookFor(LOOK_STRUCTURES).find(i => i.structureType === this.room.memory.constructionSiteType)
         if (newStructure) newStructure.onBuildComplete && newStructure.onBuildComplete()
@@ -125,11 +125,12 @@ Creep.prototype.buildStructure = function () {
         this.room.update()
         return true
     }
-    const closestConstructionSite = this.pos.findClosestByRange(this.room.constructionSites)
-    if (closestConstructionSite) {
-        this.room.memory.constructionSiteId = closestConstructionSite.id
-        this.room.memory.constructionSiteType = closestConstructionSite.structureType
-        this.room.memory.constructionSitePos = { x: closestConstructionSite.pos.x, y: closestConstructionSite.pos.y }
+    const importantCs = this.room.constructionSites.find(i => [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(i.structureType))
+    const closestCs = importantCs ? importantCs : this.pos.findClosestByRange(this.room.constructionSites)
+    if (closestCs) {
+        this.room.memory.constructionSiteId = closestCs.id
+        this.room.memory.constructionSiteType = closestCs.structureType
+        this.room.memory.constructionSitePos = { x: closestCs.pos.x, y: closestCs.pos.y }
         return true
     } else return false
 }

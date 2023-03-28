@@ -1,7 +1,9 @@
-Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
+const { updateAvoidRooms } = require('./wheel_move')
 
 const logHistory = []
 const logHistoryLimit = 1000
+
+Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
 
 global.log = function (content, type = 'info', notifyNow = false, prefix) {
     if (type === 'error') content = `<text style="color:red">${content}</text>`
@@ -34,6 +36,18 @@ global.eo = function (orderId, addAmount) {
 
 global.cop = function (orderId, newPrice) {
     return Game.market.changeOrderPrice(orderId, newPrice)
+}
+
+global.addAvoidRoom = function (roomName) {
+    Memory.avoidRooms = _.uniq([...Memory.avoidRooms, roomName])
+    updateAvoidRooms()
+    log(`房间：${roomName} 设置为绕过`, 'success')
+}
+
+global.removeAvoidRoom = function (roomName) {
+    Memory.avoidRooms = _.pull(Memory.avoidRooms, roomName)
+    updateAvoidRooms()
+    log(`房间：${roomName} 恢复为可通行`, 'success')
 }
 
 global.onVisualPath = function () {

@@ -3,6 +3,8 @@ const { roleRequires } = require('./prototype_creep')
 const { manageDelayTask } = require('./utils_delayQueue')
 
 !('sim' in Game.rooms) && console.log('[全局重置]')
+if (!Memory.rooms) Memory.rooms = {}
+if (!Memory.creeps) Memory.creeps = {}
 
 module.exports.loop = function () {
     checkMemory()
@@ -23,6 +25,7 @@ module.exports.loop = function () {
 
 function checkMemory() {
     if (!Memory.allCreeps) Memory.allCreeps = []
+    if (!Memory.avoidRooms) Memory.avoidRooms = []
     if (!Memory.delayTasks) Memory.delayTasks = []
     if (!Memory.stats) Memory.stats = {}
     if (!Memory.stats.rooms) Memory.stats.rooms = {}

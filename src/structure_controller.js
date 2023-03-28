@@ -1,12 +1,12 @@
 const buildCheckInterval = 10
 const wallCheckInterval = 10
-const wallRepairHitsMax = 10000
+const wallRepairHitsMax = 100 * 1000
 
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
     this.room.container.forEach(i => i.run && i.run())
-    if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build', 1, 3)
-    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair', 1, 3)
+    if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build', 1, 5)
+    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair', 1, 1)
     onLevelChange(this.room, this.level)
     visualTaskDetails(this.room)
     collectRoomStats(this.room, this)
@@ -27,18 +27,20 @@ function onLevelChange(room, level) {
     room.memory.rcl = level
     room.updateLayout()
     if (level === 1) {
+        room.log('占领成功！请插紫红旗子设置房间中心点。', 'notify')
         room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
-        room.addWorkTask('upgrade', 0, 5)
+        room.addWorkTask('upgrade', 0, 10)
         // 等下一 tick 旗子发布 harvester 再执行
         // 太妙了，我真是个小天才（误
         room.memory.TaskSpawn.length > 0 ? room.setCreepAmount('worker', 5) : delete room.memory.rcl
     } else if (level === 8) {
+        room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')
     }
 }
 
 function visualTaskDetails(room) {
-    let visualTextY = 2
+    let visualTextY = 25
     let text = 'TaskCenter : ' + room.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}: ${i.data.resourceType}*${i.data.amount}]`).join(' ')
     room.visual.text(text, 1, visualTextY++, { align: 'left' })
     text = 'TaskSpawn : ' + room.memory['TaskSpawn'].map(i => `[${i.data.role}: ${i.key}]`).join(' ')

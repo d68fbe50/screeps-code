@@ -28,6 +28,7 @@ StructureLink.prototype.onBuildComplete = function () {
     })
     if (controllersInRange[0]) {
         this.room.memory.upgradeLinkId = this.id
+        this.room.setCreepAmount('upgrader', 3)
         this.room.setCreepAmount('worker', 1)
         this.log('已注册为 upgradeLink', 'success')
     }

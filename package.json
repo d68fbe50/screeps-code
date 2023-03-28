@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "upload": "node upload.js"
+    "upload-main": "node upload.main.js",
+    "upload-sim": "node upload.sim.js"
   },
   "keywords": [],
   "author": "",

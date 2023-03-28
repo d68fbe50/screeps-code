@@ -1,6 +1,6 @@
 const { roleRequires } = require('./prototype_creep')
 
-const importantRoles = ['starter', 'harvester', 'transporter']
+const importantRoles = ['harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {

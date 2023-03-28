@@ -8,7 +8,7 @@ StructureContainer.prototype.onBuildComplete = function () {
     if (this.pos.findInRange(FIND_SOURCES, 1).length > 0) {
         if (this.room.memory.sourceContainerIds.includes(this.id)) return
         this.room.memory.sourceContainerIds = _.uniq([...this.room.memory.sourceContainerIds, this.id])
-        this.room.addCreep('transporter', 1)
+        this.room.setCreepAmount('transporter', 2)
         this.log('已注册为 sourceContainer', 'success')
         return
     }

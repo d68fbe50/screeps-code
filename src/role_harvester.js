@@ -39,7 +39,7 @@ const target = function (creep) {
         const link = Game.getObjectById(creep.memory.linkId)
         if (!link) return delete creep.memory.linkId
         if (link.isFull) return
-        if (creep.store.getFreeCapacity() <= 2 * 6) creep.putTo(link)
+        if (creep.store.getFreeCapacity() <= 2 * 12) creep.putTo(link)
         creep.getFrom(source)
         return
     }
@@ -78,9 +78,9 @@ const bodys = [
     { work: 6, carry: 1, move: 3 },
     { work: 6, carry: 1, move: 3 },
     { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 1, move: 3 }
+    { work: 6, carry: 2, move: 3 },
+    { work: 6, carry: 2, move: 3 },
+    { work: 12, carry: 2, move: 6 }
 ]
 
 module.exports = { isNeed, prepare, target, bodys }

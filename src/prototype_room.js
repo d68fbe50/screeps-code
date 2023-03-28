@@ -11,7 +11,11 @@ Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERG
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
 }
 
-Room.prototype.getEnergySourceId = function (ignoreLimit, includeSource) {
+Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
+    if (this.memory.useRuinEnergy) {
+        const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] > 1000)
+        if (ruins.length > 0) return ruins
+    }
     if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return [this.storage]
     if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return [this.terminal]
     const containers = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
@@ -39,13 +43,14 @@ Room.prototype.visualRoadPath = function (fromPos, toPos, range = 1) {
     return paths
 }
 
-Room.prototype.constructRoadPath = function (fromPos, toPos, range = 1) {
+Room.prototype.structRoadPath = function (fromPos, toPos, range = 1) {
     let result = false
     this.visualRoadPath(fromPos, toPos, range).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
     return result
 }
 
 Room.prototype.updateLayout = function () {
+    if (!this.memory.isAutoLayout) return this.log('房间未开启自动布局。room.memory.isAutoLayout: undefined', 'error')
     if (!this.memory.centerPos.x || !this.memory.centerPos.y) return this.log('自动布局前需要设置房间中心点！', 'error')
     let needBuild = false
     Object.keys(LAYOUT_DATA).forEach(level => {
@@ -57,27 +62,35 @@ Room.prototype.updateLayout = function () {
             })
         })
     })
-    if (this.level >= 1) this.source.forEach(i => this.constructRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
-    if (this.level >= 3) this.source.forEach(i => this.constructRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
-    if (needBuild) this.addWorkTask('build', 1, 3)
+    if (this.level >= 1) {
+        this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
+    }
+    if (this.level >= 3) {
+        this.source.forEach(i => this.structRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
+    }
+    if (this.level >= 4) {
+        this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
+    }
+    if (this.level >= 5) {
+        // upgrade link
+    }
+    if (this.level >= 6) {
+        // source link 1
+    }
+    if (this.level >= 7) {
+        // source link 2
+    }
+    if (this.level >= 8) {
+        // extractor
+    }
+    if (needBuild) this.addWorkTask('build', 1, 5)
 }
 
-Room.prototype.visualLayout = function (centerPosX = 25, centerPosY = 25) {
-    Object.keys(LAYOUT_DATA).forEach(level => {
-        Object.keys(LAYOUT_DATA[level]).forEach(type => {
-            LAYOUT_DATA[level][type].forEach(posXY => {
-                this.visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
-            })
-        })
-    })
-    this.visual.connectRoads()
-}
-
-let tmpTick
+let confirmTick
 Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
     if (!confirm) return false
-    if (tmpTick !== Game.time - 1) {
-        tmpTick = Game.time
+    if (confirmTick !== Game.time - 1) {
+        confirmTick = Game.time
         log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
         log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
         log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
@@ -276,6 +289,18 @@ Object.defineProperty(Room.prototype, 'droppedPower', {
     },
     configurable: true
 })
+
+global.visualLayout = function (roomName, centerPosX = 25, centerPosY = 25) {
+    const visual = new RoomVisual(roomName)
+    Object.keys(LAYOUT_DATA).forEach(level => {
+        Object.keys(LAYOUT_DATA[level]).forEach(type => {
+            LAYOUT_DATA[level][type].forEach(posXY => {
+                visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
+            })
+        })
+    })
+    visual.connectRoads()
+}
 
 const LAYOUT_DATA = {
     1: {

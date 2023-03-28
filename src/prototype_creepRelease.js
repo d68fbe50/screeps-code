@@ -4,6 +4,7 @@ const roleShortNames = {
     defender: 'd',
     depoDefender: 'dp',
     depoHarvester: 'dp',
+    depoTransporter: 'dp',
     harvester: 'h',
     helper: 'hp',
     mineHarvester: 'm',
@@ -19,7 +20,6 @@ const roleShortNames = {
     squadDismantler: 'x',
     squadHealer: 'x',
     squadRanged: 'x',
-    starter: 's',
     transporter: 't',
     upgrader: 'u',
     worker: 'w'
@@ -28,7 +28,7 @@ const roleShortNames = {
 // transporter & worker --------------------------------------------------------------------------
 
 Room.prototype.addCreep = function (role, amount = 1) {
-    if (role !== 'transporter' && role !== 'worker') return
+    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
     for (let i = 0; i < amount; i++) {
         const dontNeedName = Object.keys(Memory.creeps).find(i => Memory.creeps[i].role === role && Memory.creeps[i].dontNeed)
         if (dontNeedName) {
@@ -43,7 +43,7 @@ Room.prototype.addCreep = function (role, amount = 1) {
 }
 
 Room.prototype.removeCreep = function (role, amount = 1) {
-    if (role !== 'transporter' && role !== 'worker') return
+    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
     for (let i = 0; i < amount; i++) {
         const result = this.removeSpawnTaskByRole(role)
         if (result) continue
@@ -55,14 +55,14 @@ Room.prototype.removeCreep = function (role, amount = 1) {
 }
 
 Room.prototype.getCreepAmount = function (role) {
-    if (role !== 'transporter' && role !== 'worker') return
+    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
     let amount = _.filter(Memory.creeps, i => i.role === role).length
     amount += _.filter(this.memory.TaskSpawn, i => i.data && i.data.role === role).length
     return amount
 }
 
 Room.prototype.setCreepAmount = function (role, amount) {
-    if ((role !== 'transporter' && role !== 'worker') || amount === undefined) return
+    if ((role !== 'transporter' && role !== 'worker' && role !== 'upgrader') || amount === undefined) return
     const changeAmount = amount - this.getCreepAmount(role)
     if (changeAmount > 0) this.addCreep(role, changeAmount)
     else if (changeAmount < 0) this.removeCreep(role, changeAmount * -1)
@@ -78,8 +78,11 @@ Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
-Room.prototype.addClaimer = function () {
-    //
+Room.prototype.addClaimer = function (flagName) {
+    const role = 'claimer'
+    const creepName = getAvailableCreepName(roleShortNames[role])
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
+    this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
 Room.prototype.addDefender = function () {
@@ -93,8 +96,11 @@ Room.prototype.addHarvester = function (flagName) {
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
-Room.prototype.addHelper = function () {
-    //
+Room.prototype.addHelper = function (roomName) {
+    const role = 'helper'
+    const creepName = getAvailableCreepName(roleShortNames[role])
+    this.addSpawnTask(creepName, { role, home: this.name, config: { roomName } })
+    this.log(`${role}: ${creepName} 发布成功！`, 'success')
 }
 
 Room.prototype.addMineHarvester = function (flagName) {
@@ -124,10 +130,6 @@ Room.prototype.addReserver = function (flagName) {
     const creepName = getAvailableCreepName(roleShortNames[role])
     this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`, 'success')
-}
-
-Room.prototype.addUpgrader = function () {
-    //
 }
 
 function getAvailableCreepName(prefix = 'creep') {

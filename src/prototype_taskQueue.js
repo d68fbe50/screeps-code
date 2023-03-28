@@ -26,7 +26,6 @@ const spawnTaskTypes = { // 注意与 prototype_creep.js 的 roleRequires 保持
     squadDismantler: 5,
     squadHealer: 5,
     squadRanged: 5,
-    starter: 0,
     transporter: 8,
     upgrader: 0,
     worker: 0
