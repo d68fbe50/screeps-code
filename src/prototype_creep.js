@@ -101,7 +101,10 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
         return false
     }
     const result = this.getFrom(energySource)
-    if (result && energySource && energySource.energyCapacity) this.memory.dontPullMe = true // 采矿时禁止对穿
+    if (result === OK) {
+        if (energySource && energySource.energyCapacity) this.memory.dontPullMe = true // 采矿时禁止对穿
+    }
+    else if (result === ERR_NOT_ENOUGH_ENERGY || result === ERR_NOT_ENOUGH_RESOURCES) delete this.memory.energySourceId
     return false
 }
 
