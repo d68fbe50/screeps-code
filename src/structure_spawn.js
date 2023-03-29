@@ -37,8 +37,12 @@ StructureSpawn.prototype.run = function () {
     }
 }
 
+StructureExtension.prototype.onBuildComplete = function () {
+    this.room.addTransportTask('fillExtension')
+}
+
 StructureSpawn.prototype.onBuildComplete = function () {
-    //
+    this.room.addTransportTask('fillExtension')
 }
 
 function calcBodyPart(bodysRequire, energyAmount) {

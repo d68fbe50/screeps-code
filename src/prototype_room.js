@@ -3,16 +3,6 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
     log(content, type, notifyNow, prefix)
 }
 
-// =================================================================================================== Market
-
-Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
-    return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
-}
-
-Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
-    return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
-}
-
 Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     if (this.memory.useRuinEnergy) {
         const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
@@ -26,80 +16,7 @@ Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     return this.source.filter(i => i.energy > (ignoreLimit ? 0 : 500) && i.pos.availableNeighbors().length > 0)
 }
 
-Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
-    this.memory.centerPos.x = centerPosX
-    this.memory.centerPos.y = centerPosY
-    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`)
-}
-
-Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
-    let paths = this.findPath(fromPos, toPos, {
-        ignoreCreeps: true,
-        ignoreDestructibleStructures: true,
-        ignoreRoads: true
-    })
-    paths.shift()
-    paths = _.dropRight(paths, cut)
-    paths = paths.map(i => new RoomPosition(i.x, i.y, this.name))
-    this.visual.poly(paths)
-    return paths
-}
-
-Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
-    let result = false
-    this.visualRoadPath(fromPos, toPos, cut).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
-    return result
-}
-
-Room.prototype.updateLayout = function () {
-    if (!this.memory.isAutoLayout || !this.centerPos) return
-    let needBuild = false
-    Object.keys(LAYOUT_DATA).forEach(level => {
-        level <= this.level && Object.keys(LAYOUT_DATA[level]).forEach(type => {
-            LAYOUT_DATA[level][type].forEach(posXY => {
-                const pos = new RoomPosition(posXY[0]-25+this.centerPos.x, posXY[1]-25+this.centerPos.y, this.name)
-                const result = pos.createConstructionSite(type)
-                if (result) needBuild = true
-            })
-        })
-    })
-    if (this.level >= 1) {
-        this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
-    }
-    if (this.level >= 3) {
-        this.source.forEach(i => this.structRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
-    }
-    if (this.level >= 4) {
-        this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
-    }
-    if (needBuild) this.addWorkTask('build')
-}
-
-let confirmTick
-Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
-    if (!confirm) return false
-    if (confirmTick !== Game.time - 1) {
-        confirmTick = Game.time
-        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'warning')
-        return
-    }
-    this.controller.unclaim()
-    log(`room: ${this.name} 已移除！`, 'warning')
-}
-
 // =================================================================================================== Base
-
-Object.defineProperty(Room.prototype, 'centerPos', {
-    get() {
-        if (!this.memory.centerPos) this.memory.centerPos = {}
-        if (!this.memory.centerPos.x || !this.memory.centerPos.y) {
-            this.log('未找到房间中心点。', 'error')
-            return
-        }
-        return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
-    },
-    configurable: true
-})
 
 Object.defineProperty(Room.prototype, 'constructionSites', {
     get() {
@@ -214,6 +131,91 @@ Object.defineProperty(Room.prototype, 'sourceKeepers', {
     configurable: true
 })
 
+// =================================================================================================== Layout
+
+global.visualLayout = function (roomName, centerPosX = 25, centerPosY = 25) {
+    const visual = new RoomVisual(roomName)
+    Object.keys(LAYOUT_DATA).forEach(level => {
+        Object.keys(LAYOUT_DATA[level]).forEach(type => {
+            LAYOUT_DATA[level][type].forEach(posXY => {
+                visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
+            })
+        })
+    })
+    visual.connectRoads()
+}
+
+Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
+    this.memory.centerPos.x = centerPosX
+    this.memory.centerPos.y = centerPosY
+    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`)
+}
+
+Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
+    let result = false
+    this.visualRoadPath(fromPos, toPos, cut).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
+    return result
+}
+
+Room.prototype.updateLayout = function () {
+    if (!this.memory.isAutoLayout || !this.centerPos) return this.log('自动布局未开启或中心点未设置', 'warning')
+    let needBuild = false
+    Object.keys(LAYOUT_DATA).forEach(level => {
+        level <= this.level && Object.keys(LAYOUT_DATA[level]).forEach(type => {
+            LAYOUT_DATA[level][type].forEach(posXY => {
+                const pos = new RoomPosition(posXY[0]-25+this.centerPos.x, posXY[1]-25+this.centerPos.y, this.name)
+                const result = pos.createConstructionSite(type)
+                if (result) needBuild = true
+            })
+        })
+    })
+    if (this.level >= 1) {
+        this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
+    }
+    if (this.level >= 3) {
+        this.source.forEach(i => this.structRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
+    }
+    if (this.level >= 4) {
+        this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
+    }
+    if (needBuild) this.addWorkTask('build')
+}
+
+Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
+    let paths = this.findPath(fromPos, toPos, {
+        ignoreCreeps: true,
+        ignoreDestructibleStructures: true,
+        ignoreRoads: true
+    })
+    paths.shift()
+    paths = _.dropRight(paths, cut)
+    paths = paths.map(i => new RoomPosition(i.x, i.y, this.name))
+    this.visual.poly(paths)
+    return paths
+}
+
+Object.defineProperty(Room.prototype, 'centerPos', {
+    get() {
+        if (!this.memory.centerPos) this.memory.centerPos = {}
+        if (!this.memory.centerPos.x || !this.memory.centerPos.y) {
+            this.log('未找到房间中心点', 'error')
+            return
+        }
+        return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
+    },
+    configurable: true
+})
+
+// =================================================================================================== Market
+
+Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+    return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
+}
+
+Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+    return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
+}
+
 // =================================================================================================== Resources
 
 Object.defineProperty(Room.prototype, 'droppedEnergy', {
@@ -292,20 +294,6 @@ Object.defineProperty(Room.prototype, 'wall', {
     configurable: true
 })
 
-// =================================================================================================== Visual
-
-global.visualLayout = function (roomName, centerPosX = 25, centerPosY = 25) {
-    const visual = new RoomVisual(roomName)
-    Object.keys(LAYOUT_DATA).forEach(level => {
-        Object.keys(LAYOUT_DATA[level]).forEach(type => {
-            LAYOUT_DATA[level][type].forEach(posXY => {
-                visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
-            })
-        })
-    })
-    visual.connectRoads()
-}
-
 const LAYOUT_DATA = {
     1: {
         spawn: [ [25,22] ]
@@ -344,4 +332,16 @@ const LAYOUT_DATA = {
         spawn: [ [28,29] ],
         powerSpawn: [ [24,25] ]
     }
+}
+
+let confirmTick
+Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
+    if (!confirm) return false
+    if (confirmTick !== Game.time - 1) {
+        confirmTick = Game.time
+        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'warning')
+        return
+    }
+    this.controller.unclaim()
+    log(`room: ${this.name} 已移除！`, 'warning')
 }

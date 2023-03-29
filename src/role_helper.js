@@ -1,19 +1,12 @@
 const workerRequire = require('./role_worker')
 
 const isNeed = function (creepMemory) {
-    const targetRoom = Game.rooms[creepMemory.config.roomName]
-    return targetRoom && targetRoom.level < 3
+    const flag = Game.flags[creepMemory.config.flagName]
+    return flag && flag.room && flag.room.level < 3
 }
 
 const prepare = function (creep) {
-    const targetRoom = Game.rooms[creep.memory.config.roomName]
-    if (!targetRoom) {
-        creep.log(`新房间: ${creep.memory.config.roomName} 没了！`, 'error')
-        return false
-    }
-    if (creep.room.name === creep.memory.config.roomName) return true
-    creep.goto(targetRoom.controller)
-    return false
+    return creep.gotoFlagRoom(creep.memory.config.flagName)
 }
 
 const source = function (creep) {
@@ -22,11 +15,7 @@ const source = function (creep) {
 
 const target = function (creep) {
     if (creep.isEmpty) return true
-    if (creep.room.spawn[0] && !creep.room.spawn[0].isFull) {
-        creep.putTo(creep.room.spawn[0])
-        return false
-    }
-    creep.buildStructure() || creep.upgrade()
+    creep.fillExtensions() || creep.buildStructure() || creep.upgrade()
 }
 
 const bodys = workerRequire.bodys

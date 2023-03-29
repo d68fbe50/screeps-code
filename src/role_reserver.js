@@ -5,16 +5,7 @@ const isNeed = function (creepMemory) {
 }
 
 const prepare = function (creep) {
-    const flag = Game.flags[creep.memory.config.flagName]
-    if (!flag) {
-        creep.log('no flag!', 'error')
-        return false
-    }
-    if (creep.room.name !== flag.pos.roomName) {
-        creep.goto(flag)
-        return false
-    }
-    return true
+    return creep.gotoFlagRoom(creep.memory.config.flagName)
 }
 
 const target = function (creep) {

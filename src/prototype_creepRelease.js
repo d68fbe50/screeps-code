@@ -2,16 +2,12 @@ const roleShortNames = {
     centerTransporter: 'c',
     claimer: 'r',
     defender: 'd',
-    depoDefender: 'dp',
     depoHarvester: 'dp',
-    depoTransporter: 'dp',
     harvester: 'h',
     helper: 'hp',
     mineHarvester: 'm',
     powerAttacker: 'pw',
-    powerDefender: 'pw',
     powerHealer: 'pw',
-    powerTransporter: 'pw',
     remoteHarvester: 'r',
     remoteDefender: 'r',
     remoteTransporter: 'r',
@@ -58,6 +54,7 @@ Room.prototype.getCreepAmount = function (role) {
     if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
     let amount = _.filter(Memory.creeps, i => i.home === this.name && i.role === role && !i.dontNeed).length
     amount += _.filter(this.memory.TaskSpawn, i => i.data && i.data.role === role).length
+    this.memory[role + 'Amount'] = amount
     return amount
 }
 
@@ -66,12 +63,13 @@ Room.prototype.setCreepAmount = function (role, amount) {
     const changeAmount = amount - this.getCreepAmount(role)
     if (changeAmount > 0) this.addCreep(role, changeAmount)
     else if (changeAmount < 0) this.removeCreep(role, changeAmount * -1)
+    this.memory[role + 'Amount'] = amount
 }
 
 // =================================================================================================== Other Roles
 
 Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
-    if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇。', 'warning')
+    if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇', 'warning')
     const role = 'centerTransporter'
     const creepName = getAvailableCreepName(roleShortNames[role])
     this.addSpawnTask(creepName, { role, home: this.name, config: { centerPosX, centerPosY } })
@@ -96,10 +94,10 @@ Room.prototype.addHarvester = function (flagName) {
     this.log(`${role}: ${creepName} 发布成功！`)
 }
 
-Room.prototype.addHelper = function (roomName) {
+Room.prototype.addHelper = function (flagName) {
     const role = 'helper'
     const creepName = getAvailableCreepName(roleShortNames[role])
-    this.addSpawnTask(creepName, { role, home: this.name, config: { roomName } })
+    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`)
 }
 

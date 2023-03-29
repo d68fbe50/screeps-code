@@ -3,24 +3,13 @@ const isNeed = function () {
 }
 
 const prepare = function (creep) {
-    const flag = Game.flags[creep.memory.config.flagName]
-    if (!flag) {
-        creep.log('no flag!', 'error')
-        return false
-    }
-    if (creep.room.name !== flag.pos.roomName) {
-        creep.goto(flag)
-        return false
-    }
-    return true
+    return creep.gotoFlagRoom(creep.memory.config.flagName)
 }
 
 const target = function (creep) {
     const result = creep.claim()
     if (result === OK) {
-        const home = Game.rooms[creep.memory.home]
-        home && home.addHelper(creep.room.name)
-        Game.flags[creep.memory.config.flagName] && Game.flags[creep.memory.config.flagName].remove()
+        creep.home.addHelper(creep.memory.config.flagName)
         return creep.suicide()
     }
 }

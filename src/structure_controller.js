@@ -1,12 +1,11 @@
 const buildCheckInterval = 10
 const wallCheckInterval = 10
-const wallRepairHitsMax = 100 * 1000
 
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
     this.room.container.forEach(i => i.run && i.run())
     if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
-    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair')
+    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax * 0.8) && this.room.addWorkTask('repair')
     onLevelChange(this.room, this.level)
     visualTaskDetails(this.room)
     collectRoomStats(this.room, this)
@@ -27,7 +26,7 @@ function onLevelChange(room, level) {
     room.memory.rcl = level
     room.updateLayout()
     if (level === 1) {
-        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量。')
+        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量')
         room.addWorkTask('upgrade')
     } else if (level === 8) {
         room.setCreepAmount('upgrader', 1)
@@ -37,6 +36,7 @@ function onLevelChange(room, level) {
 
 function visualTaskDetails(room) {
     let visualTextY = 25
+    room.visual.text(`Transporter: ${room.memory.transporterAmount}, Worker: ${room.memory.workerAmount}, Upgrader: ${room.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
     let text = 'TaskCenter : ' + room.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}: ${i.data.resourceType}*${i.data.amount}]`).join(' ')
     room.visual.text(text, 1, visualTextY++, { align: 'left' })
     text = 'TaskSpawn : ' + room.memory['TaskSpawn'].map(i => `[${i.data.role}: ${i.key}]`).join(' ')

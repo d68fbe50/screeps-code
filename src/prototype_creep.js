@@ -1,21 +1,13 @@
-const roadHitsPercent = 0.5
-const wallFocusTime = 100
-const wallHitsMax = 100000
-
 const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes 保持一致
     centerTransporter: require('./role_centerTransporter'),
     claimer: require('./role_claimer'),
     defender: require('./role_defender'),
-    depoDefender: require('./role_depoDefender'),
     depoHarvester: require('./role_depoHarvester'),
-    depoTransporter: require('./role_depoTransporter'),
     harvester: require('./role_harvester'),
     helper: require('./role_helper'),
     mineHarvester: require('./role_mineHarvester'),
     powerAttacker: require('./role_powerAttacker'),
-    powerDefender: require('./role_powerDefender'),
     powerHealer: require('./role_powerHealer'),
-    powerTransporter: require('./role_powerTransporter'),
     remoteHarvester: require('./role_remoteHarvester'),
     remoteDefender: require('./role_remoteDefender'),
     remoteTransporter: require('./role_remoteTransporter'),
@@ -29,6 +21,9 @@ const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes �
     worker: require('./role_worker')
 }
 
+const roadHitsPercent = 0.5
+const wallFocusTime = 300
+
 Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.say(content)
     this.room.log(content, type, notifyNow, `[${this.memory.role}:${this.name},${this.pos.x},${this.pos.y}]&nbsp;`)
@@ -39,6 +34,7 @@ Creep.prototype.run = function () {
 
     const roleRequire = roleRequires[this.memory.role]
     if (!roleRequire) return this.say('no role!')
+    if (!this.home) return this.say('no home!')
 
     if (!this.memory.config) this.memory.config = {}
     if (!this.memory.task) this.memory.task = {}
@@ -127,6 +123,13 @@ Creep.prototype.upgrade = function (target) {
     return result
 }
 
+Object.defineProperty(Creep.prototype, 'home', {
+    get() {
+        return Game.rooms[this.memory.home]
+    },
+    configurable: true
+})
+
 // =================================================================================================== Boost
 
 Object.defineProperty(Creep.prototype, 'boostCounts', {
@@ -187,6 +190,36 @@ Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛�
     return false
 }
 
+Creep.prototype.fillExtensions = function () {
+    if (this.room.energyAvailable === this.room.energyCapacityAvailable) {
+        delete this.memory.needFillExtensionId
+        return false
+    }
+    let target = Game.getObjectById(this.memory.needFillExtensionId)
+    if (!target) {
+        target = this.pos.findClosestByRange([...this.room.spawn, ...this.room.extension], { filter: i => !i.isFull })
+        if (target) this.memory.needFillExtensionId = target.id // target 一定存在
+    }
+    const result = this.putTo(target)
+    if (result !== ERR_NOT_IN_RANGE) delete this.memory.needFillExtensionId
+    return true
+}
+
+Creep.prototype.fillTowers = function () {
+    let target = Game.getObjectById(this.memory.needFillTowerId)
+    if (!target) {
+        target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < i.capacity / 2 })
+        if (target) this.memory.needFillTowerId = target.id
+        else {
+            delete this.memory.needFillTowerId
+            return false
+        }
+    }
+    const result = this.putTo(target)
+    if (result !== ERR_NOT_IN_RANGE) delete this.memory.needFillTowerId
+    return true
+}
+
 Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
         delete this.memory.energySourceId
@@ -207,8 +240,28 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     if (result === OK) {
         if (energySource instanceof Source) this.memory.dontPullMe = true // 采矿时禁止对穿
     }
-    else if (result === ERR_NOT_ENOUGH_ENERGY || result === ERR_NOT_ENOUGH_RESOURCES) delete this.memory.energySourceId
+    else if (result !== ERR_NOT_IN_RANGE) delete this.memory.energySourceId
     return false
+}
+
+Creep.prototype.gotoFlag = function (flagName, range = 1) {
+    const flag = Game.flags[flagName]
+    if (!flag) {
+        this.say('no flag!')
+        return false
+    }
+    if (this.pos.inRangeTo(flag.pos, range)) return true
+    this.goto(flag)
+}
+
+Creep.prototype.gotoFlagRoom = function (flagName) {
+    const flag = Game.flags[flagName]
+    if (!flag) {
+        this.say('no flag!')
+        return false
+    }
+    if (this.room.name === flag.pos.roomName) return true
+    this.goto(flag)
 }
 
 Creep.prototype.repairRoad = function () {
@@ -221,7 +274,7 @@ Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % wallFocusTime) || !needRepairWallId) {
         const minHitsWall = [...this.room.wall, ...this.room.rampart]
-            .filter(i => i.hits < wallHitsMax)
+            .filter(i => i.hits < wallRepairHitsMax)
             .sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {

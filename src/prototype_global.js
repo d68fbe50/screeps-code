@@ -1,8 +1,9 @@
 const { updateAvoidRooms } = require('./wheel_move')
 
+global.wallRepairHitsMax = 10 * 1000 * 1000
+
 const logHistory = []
 const logHistoryLimit = 1000
-
 global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     content = prefix + content
     if (type === 'error') content = '<text style="color:red">[ERROR]&nbsp;</text>' + content

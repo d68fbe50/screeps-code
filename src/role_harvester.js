@@ -3,29 +3,25 @@ const isNeed = function (creepMemory) {
 }
 
 const prepare = function (creep) {
-    const flag = Game.flags[creep.memory.config.flagName]
-    if (!flag) {
-        creep.log('no flag!', 'error')
-        return false
-    }
-    if (!creep.pos.isNearTo(flag)) {
-        creep.goto(flag)
-        return false
-    }
-    const source = flag.pos.lookFor(LOOK_SOURCES)[0]
+    if (!creep.gotoFlag(creep.memory.config.flagName)) return false
+
+    const source = Game.flags[creep.memory.config.flagName].pos.lookFor(LOOK_SOURCES)[0]
     if (!source) {
-        creep.log('no source!', 'error')
+        creep.say('no source!')
+        creep.memory.dontNeed = true
         return false
     }
-    const link = source.pos.findInRange(FIND_STRUCTURES, 2, { filter: { structureType: STRUCTURE_LINK } })[0]
+
+    const link = source.pos.findStructureInRange(STRUCTURE_LINK, 2)
     if (link) creep.memory.linkId = link.id
     else {
-        const container = source.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } })[0]
+        const container = source.pos.findStructureInRange(STRUCTURE_CONTAINER, 1)
         if (container) {
             creep.memory.containerId = container.id
             container.onBuildComplete()
         }
     }
+
     creep.memory.sourceId = source.id
     creep.memory.dontPullMe = true
     return true

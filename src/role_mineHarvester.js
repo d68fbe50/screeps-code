@@ -7,18 +7,12 @@ const isNeed = function (creepMemory) {
 const prepare = function (creep) {
     if (creep.ticksToLive < (creep.room.name === creep.memory.home ? 100 : 200)) return creep.suicide()
 
-    const flag = Game.flags[creep.memory.config.flagName]
-    if (!flag) {
-        creep.log('no flag!', 'error')
-        return false
-    }
-    if (!creep.pos.isNearTo(flag)) {
-        creep.goto(flag)
-        return false
-    }
-    const mineral = flag.pos.lookFor(LOOK_MINERALS)[0]
+    if (!creep.gotoFlag(creep.memory.config.flagName)) return false
+
+    const mineral = Game.flags[creep.memory.config.flagName].pos.lookFor(LOOK_MINERALS)[0]
     if (!mineral) {
-        creep.log('no mineral!', 'error')
+        creep.say('no mineral!')
+        creep.memory.dontNeed = true
         return false
     }
     creep.memory.mineralId = mineral.id

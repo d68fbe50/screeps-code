@@ -3,18 +3,8 @@ const TASK_TYPE = 'TaskTransport'
 const fillExtension = {
     source: (creep) => creep.getEnergy(true, false, 0.1),
     target: (creep) => {
-        if (creep.room.energyAvailable === creep.room.energyCapacityAvailable) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
-            delete creep.memory.task.needFillSpawnExtId
-            return true
-        }
         if (creep.isEmpty) return true
-        let target = Game.getObjectById(creep.memory.task.needFillSpawnExtId)
-        if (!target || target.isFull) {
-            target = creep.pos.findClosestByRange([...creep.room.spawn, ...creep.room.extension], { filter: i => !i.isFull })
-            creep.memory.task.needFillSpawnExtId = target.id // target 一定存在
-        }
-        creep.putTo(target)
+        !creep.fillExtensions() && creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
     }
 }
 
@@ -22,17 +12,7 @@ const fillTower = {
     source: (creep) => creep.getEnergy(true, false, 0.1),
     target: (creep) => {
         if (creep.isEmpty) return true
-        let target = Game.getObjectById(creep.memory.task.needFillTowerId)
-        if (!target || target.isFull) {
-            target = creep.pos.findClosestByRange(creep.room.tower, { filter: i => i.energy < 800 })
-            if (!target) {
-                creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
-                delete creep.memory.task.needFillTowerId
-                return true
-            }
-            creep.memory.task.needFillTowerId = target.id
-        }
-        creep.putTo(target)
+        !creep.fillTowers() && creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
     }
 }
 
