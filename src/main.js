@@ -1,5 +1,5 @@
 require('./mount')
-const { roleRequires } = require('./prototype_creep')
+const mount_role = require('./mount_role')
 const { manageDelayTask } = require('./utils_delayQueue')
 
 !('sim' in Game.rooms) && console.log('[全局重置]')
@@ -36,7 +36,7 @@ function handleNotExistCreep() {
         if (Game.creeps[creepName]) continue
         const creepMemory = Memory.creeps[creepName]
         const { role, home, config, dontNeed } = creepMemory
-        const roleRequire = roleRequires[role]
+        const roleRequire = mount_role[role].require
         if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) { // 注意顺序
             delete Memory.creeps[creepName]
             Memory.allCreeps = _.pull(Memory.allCreeps, creepName)

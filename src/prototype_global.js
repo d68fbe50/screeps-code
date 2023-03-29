@@ -1,9 +1,6 @@
 const { updateAvoidRooms } = require('./wheel_move')
 
-global.wallRepairHitsMax = 10 * 1000 * 1000
-
 const logHistory = []
-const logHistoryLimit = 1000
 global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     content = prefix + content
     if (type === 'error') content = '<text style="color:red">[ERROR]&nbsp;</text>' + content
@@ -11,7 +8,7 @@ global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     else if (type === 'info') content = '<text style="color:lightblue">[INFO]&nbsp;</text>' + content
     console.log(content)
     if (notifyNow) Game.notify(content)
-    if (logHistory.length >= logHistoryLimit) logHistory.shift()
+    if (logHistory.length >= 1000) logHistory.shift()
     logHistory.push(content)
 }
 

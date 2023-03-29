@@ -1,9 +1,8 @@
 const TASK_TYPE = 'TaskTransport'
-const taskActions = require('./task_transportActions')
 
-const isNeed = function (creepMemory) {
-    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.task && creepMemory.task.key, -1)
-    return !creepMemory.dontNeed;
+const isNeed = function (memory) {
+    Game.rooms[memory.home].updateTaskUnit(TASK_TYPE, memory.task.key, -1)
+    return !memory.dontNeed;
 }
 
 const deathPrepare = function (creep) {
@@ -18,42 +17,9 @@ const deathPrepare = function (creep) {
     return true
 }
 
-const source = function (creep) {
-    if (creep.room.memory[TASK_TYPE].length === 0) {
-        creep.memory.task = {}
-        return false
-    }
-    if (!creep.memory.task.key) {
-        if (!creep.receiveTask(TASK_TYPE)) return false
-    }
-    const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
-    if (!task) {
-        creep.memory.task = {}
-        return false
-    }
-    const action = taskActions[task.key]
-    if (!action || !action.source) {
-        creep.log(`${TASK_TYPE}:source 任务逻辑不存在：${task.key}`, 'error')
-        return false
-    }
-    return action.source(creep)
-}
+const source = (creep) => creep.runTaskSource(TASK_TYPE)
 
-const target = function (creep) {
-    const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
-    if (!task) {
-        creep.memory.task = {}
-        return true
-    }
-    const action = taskActions[task.key]
-    if (!action || !action.target) {
-        creep.log(`${TASK_TYPE}:target 任务逻辑不存在：${task.key}`, 'error')
-        return true
-    }
-    const result = action.target(creep)
-    if (result) creep.revertTask(TASK_TYPE)
-    return result
-}
+const target = (creep) => creep.runTaskTarget(TASK_TYPE)
 
 const bodys = [
     { carry: 1, move: 1 },

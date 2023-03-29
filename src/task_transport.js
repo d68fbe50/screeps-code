@@ -1,5 +1,25 @@
 const TASK_TYPE = 'TaskTransport'
 
+const transportTaskConfigs = {
+    fillExtension: { priority: 9, minUnits: 1, maxUnits: 2 },
+    fillTower: { priority: 7, minUnits: 1, maxUnits: 2 },
+    labEnergy: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labIn: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labOut: { priority: 5, minUnits: 1, maxUnits: 1 },
+    nukerEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
+    nukerG: { priority: 0, minUnits: 1, maxUnits: 1 },
+    powerSpawnEnergy: { priority: 1, minUnits: 1, maxUnits: 1 },
+    powerSpawnPower: { priority: 1, minUnits: 1, maxUnits: 1 },
+    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 2 },
+    upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
+}
+
+Room.prototype.addTransportTask = function (key) {
+    if (!(key in transportTaskConfigs)) return false
+    const { priority, minUnits, maxUnits } = transportTaskConfigs[key]
+    return this.addTask(TASK_TYPE, key, {}, priority, 0, minUnits, 0, maxUnits)
+}
+
 const fillExtension = {
     source: (creep) => creep.getEnergy(true, false, 0.1),
     target: (creep) => {

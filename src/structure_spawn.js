@@ -1,4 +1,4 @@
-const { roleRequires } = require('./prototype_creep')
+const mount_role = require('./mount_role')
 
 const importantRoles = ['harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'
@@ -15,7 +15,7 @@ StructureSpawn.prototype.run = function () {
 
     const { key, data } = task
     const role = data.role
-    const roleRequire = roleRequires[role]
+    const roleRequire = mount_role[role].require
     if (!roleRequire || !roleRequire.bodys) {
         this.room.removeTask(TASK_TYPE, key)
         this.log(`${key} 找不到角色或身体配置`, 'error')

@@ -1,28 +1,4 @@
-const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes 保持一致
-    centerTransporter: require('./role_centerTransporter'),
-    claimer: require('./role_claimer'),
-    defender: require('./role_defender'),
-    depoHarvester: require('./role_depoHarvester'),
-    harvester: require('./role_harvester'),
-    helper: require('./role_helper'),
-    mineHarvester: require('./role_mineHarvester'),
-    powerAttacker: require('./role_powerAttacker'),
-    powerHealer: require('./role_powerHealer'),
-    remoteHarvester: require('./role_remoteHarvester'),
-    remoteDefender: require('./role_remoteDefender'),
-    remoteTransporter: require('./role_remoteTransporter'),
-    reserver: require('./role_reserver'),
-    squadAttacker: require('./role_squadAttacker'),
-    squadDismantler: require('./role_squadDismantler'),
-    squadHealer: require('./role_squadHealer'),
-    squadRanged: require('./role_squadRanged'),
-    transporter: require('./role_transporter'),
-    upgrader: require('./role_upgrader'),
-    worker: require('./role_worker')
-}
-
-const roadHitsPercent = 0.5
-const wallFocusTime = 300
+const mount_role = require('./mount_role')
 
 Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.say(content)
@@ -32,7 +8,7 @@ Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
 Creep.prototype.run = function () {
     if (this.spawning) return
 
-    const roleRequire = roleRequires[this.memory.role]
+    const roleRequire = mount_role[this.memory.role].require
     if (!roleRequire) return this.say('no role!')
     if (!this.home) return this.say('no home!')
 
@@ -267,14 +243,14 @@ Creep.prototype.gotoFlagRoom = function (flagName) {
 Creep.prototype.repairRoad = function () {
     if (this.room.my && this.room.tower.length > 0) return false
     const road = this.pos.lookForStructure(STRUCTURE_ROAD)
-    if (road && road.hits / road.hitsMax < roadHitsPercent) return this.repair(road)
+    if (road && road.hits < road.hitsMax / 2) return this.repair(road)
 }
 
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
-    if (!(Game.time % wallFocusTime) || !needRepairWallId) {
+    if (!(Game.time % 300) || !needRepairWallId) {
         const minHitsWall = [...this.room.wall, ...this.room.rampart]
-            .filter(i => i.hits < wallRepairHitsMax)
+            .filter(i => i.hits < i.hitsMax / 25)
             .sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
@@ -327,22 +303,3 @@ Object.defineProperty(Creep.prototype, 'isFull', {
     },
     configurable: true
 })
-
-// =================================================================================================== Task
-
-Creep.prototype.receiveTask = function (type) {
-    const task = this.room.getExpectTask(type)
-    if (task) {
-        this.memory.task = { key: task.key }
-        this.room.updateTaskUnit(type, task.key, 1)
-    }
-    return task
-}
-
-Creep.prototype.revertTask = function (type) {
-    this.room.updateTaskUnit(type, this.memory.task.key, -1)
-    this.memory.task = {}
-    return true
-}
-
-module.exports = { roleRequires }

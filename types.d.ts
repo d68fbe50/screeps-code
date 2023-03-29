@@ -8,7 +8,7 @@ interface RoomMemory {
     sourceContainerIds, upgradeContainerId, // container
     centerLinkId, upgradeLinkId, // link
     spawnLock, remoteLocks, // lock
-    TaskCenter, TaskSpawn, TaskTransport, TaskWork, TaskTest, // task
+    TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest, // task
     transporterAmount, workerAmount, upgraderAmount,
     needRepairWallId, useRuinEnergy // others
 }
