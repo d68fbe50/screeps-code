@@ -13,13 +13,13 @@ StructureLink.prototype.onBuildComplete = function () {
     if (structuresInRange[0]) {
         this.room.addCenterTransporter(this.room.memory.centerPos.x, this.room.memory.centerPos.y)
         this.room.memory.centerLinkId = this.id
-        this.log('已注册为 centerLink', 'success')
+        this.log('已注册为 centerLink')
         return
     }
 
     const sourcesInRange = this.pos.findInRange(FIND_SOURCES, 2)
     if (sourcesInRange[0]) {
-        this.log('已注册为 sourceLink', 'success')
+        this.log('已注册为 sourceLink')
         return
     }
 
@@ -30,7 +30,7 @@ StructureLink.prototype.onBuildComplete = function () {
         this.room.memory.upgradeLinkId = this.id
         this.room.setCreepAmount('upgrader', 3)
         this.room.setCreepAmount('worker', 1)
-        this.log('已注册为 upgradeLink', 'success')
+        this.log('已注册为 upgradeLink')
     }
 }
 

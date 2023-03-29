@@ -5,7 +5,7 @@ const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
     if (this.spawning) {
-        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension', 2, 2)
+        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
         return
     }
     if (this.room.memory[TASK_TYPE].length === 0 || this.room.memory.spawnLock > Game.time) return

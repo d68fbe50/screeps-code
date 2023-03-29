@@ -1,103 +1,57 @@
-const centerTaskTypes = {
-    centerLink: 9,
-    factory: 3,
-    storage: 5,
-    terminal: 7
+const centerTaskConfigs = {
+    centerLink: { priority: 9 },
+    factory: { priority: 3 },
+    storage: { priority: 5 },
+    terminal: { priority: 7 }
 }
 
-const spawnTaskTypes = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
-    centerTransporter: 7, // priority
-    claimer: 0,
-    defender: 6,
-    depoDefender: 0,
-    depoHarvester: 0,
-    harvester: 9,
-    helper: 0,
-    mineHarvester: 0,
-    powerAttacker: 0,
-    powerDefender: 0,
-    powerHealer: 0,
-    powerTransporter: 0,
-    remoteHarvester: 0,
-    remoteDefender: 0,
-    remoteTransporter: 0,
-    reserver: 0,
-    squadAttacker: 5,
-    squadDismantler: 5,
-    squadHealer: 5,
-    squadRanged: 5,
-    transporter: 8,
-    upgrader: 0,
-    worker: 0
+const spawnTaskConfigs = { // 注意与 prototype_creep.js 的 roleRequires 保持一致
+    centerTransporter: { priority: 7 }, // priority
+    claimer: { priority: 0 },
+    defender: { priority: 6 },
+    depoDefender: { priority: 0 },
+    depoHarvester: { priority: 0 },
+    harvester: { priority: 9 },
+    helper: { priority: 0 },
+    mineHarvester: { priority: 0 },
+    powerAttacker: { priority: 0 },
+    powerDefender: { priority: 0 },
+    powerHealer: { priority: 0 },
+    powerTransporter: { priority: 0 },
+    remoteHarvester: { priority: 0 },
+    remoteDefender: { priority: 0 },
+    remoteTransporter: { priority: 0 },
+    reserver: { priority: 0 },
+    squadAttacker: { priority: 5 },
+    squadDismantler: { priority: 5 },
+    squadHealer: { priority: 5 },
+    squadRanged: { priority: 5 },
+    transporter: { priority: 8 },
+    upgrader: { priority: 0 },
+    worker: { priority: 0 }
 }
 
-const transportTaskTypes = {
-    fillExtension: 9,
-    fillTower: 7,
-    labEnergy: 5,
-    labIn: 5,
-    labOut: 5,
-    nukerEnergy: 0,
-    nukerG: 0,
-    powerSpawnEnergy: 1,
-    powerSpawnPower: 1,
-    sourceContainerOut: 0,
-    upgradeContainerIn: 0
+const transportTaskConfigs = {
+    fillExtension: { priority: 9, minUnits: 1, maxUnits: 1 },
+    fillTower: { priority: 7, minUnits: 1, maxUnits: 1 },
+    labEnergy: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labIn: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labOut: { priority: 5, minUnits: 1, maxUnits: 1 },
+    nukerEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
+    nukerG: { priority: 0, minUnits: 1, maxUnits: 1 },
+    powerSpawnEnergy: { priority: 1, minUnits: 1, maxUnits: 1 },
+    powerSpawnPower: { priority: 1, minUnits: 1, maxUnits: 1 },
+    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 2 },
+    upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
 }
 
-const workTaskTypes = {
-    build: 9,
-    repair: 6,
-    upgrade: 3
+const workTaskConfigs = {
+    build: { priority: 9, minUnits: 1, maxUnits: 5 },
+    repair: { priority: 6, minUnits: 1, maxUnits: 1 },
+    upgrade: { priority: 3, minUnits: 0, maxUnits: 10 }
 }
 
-// task prototype --------------------------------------------------------------------------------
-
-Room.prototype.addCenterTask = function (key, source, target, resourceType, amount) {
-    if (!(key in centerTaskTypes)) return false
-    const data = { source, target, resourceType, amount }
-    return this.addTask('TaskCenter', key, data, centerTaskTypes[key])
-}
-
-Room.prototype.handleCenterTask = function (key, amount) {
-    const type = 'TaskCenter'
-    const data = this.getTask(type, key).data
-    data.amount -= amount
-    if (data.amount <= 0) return this.removeTask(type, key)
-    return this.updateTask(type, key, { data })
-}
-
-Room.prototype.addSpawnTask = function (key, creepMemory) {
-    if (key in Game.creeps || !creepMemory || !(creepMemory.role in spawnTaskTypes)) return false
-    const result = this.addTask('TaskSpawn', key, creepMemory, spawnTaskTypes[creepMemory.role])
-    if (result && !Memory.allCreeps.includes(key)) Memory.allCreeps.push(key)
-    return result
-}
-
-Room.prototype.removeSpawnTaskByRole = function (role) {
-    if (!role) return false
-    const type = 'TaskSpawn'
-    const task = this.memory[type].find(i => i.data && i.data.role === role)
-    if (!task) return false
-    const result = this.removeTask(type, task.key)
-    if (result) {
-        Memory.allCreeps = _.pull(Memory.allCreeps, task.key)
-        this.log(`spawnTask: ${task.key} 已移除`, 'notify')
-    }
-    return result
-}
-
-Room.prototype.addTransportTask = function (key, minUnits, maxUnits) {
-    if (!(key in transportTaskTypes)) return false
-    return this.addTask('TaskTransport', key, undefined, transportTaskTypes[key], undefined, minUnits, 0, maxUnits)
-}
-
-Room.prototype.addWorkTask = function (key, minUnits, maxUnits) {
-    if (!(key in workTaskTypes)) return false
-    return this.addTask('TaskWork', key, undefined, workTaskTypes[key], undefined, minUnits, 0, maxUnits)
-}
-
-// TaskBase --------------------------------------------------------------------------------------
+// =================================================================================================== Base
 
 Room.prototype.getTask = function (type, key) {
     if (!type || !key) return undefined
@@ -185,4 +139,58 @@ Room.prototype.testTaskQueue = function () {
     const result = this.getFirstTask('TaskTest').key === 'test2' && t.key === 'test1' && t.lockTime > 0 && t.data && t.data.data1 === 'value1' && t.nowUnits === 1 && t.maxUnits === 2
     console.log(result ? '测试通过' : 'ERROR: 测试未通过！！！')
     delete this.memory.TaskTest
+}
+
+// =================================================================================================== TaskCenter
+
+Room.prototype.addCenterTask = function (key, source, target, resourceType, amount) {
+    if (!(key in centerTaskConfigs)) return false
+    const data = { source, target, resourceType, amount }
+    return this.addTask('TaskCenter', key, data, centerTaskConfigs[key].priority)
+}
+
+Room.prototype.handleCenterTask = function (key, amount) {
+    const type = 'TaskCenter'
+    const data = this.getTask(type, key).data
+    data.amount -= amount
+    if (data.amount <= 0) return this.removeTask(type, key)
+    return this.updateTask(type, key, { data })
+}
+
+// =================================================================================================== TaskSpawn
+
+Room.prototype.addSpawnTask = function (key, creepMemory) {
+    if (key in Game.creeps || !creepMemory || !(creepMemory.role in spawnTaskConfigs)) return false
+    const result = this.addTask('TaskSpawn', key, creepMemory, spawnTaskConfigs[creepMemory.role].priority)
+    if (result && !Memory.allCreeps.includes(key)) Memory.allCreeps.push(key)
+    return result
+}
+
+Room.prototype.removeSpawnTaskByRole = function (role) {
+    if (!role) return false
+    const type = 'TaskSpawn'
+    const task = this.memory[type].find(i => i.data && i.data.role === role)
+    if (!task) return false
+    const result = this.removeTask(type, task.key)
+    if (result) {
+        Memory.allCreeps = _.pull(Memory.allCreeps, task.key)
+        this.log(`spawnTask: ${task.key} 已移除`)
+    }
+    return result
+}
+
+// =================================================================================================== TaskTransport
+
+Room.prototype.addTransportTask = function (key) {
+    if (!(key in transportTaskConfigs)) return false
+    const { priority, minUnits, maxUnits } = transportTaskConfigs[key]
+    return this.addTask('TaskTransport', key, {}, priority, 0, minUnits, 0, maxUnits)
+}
+
+// =================================================================================================== TaskWork
+
+Room.prototype.addWorkTask = function (key) {
+    if (!(key in workTaskConfigs)) return false
+    const { priority, minUnits, maxUnits } = workTaskConfigs[key]
+    return this.addTask('TaskWork', key, {}, priority, 0, minUnits, 0, maxUnits)
 }

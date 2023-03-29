@@ -5,8 +5,8 @@ const wallRepairHitsMax = 100 * 1000
 StructureController.prototype.run = function () {
     checkRoomMemory(this.room)
     this.room.container.forEach(i => i.run && i.run())
-    if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build', 1, 5)
-    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair', 1, 1)
+    if (!(Game.time % buildCheckInterval)) this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
+    if (!(Game.time % wallCheckInterval)) [...this.room.wall, ...this.room.rampart].find(i => i.hits < wallRepairHitsMax) && this.room.addWorkTask('repair')
     onLevelChange(this.room, this.level)
     visualTaskDetails(this.room)
     collectRoomStats(this.room, this)
@@ -27,8 +27,8 @@ function onLevelChange(room, level) {
     room.memory.rcl = level
     room.updateLayout()
     if (level === 1) {
-        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量。', 'success')
-        room.addWorkTask('upgrade', 0, 10)
+        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量。')
+        room.addWorkTask('upgrade')
     } else if (level === 8) {
         room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')

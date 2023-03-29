@@ -11,7 +11,7 @@ const prepare = function (creep) {
         return false
     }
     if (creep.room.name !== flag.pos.roomName) {
-        creep.moveTo(flag)
+        creep.goto(flag)
         return false
     }
     return true

@@ -29,9 +29,9 @@ const roleRequires = { // 注意与 prototype_taskQueue.js 的 spawnTaskTypes �
     worker: require('./role_worker')
 }
 
-Creep.prototype.log = function (content, type, notifyNow) {
+Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.say(content)
-    this.room.log(content, type, notifyNow, `[${this.pos.x},${this.pos.y}] [${this.name}]`)
+    this.room.log(content, type, notifyNow, `[${this.memory.role}:${this.name},${this.pos.x},${this.pos.y}]&nbsp;`)
 }
 
 Creep.prototype.run = function () {
@@ -56,57 +56,100 @@ Creep.prototype.run = function () {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
-Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
-    if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
-    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
-    const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
-    if (putTarget) this.putTo(putTarget, resourceType)
-    else this.drop(resourceType)
-    return false
+// =================================================================================================== Base
+
+Creep.prototype.attackC = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.attackController(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
 }
 
-// task func -------------------------------------------------------------------------------------
-
-Creep.prototype.receiveTask = function (type) {
-    const task = this.room.getExpectTask(type)
-    if (task) {
-        this.memory.task = { key: task.key }
-        this.room.updateTaskUnit(type, task.key, 1)
-    }
-    return task
+Creep.prototype.buildTo = function (target) {
+    const result = this.build(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target) || this.repairRoad()
+    return result
 }
 
-Creep.prototype.revertTask = function (type) {
-    this.room.updateTaskUnit(type, this.memory.task.key, -1)
-    this.memory.task = {}
-    return true
+Creep.prototype.claim = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.claimController(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
 }
 
-// senior behavior ------------------------------------------------------------------------------
-
-Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
-    if (this.energy / this.store.getCapacity() >= energyPercent) {
-        delete this.memory.energySourceId
-        delete this.memory.dontPullMe
-        return true
-    }
-    if (!this.clearResources(RESOURCE_ENERGY)) return false
-    if (!this.memory.energySourceId) {
-        const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
-        this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
-    }
-    const energySource = Game.getObjectById(this.memory.energySourceId)
-    if (!energySource) {
-        delete this.memory.energySourceId
-        return false
-    }
-    const result = this.getFrom(energySource)
-    if (result === OK) {
-        if (energySource instanceof Source) this.memory.dontPullMe = true // 采矿时禁止对穿
-    }
-    else if (result === ERR_NOT_ENOUGH_ENERGY || result === ERR_NOT_ENOUGH_RESOURCES) delete this.memory.energySourceId
-    return false
+Creep.prototype.dismantleTo = function (target) {
+    const result = this.dismantle(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
 }
+
+Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
+    let result
+    if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
+    else if (target instanceof Resource) result = this.pickup(target)
+    else result = this.harvest(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
+}
+
+Creep.prototype.goto = function (firstArg, secondArg, opts) {
+    if (Memory.isVisualPath) {
+        const toPos = (typeof firstArg == 'object') ? (firstArg.pos || firstArg) : new RoomPosition(firstArg, secondArg, this.room.name)
+        this.room.visual.line(this.pos, toPos, { width: 0.05 })
+    }
+    this.moveTo(firstArg, secondArg, opts)
+}
+
+Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
+    const result = this.transfer(target, resourceType, amount)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
+}
+
+Creep.prototype.repairTo = function (target) {
+    const result = this.repair(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target) || this.repairRoad()
+    return result
+}
+
+Creep.prototype.reserve = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.reserveController(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target)
+    return result
+}
+
+Creep.prototype.upgrade = function (target) {
+    if (!target) target = this.room.controller
+    const result = this.upgradeController(target)
+    if (result === ERR_NOT_IN_RANGE) this.goto(target, {range: 3}) || this.repairRoad()
+    return result
+}
+
+// =================================================================================================== Boost
+
+Object.defineProperty(Creep.prototype, 'boostCounts', {
+    get() {
+        if (!this._boostCounts) {
+            this._boostCounts = _.countBy(this.body, i => i.boost)
+        }
+        return this._boostCounts
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'boosts', {
+    get() {
+        if (!this._boosts) {
+            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
+        }
+        return this._boosts
+    },
+    configurable: true
+})
+
+// =================================================================================================== Senior
 
 Creep.prototype.buildStructure = function () {
     const csId = this.room.memory.constructionSiteId
@@ -135,6 +178,45 @@ Creep.prototype.buildStructure = function () {
     } else return false
 }
 
+Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
+    if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
+    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
+    const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
+    if (putTarget) this.putTo(putTarget, resourceType)
+    else this.drop(resourceType)
+    return false
+}
+
+Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
+    if (this.energy / this.store.getCapacity() >= energyPercent) {
+        delete this.memory.energySourceId
+        delete this.memory.dontPullMe
+        return true
+    }
+    if (!this.clearResources(RESOURCE_ENERGY)) return false
+    if (!this.memory.energySourceId) {
+        const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
+        this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
+    }
+    const energySource = Game.getObjectById(this.memory.energySourceId)
+    if (!energySource) {
+        delete this.memory.energySourceId
+        return false
+    }
+    const result = this.getFrom(energySource)
+    if (result === OK) {
+        if (energySource instanceof Source) this.memory.dontPullMe = true // 采矿时禁止对穿
+    }
+    else if (result === ERR_NOT_ENOUGH_ENERGY || result === ERR_NOT_ENOUGH_RESOURCES) delete this.memory.energySourceId
+    return false
+}
+
+Creep.prototype.repairRoad = function () {
+    if (this.room.my && this.room.tower.length > 0) return false
+    const road = this.pos.lookForStructure(STRUCTURE_ROAD)
+    if (road && road.hits / road.hitsMax < roadHitsPercent) return this.repair(road)
+}
+
 Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % wallFocusTime) || !needRepairWallId) {
@@ -156,113 +238,11 @@ Creep.prototype.repairWall = function () {
     return true
 }
 
-// base behavior -------------------------------------------------------------------------------
+// =================================================================================================== Store
 
-Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
-    let result
-    if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
-    else if (target instanceof Resource) result = this.pickup(target)
-    else result = this.harvest(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-    }
-    return result
-}
-
-Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
-    const result = this.transfer(target, resourceType, amount)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-    }
-    return result
-}
-
-Creep.prototype.repairRoad = function () {
-    if (this.room.my && this.room.tower.length > 0) return false
-    const road = this.pos.lookForStructure(STRUCTURE_ROAD)
-    if (road && road.hits / road.hitsMax < roadHitsPercent) return this.repair(road)
-}
-
-Creep.prototype.buildTo = function (target) {
-    const result = this.build(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-        this.repairRoad()
-    }
-    return result
-}
-
-Creep.prototype.dismantleTo = function (target) {
-    const result = this.dismantle(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-    }
-    return result
-}
-
-Creep.prototype.repairTo = function (target) {
-    const result = this.repair(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-        this.repairRoad()
-    }
-    return result
-}
-
-Creep.prototype.upgrade = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.upgradeController(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target, {range: 3})
-        this.repairRoad()
-    }
-    return result
-}
-
-Creep.prototype.claim = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.claimController(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-    }
-    return result
-}
-
-Creep.prototype.reserve = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.reserveController(target)
-    if (result === ERR_NOT_IN_RANGE) {
-        if (Memory.isVisualPath) this.room.visual.line(this.pos, target && target.pos, { width: 0.05 })
-        this.moveTo(target)
-    }
-    return result
-}
-
-// Creep Property -------------------------------------------------------------------------------
-
-Object.defineProperty(Creep.prototype, 'boosts', {
+Object.defineProperty(Creep.prototype, 'capacity', {
     get() {
-        if (!this._boosts) {
-            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
-        }
-        return this._boosts
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'boostCounts', {
-    get() {
-        if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, i => i.boost)
-        }
-        return this._boostCounts
+        return this.store.getCapacity()
     },
     configurable: true
 })
@@ -274,9 +254,9 @@ Object.defineProperty(Creep.prototype, 'energy', {
     configurable: true
 })
 
-Object.defineProperty(Creep.prototype, 'capacity', {
+Object.defineProperty(Creep.prototype, 'inRampart', {
     get() {
-        return this.store.getCapacity()
+        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
     },
     configurable: true
 })
@@ -295,11 +275,21 @@ Object.defineProperty(Creep.prototype, 'isFull', {
     configurable: true
 })
 
-Object.defineProperty(Creep.prototype, 'inRampart', {
-    get() {
-        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
-    },
-    configurable: true
-})
+// =================================================================================================== Task
+
+Creep.prototype.receiveTask = function (type) {
+    const task = this.room.getExpectTask(type)
+    if (task) {
+        this.memory.task = { key: task.key }
+        this.room.updateTaskUnit(type, task.key, 1)
+    }
+    return task
+}
+
+Creep.prototype.revertTask = function (type) {
+    this.room.updateTaskUnit(type, this.memory.task.key, -1)
+    this.memory.task = {}
+    return true
+}
 
 module.exports = { roleRequires }

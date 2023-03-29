@@ -1,7 +1,9 @@
-Room.prototype.log = function (content, type, notifyNow, prefix) {
-    prefix = `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${this.name}">[${this.name}]</a>${prefix ? prefix : ''}`
+Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix = '') {
+    prefix = `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${this.name}">[${this.name}]&nbsp;</a>${prefix}`
     log(content, type, notifyNow, prefix)
 }
+
+// =================================================================================================== Market
 
 Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
     return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
@@ -27,7 +29,7 @@ Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
 Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
     this.memory.centerPos.x = centerPosX
     this.memory.centerPos.y = centerPosY
-    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
+    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`)
 }
 
 Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
@@ -70,7 +72,7 @@ Room.prototype.updateLayout = function () {
     if (this.level >= 4) {
         this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
     }
-    if (needBuild) this.addWorkTask('build', 1, 5)
+    if (needBuild) this.addWorkTask('build')
 }
 
 let confirmTick
@@ -78,39 +80,14 @@ Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
     if (!confirm) return false
     if (confirmTick !== Game.time - 1) {
         confirmTick = Game.time
-        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
-        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
-        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'error')
+        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'warning')
         return
     }
     this.controller.unclaim()
-    log(`room: ${this.name} 已移除！`, 'error')
-    log(`room: ${this.name} 已移除！`, 'error')
-    log(`room: ${this.name} 已移除！`, 'error')
+    log(`room: ${this.name} 已移除！`, 'warning')
 }
 
-// Room Properties -------------------------------------------------------------------------------
-
-Object.defineProperty(Room.prototype, 'my', {
-    get() {
-        return this.controller && this.controller.my
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'level', {
-    get() {
-        return this.controller && this.controller.level
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'owner', {
-    get() {
-        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
-    },
-    configurable: true
-})
+// =================================================================================================== Base
 
 Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
@@ -124,66 +101,81 @@ Object.defineProperty(Room.prototype, 'centerPos', {
     configurable: true
 })
 
-// Structure Properties --------------------------------------------------------------------------
-
-Object.defineProperty(Room.prototype, 'structures', {
+Object.defineProperty(Room.prototype, 'constructionSites', {
     get() {
-        if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
-        return this._allStructures
+        if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
+        return this._constructionSites
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'hostileStructures', {
+Object.defineProperty(Room.prototype, 'flags', {
     get() {
-        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
-        return this._hostileStructures
+        if (!this._flags) this._flags = this.find(FIND_FLAGS)
+        return this._flags
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'centerLink', {
+Object.defineProperty(Room.prototype, 'tombstones', {
     get() {
-        return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
+        if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
+        return this._tombstones
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'upgradeLink', {
+// =================================================================================================== Controller
+
+Object.defineProperty(Room.prototype, 'level', {
     get() {
-        return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
+        return this.controller && this.controller.level
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'sourceContainers', {
+Object.defineProperty(Room.prototype, 'my', {
     get() {
-        if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
-        return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
+        return this.controller && this.controller.my
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'upgradeContainer', {
+Object.defineProperty(Room.prototype, 'owner', {
     get() {
-        return Game.getObjectById(this.memory.upgradeContainerId)
+        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'wall', {
-    get() {
-        return this[STRUCTURE_WALL]
-    },
-    configurable: true
-})
-
-// Creep Properties ------------------------------------------------------------------------------
+// =================================================================================================== Creep
 
 Object.defineProperty(Room.prototype, 'creeps', {
     get() {
         if (!this._creeps) this._creeps = this.find(FIND_MY_CREEPS)
         return this._creeps
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'dangerousHostiles', {
+    get() {
+        if (!this._dangerousHostiles) {
+            if (this.my) this._dangerousHostiles = _.filter(this.hostiles,
+                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+            else this._dangerousHostiles = _.filter(this.hostiles,
+                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+        }
+        return this._dangerousHostiles
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
+    get() {
+        if (!this._dangerousPlayerHostiles) this._dangerousPlayerHostiles = _.filter(this.playerHostiles,
+            i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
+        return this._dangerousPlayerHostiles
     },
     configurable: true
 })
@@ -204,14 +196,6 @@ Object.defineProperty(Room.prototype, 'invaders', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'sourceKeepers', {
-    get() {
-        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
-        return this._sourceKeepers
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'playerHostiles', {
     get() {
         if (!this._playerHostiles) {
@@ -222,61 +206,15 @@ Object.defineProperty(Room.prototype, 'playerHostiles', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'dangerousHostiles', {
+Object.defineProperty(Room.prototype, 'sourceKeepers', {
     get() {
-        if (!this._dangerousHostiles) {
-            if (this.my) this._dangerousHostiles = _.filter(this.hostiles,
-                    i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-            else this._dangerousHostiles = _.filter(this.hostiles,
-                    i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-        }
-        return this._dangerousHostiles
+        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
+        return this._sourceKeepers
     },
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
-    get() {
-        if (!this._dangerousPlayerHostiles) this._dangerousPlayerHostiles = _.filter(this.playerHostiles,
-                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-        return this._dangerousPlayerHostiles
-    },
-    configurable: true
-})
-
-// Other Properties ------------------------------------------------------------------------------
-
-Object.defineProperty(Room.prototype, 'flags', {
-    get() {
-        if (!this._flags) this._flags = this.find(FIND_FLAGS)
-        return this._flags
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'constructionSites', {
-    get() {
-        if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
-        return this._constructionSites
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'tombstones', {
-    get() {
-        if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
-        return this._tombstones
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'drops', {
-    get() {
-        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
-        return this._drops;
-    },
-    configurable: true
-})
+// =================================================================================================== Resources
 
 Object.defineProperty(Room.prototype, 'droppedEnergy', {
     get() {
@@ -291,6 +229,70 @@ Object.defineProperty(Room.prototype, 'droppedPower', {
     },
     configurable: true
 })
+
+Object.defineProperty(Room.prototype, 'drops', {
+    get() {
+        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
+        return this._drops;
+    },
+    configurable: true
+})
+
+// =================================================================================================== Structure
+
+Object.defineProperty(Room.prototype, 'centerLink', {
+    get() {
+        return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'hostileStructures', {
+    get() {
+        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
+        return this._hostileStructures
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'sourceContainers', {
+    get() {
+        if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
+        return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'structures', {
+    get() {
+        if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
+        return this._allStructures
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeContainer', {
+    get() {
+        return Game.getObjectById(this.memory.upgradeContainerId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeLink', {
+    get() {
+        return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'wall', {
+    get() {
+        return this[STRUCTURE_WALL]
+    },
+    configurable: true
+})
+
+// =================================================================================================== Visual
 
 global.visualLayout = function (roomName, centerPosX = 25, centerPosY = 25) {
     const visual = new RoomVisual(roomName)

@@ -4,7 +4,7 @@ const prepare = function (creep) {
     const { centerPosX, centerPosY } = creep.memory.config
     if (centerPosX && centerPosY) {
         if (creep.pos.x !== centerPosX || creep.pos.y !== centerPosY) {
-            creep.moveTo(centerPosX, centerPosY)
+            creep.goto(centerPosX, centerPosY)
             return false
         }
         creep.memory.dontPullMe = true

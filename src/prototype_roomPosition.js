@@ -1,5 +1,5 @@
-RoomPosition.prototype.lookForStructure = function(structureType) {
-    return _.find(this.lookFor(LOOK_STRUCTURES), i => i.structureType === structureType)
+RoomPosition.prototype.availableNeighbors = function(ignoreCreeps = false) {
+    return _.filter(this.neighbors, i => i.isWalkable(ignoreCreeps))
 }
 
 RoomPosition.prototype.isWalkable = function(ignoreCreeps = false) {
@@ -11,20 +11,13 @@ RoomPosition.prototype.isWalkable = function(ignoreCreeps = false) {
     return true
 }
 
-RoomPosition.prototype.availableNeighbors = function(ignoreCreeps = false) {
-    return _.filter(this.neighbors, i => i.isWalkable(ignoreCreeps))
+RoomPosition.prototype.lookForStructure = function(structureType) {
+    return _.find(this.lookFor(LOOK_STRUCTURES), i => i.structureType === structureType)
 }
 
 Object.defineProperty(RoomPosition.prototype, 'isEdge', {
     get: function() {
         return this.x === 0 || this.x === 49 || this.y === 0 || this.y === 49
-    },
-    configurable: true
-})
-
-Object.defineProperty(RoomPosition.prototype, 'rangeToEdge', {
-    get: function() {
-        return _.min([this.x, 49 - this.x, this.y, 49 - this.y])
     },
     configurable: true
 })
@@ -49,6 +42,13 @@ Object.defineProperty(RoomPosition.prototype, 'neighbors', {
             }
         }
         return adjPos
+    },
+    configurable: true
+})
+
+Object.defineProperty(RoomPosition.prototype, 'rangeToEdge', {
+    get: function() {
+        return _.min([this.x, 49 - this.x, this.y, 49 - this.y])
     },
     configurable: true
 })

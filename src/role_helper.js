@@ -12,7 +12,7 @@ const prepare = function (creep) {
         return false
     }
     if (creep.room.name === creep.memory.config.roomName) return true
-    creep.moveTo(targetRoom.controller)
+    creep.goto(targetRoom.controller)
     return false
 }
 

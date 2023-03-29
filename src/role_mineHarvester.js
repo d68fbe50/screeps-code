@@ -13,7 +13,7 @@ const prepare = function (creep) {
         return false
     }
     if (!creep.pos.isNearTo(flag)) {
-        creep.moveTo(flag)
+        creep.goto(flag)
         return false
     }
     const mineral = flag.pos.lookFor(LOOK_MINERALS)[0]

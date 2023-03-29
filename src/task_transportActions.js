@@ -59,9 +59,7 @@ const sourceContainerOut = {
         let container = Game.getObjectById(creep.memory.task.sourceContainerId)
         if (!container) {
             container = creep.room.sourceContainers.filter(i => i.energy >= creep.capacity / 2).sort((a, b) => b.energy - a.energy)[0]
-            if (container) {
-                creep.memory.task.sourceContainerId = container.id
-            }
+            if (container) creep.memory.task.sourceContainerId = container.id
         }
         const result = creep.getFrom(container)
         if (result === OK) {
@@ -73,8 +71,8 @@ const sourceContainerOut = {
         }
     },
     target: (creep) => {
-        if (creep.isEmpty) return true
-        creep.putTo(creep.room.storage || creep.room.terminal)
+        const result = creep.putTo(creep.room.storage || creep.room.terminal)
+        if (result === OK) return true
     }
 }
 

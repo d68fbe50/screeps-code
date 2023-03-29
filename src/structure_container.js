@@ -9,17 +9,17 @@ StructureContainer.prototype.onBuildComplete = function () {
         if (this.room.memory.sourceContainerIds.includes(this.id)) return
         this.room.memory.sourceContainerIds = _.uniq([...this.room.memory.sourceContainerIds, this.id])
         this.room.setCreepAmount('transporter', 2)
-        this.log('已注册为 sourceContainer', 'success')
+        this.log('已注册为 sourceContainer')
         return
     }
     if (this.pos.findInRange(FIND_STRUCTURES, 4, { filter: { structureType: STRUCTURE_CONTROLLER } }).length > 0) {
         this.room.memory.upgradeContainerId = this.id
-        this.log('已注册为 upgradeContainer', 'success')
+        this.log('已注册为 upgradeContainer')
     }
 }
 
 function runSourceContainer(container) {
-    if (container.energy > 500 && (container.room.storage || container.room.terminal)) container.room.addTransportTask('sourceContainerOut', 1, 2)
+    if (container.energy > container.capacity / 2 && (container.room.storage || container.room.terminal)) container.room.addTransportTask('sourceContainerOut')
 }
 
 function runUpgradeContainer(container) {

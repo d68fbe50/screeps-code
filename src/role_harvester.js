@@ -9,7 +9,7 @@ const prepare = function (creep) {
         return false
     }
     if (!creep.pos.isNearTo(flag)) {
-        creep.moveTo(flag)
+        creep.goto(flag)
         return false
     }
     const source = flag.pos.lookFor(LOOK_SOURCES)[0]
@@ -48,7 +48,7 @@ const target = function (creep) {
         const container = Game.getObjectById(creep.memory.containerId)
         if (!container) return delete creep.memory.containerId
         if (!(Game.time % 100)) container.onBuildComplete()
-        if (!creep.pos.isEqualTo(container)) return creep.moveTo(container)
+        if (!creep.pos.isEqualTo(container)) return creep.goto(container)
         if (container.hits / container.hitsMax < 0.5 && creep.energy >= 6) return creep.repairTo(container)
         if (!container.isFull) creep.getFrom(source)
         return
