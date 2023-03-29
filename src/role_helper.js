@@ -2,7 +2,7 @@ const workerRequire = require('./role_worker')
 
 const isNeed = function (creepMemory) {
     const targetRoom = Game.rooms[creepMemory.config.roomName]
-    return targetRoom && targetRoom.spawn.length === 0
+    return targetRoom && targetRoom.level < 3
 }
 
 const prepare = function (creep) {
@@ -22,6 +22,10 @@ const source = function (creep) {
 
 const target = function (creep) {
     if (creep.isEmpty) return true
+    if (creep.room.spawn[0] && !creep.room.spawn[0].isFull) {
+        creep.putTo(creep.room.spawn[0])
+        return false
+    }
     creep.buildStructure() || creep.upgrade()
 }
 

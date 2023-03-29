@@ -5,7 +5,7 @@ const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
     if (this.spawning) {
-        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension', 1, 2)
+        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension', 2, 2)
         return
     }
     if (this.room.memory[TASK_TYPE].length === 0 || this.room.memory.spawnLock > Game.time) return
@@ -26,11 +26,11 @@ StructureSpawn.prototype.run = function () {
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })
     if (result === OK) {
-        if (role === 'transporter') this.room.memory.spawnLock = Game.time + bodys.length * 3 + 30
+        if (role === 'transporter') this.room.memory.spawnLock = Game.time + bodys.length * 3 + 50
         this.room.removeTask(TASK_TYPE, key)
     }
     else if (result === ERR_NAME_EXISTS) this.room.removeTask(TASK_TYPE, key)
-    else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockTask(TASK_TYPE, key, 30)
+    else if (result === ERR_NOT_ENOUGH_ENERGY) !importantRoles.includes(role) && this.room.lockTask(TASK_TYPE, key, 10)
     else {
         this.room.removeTask(TASK_TYPE, key)
         this.log(`${key} 生成失败，错误码 ${result}，任务数据 ${JSON.stringify(task)}`, 'error')

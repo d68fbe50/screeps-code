@@ -13,7 +13,7 @@ Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERG
 
 Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     if (this.memory.useRuinEnergy) {
-        const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] > 1000)
+        const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
         if (ruins.length > 0) return ruins
     }
     if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return [this.storage]
@@ -30,33 +30,32 @@ Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
     this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`, 'success')
 }
 
-Room.prototype.visualRoadPath = function (fromPos, toPos, range = 1) {
+Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
     let paths = this.findPath(fromPos, toPos, {
         ignoreCreeps: true,
         ignoreDestructibleStructures: true,
-        ignoreRoads: true,
-        range: range
+        ignoreRoads: true
     })
     paths.shift()
+    paths = _.dropRight(paths, cut)
     paths = paths.map(i => new RoomPosition(i.x, i.y, this.name))
     this.visual.poly(paths)
     return paths
 }
 
-Room.prototype.structRoadPath = function (fromPos, toPos, range = 1) {
+Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
     let result = false
-    this.visualRoadPath(fromPos, toPos, range).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
+    this.visualRoadPath(fromPos, toPos, cut).forEach(i => this.createConstructionSite(i.x, i.y, STRUCTURE_ROAD) === OK && (result = true))
     return result
 }
 
 Room.prototype.updateLayout = function () {
-    if (!this.memory.isAutoLayout) return this.log('房间未开启自动布局。room.memory.isAutoLayout: undefined', 'error')
-    if (!this.memory.centerPos.x || !this.memory.centerPos.y) return this.log('自动布局前需要设置房间中心点！', 'error')
+    if (!this.memory.isAutoLayout || !this.centerPos) return
     let needBuild = false
     Object.keys(LAYOUT_DATA).forEach(level => {
         level <= this.level && Object.keys(LAYOUT_DATA[level]).forEach(type => {
             LAYOUT_DATA[level][type].forEach(posXY => {
-                const pos = new RoomPosition(posXY[0]-25+this.memory.centerPos.x, posXY[1]-25+this.memory.centerPos.y, this.name)
+                const pos = new RoomPosition(posXY[0]-25+this.centerPos.x, posXY[1]-25+this.centerPos.y, this.name)
                 const result = pos.createConstructionSite(type)
                 if (result) needBuild = true
             })
@@ -70,18 +69,6 @@ Room.prototype.updateLayout = function () {
     }
     if (this.level >= 4) {
         this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
-    }
-    if (this.level >= 5) {
-        // upgrade link
-    }
-    if (this.level >= 6) {
-        // source link 1
-    }
-    if (this.level >= 7) {
-        // source link 2
-    }
-    if (this.level >= 8) {
-        // extractor
     }
     if (needBuild) this.addWorkTask('build', 1, 5)
 }
@@ -129,7 +116,7 @@ Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
         if (!this.memory.centerPos) this.memory.centerPos = {}
         if (!this.memory.centerPos.x || !this.memory.centerPos.y) {
-            this.log('未找到房间中心点，请设置。', 'error')
+            this.log('未找到房间中心点。', 'error')
             return
         }
         return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
@@ -165,6 +152,21 @@ Object.defineProperty(Room.prototype, 'centerLink', {
 Object.defineProperty(Room.prototype, 'upgradeLink', {
     get() {
         return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'sourceContainers', {
+    get() {
+        if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
+        return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeContainer', {
+    get() {
+        return Game.getObjectById(this.memory.upgradeContainerId)
     },
     configurable: true
 })

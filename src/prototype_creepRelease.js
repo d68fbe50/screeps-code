@@ -30,7 +30,7 @@ const roleShortNames = {
 Room.prototype.addCreep = function (role, amount = 1) {
     if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
     for (let i = 0; i < amount; i++) {
-        const dontNeedName = Object.keys(Memory.creeps).find(i => Memory.creeps[i].role === role && Memory.creeps[i].dontNeed)
+        const dontNeedName = _.findKey(Memory.creeps, i => i.home === this.name && i.role === role && i.dontNeed)
         if (dontNeedName) {
             Memory.creeps[dontNeedName].dontNeed = undefined
             this.log(`creep: ${dontNeedName} 已取消 dontNeed 标记`, 'success')
@@ -47,7 +47,7 @@ Room.prototype.removeCreep = function (role, amount = 1) {
     for (let i = 0; i < amount; i++) {
         const result = this.removeSpawnTaskByRole(role)
         if (result) continue
-        const creepName = Object.keys(Memory.creeps).find(i => Memory.creeps[i].role === role && !Memory.creeps[i].dontNeed)
+        const creepName = _.findKey(Memory.creeps, i => i.home === this.name && i.role === role && !i.dontNeed)
         if (!creepName) return this.log(`${role}: 别删了，一滴也没有了！`, 'warning')
         Memory.creeps[creepName].dontNeed = true
         this.log(`creep: ${creepName} 已被标记为 dontNeed`, 'notify')
@@ -56,7 +56,7 @@ Room.prototype.removeCreep = function (role, amount = 1) {
 
 Room.prototype.getCreepAmount = function (role) {
     if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
-    let amount = _.filter(Memory.creeps, i => i.role === role).length
+    let amount = _.filter(Memory.creeps, i => i.home === this.name && i.role === role && !i.dontNeed).length
     amount += _.filter(this.memory.TaskSpawn, i => i.data && i.data.role === role).length
     return amount
 }

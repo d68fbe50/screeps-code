@@ -7,7 +7,7 @@ const isNeed = function (creepMemory) {
 }
 
 const deathPrepare = function (creep) {
-    if (!creep.ticksToLive || creep.ticksToLive > 30) return false
+    if (!creep.ticksToLive || creep.ticksToLive > 50) return false
     if (creep.memory.working) {
         if (!creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
         return false

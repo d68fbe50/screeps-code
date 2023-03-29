@@ -52,24 +52,29 @@ const powerSpawnPower = {}
 
 const sourceContainerOut = {
     source: (creep) => {
-        if (creep.isFull) return true
-        const container = creep.room.memory.sourceContainerIds
-            .map(i => Game.getObjectById(i))
-            .filter(i => !!i)
-            .sort((a, b) => b.energy - a.energy)[0]
-        if (!container) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+        if (!creep.isEmpty) {
+            creep.clearResources()
             return false
         }
-        creep.getFrom(container)
+        let container = Game.getObjectById(creep.memory.task.sourceContainerId)
+        if (!container) {
+            container = creep.room.sourceContainers.filter(i => i.energy >= creep.capacity / 2).sort((a, b) => b.energy - a.energy)[0]
+            if (container) {
+                creep.memory.task.sourceContainerId = container.id
+            }
+        }
+        const result = creep.getFrom(container)
+        if (result === OK) {
+            delete creep.memory.task.sourceContainerId
+            return true
+        } else if (result !== ERR_NOT_IN_RANGE) {
+            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+            delete creep.memory.task.sourceContainerId
+        }
     },
     target: (creep) => {
         if (creep.isEmpty) return true
-        const result = creep.putTo(creep.room.storage || creep.room.terminal)
-        if (result === OK) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
-            return true
-        }
+        creep.putTo(creep.room.storage || creep.room.terminal)
     }
 }
 

@@ -27,12 +27,8 @@ function onLevelChange(room, level) {
     room.memory.rcl = level
     room.updateLayout()
     if (level === 1) {
-        room.log('占领成功！请插紫红旗子设置房间中心点。', 'notify')
-        room.source.forEach(i => !i.pos.lookFor(LOOK_FLAGS)[0] && i.pos.createFlag(undefined, COLOR_YELLOW, COLOR_YELLOW))
+        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量。', 'success')
         room.addWorkTask('upgrade', 0, 10)
-        // 等下一 tick 旗子发布 harvester 再执行
-        // 太妙了，我真是个小天才（误
-        room.memory.TaskSpawn.length > 0 ? room.setCreepAmount('worker', 5) : delete room.memory.rcl
     } else if (level === 8) {
         room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')

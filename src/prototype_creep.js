@@ -38,7 +38,7 @@ Creep.prototype.run = function () {
     if (this.spawning) return
 
     const roleRequire = roleRequires[this.memory.role]
-    if (!roleRequire) return this.log('no role!', 'error')
+    if (!roleRequire) return this.say('no role!')
 
     if (!this.memory.config) this.memory.config = {}
     if (!this.memory.task) this.memory.task = {}
@@ -102,7 +102,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     }
     const result = this.getFrom(energySource)
     if (result === OK) {
-        if (energySource && energySource.energyCapacity) this.memory.dontPullMe = true // 采矿时禁止对穿
+        if (energySource instanceof Source) this.memory.dontPullMe = true // 采矿时禁止对穿
     }
     else if (result === ERR_NOT_ENOUGH_ENERGY || result === ERR_NOT_ENOUGH_RESOURCES) delete this.memory.energySourceId
     return false
@@ -270,6 +270,13 @@ Object.defineProperty(Creep.prototype, 'boostCounts', {
 Object.defineProperty(Creep.prototype, 'energy', {
     get() {
         return this.store[RESOURCE_ENERGY]
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'capacity', {
+    get() {
+        return this.store.getCapacity()
     },
     configurable: true
 })

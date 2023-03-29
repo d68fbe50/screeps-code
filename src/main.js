@@ -28,7 +28,7 @@ function checkMemory() {
     if (!Memory.avoidRooms) Memory.avoidRooms = []
     if (!Memory.delayTasks) Memory.delayTasks = []
     if (!Memory.stats) Memory.stats = {}
-    if (!Memory.stats.rooms) Memory.stats.rooms = {}
+    // if (!Memory.stats.rooms) Memory.stats.rooms = {}
 }
 
 function handleNotExistCreep() {
