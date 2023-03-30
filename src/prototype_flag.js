@@ -14,12 +14,13 @@ Flag.prototype.run = function () {
         if (this.secondaryColor === COLOR_WHITE) ;
     }
     if (this.color === COLOR_PURPLE) {
-        if (this.secondaryColor === COLOR_RED) isInMyRoom && this.room.setCenterPos(this.pos.x, this.pos.y) || this.remove()
+        if (this.secondaryColor === COLOR_RED) isInMyRoom && this.room.setCenterPos(this.pos) || this.remove()
         if (this.secondaryColor === COLOR_PURPLE) closestMyRoom.addReserver(this.name)
         if (this.secondaryColor === COLOR_GREEN) closestMyRoom.addClaimer(this.name)
-        if (this.secondaryColor === COLOR_WHITE) delete this.memory.checked && visualLayout(this.pos.roomName, this.pos.x, this.pos.y)
+        if (this.secondaryColor === COLOR_WHITE) delete this.memory.checked && visualLayout(this.pos.roomName, this.pos)
     }
     if (this.color === COLOR_GREEN) {
+        if (this.secondaryColor === COLOR_BLUE) isInMyRoom && this.room.setInLab(this.pos) || this.remove()
         if (this.secondaryColor === COLOR_GREEN) removeAvoidRoom(this.pos.roomName) || this.remove()
         if (this.secondaryColor === COLOR_RED) addAvoidRoom(this.pos.roomName) || this.remove()
     }
@@ -40,3 +41,11 @@ function findClosestMyRoom(fromRoomName) {
     const roomName = _.sortBy(myRoomNames, i => Game.map.getRoomLinearDistance(fromRoomName, i))[0]
     return Game.rooms[roomName]
 }
+
+Object.defineProperty(Room.prototype, 'flags', {
+    get() {
+        if (!this._flags) this._flags = this.find(FIND_FLAGS)
+        return this._flags
+    },
+    configurable: true
+})

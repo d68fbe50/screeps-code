@@ -4,10 +4,13 @@ const transportTaskConfigs = {
     fillExtension: { priority: 9, minUnits: 1, maxUnits: 2 },
     fillTower: { priority: 7, minUnits: 1, maxUnits: 2 },
     labEnergy: { priority: 5, minUnits: 1, maxUnits: 1 },
-    labIn: { priority: 5, minUnits: 1, maxUnits: 1 },
-    labOut: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labBoostIn: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labBoostOut: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labReactionIn: { priority: 5, minUnits: 1, maxUnits: 1 },
+    labReactionOut: { priority: 5, minUnits: 1, maxUnits: 1 },
     nukerEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
     nukerG: { priority: 0, minUnits: 1, maxUnits: 1 },
+    pickupDropped: { priority: 0, minUnits: 1, maxUnits: 1 },
     powerSpawnEnergy: { priority: 1, minUnits: 1, maxUnits: 1 },
     powerSpawnPower: { priority: 1, minUnits: 1, maxUnits: 1 },
     sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 2 },
@@ -40,13 +43,19 @@ const fillTower = {
 
 const labEnergy = {}
 
-const labIn = {}
+const labBoostIn = {}
 
-const labOut = {}
+const labBoostOut = {}
+
+const labReactionIn = {}
+
+const labReactionOut = {}
 
 const nukerEnergy = {}
 
 const nukerG = {}
+
+const pickupDropped = {}
 
 const powerSpawnEnergy = {}
 
@@ -75,7 +84,7 @@ const sourceContainerOut = {
     },
     target: (creep) => {
         const result = creep.putTo(creep.room.storage || creep.room.terminal)
-        return result === OK;
+        return result === OK
     }
 }
 
@@ -91,4 +100,19 @@ const upgradeContainerIn = {
     }
 }
 
-module.exports = { fillExtension, fillTower, labEnergy, labIn, labOut, nukerEnergy, nukerG, powerSpawnEnergy, powerSpawnPower, sourceContainerOut, upgradeContainerIn }
+module.exports = {
+    fillExtension,
+    fillTower,
+    labEnergy,
+    labBoostIn,
+    labBoostOut,
+    labReactionIn,
+    labReactionOut,
+    nukerEnergy,
+    nukerG,
+    pickupDropped,
+    powerSpawnEnergy,
+    powerSpawnPower,
+    sourceContainerOut,
+    upgradeContainerIn
+}

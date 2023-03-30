@@ -25,3 +25,17 @@ function runSourceContainer(container) {
 function runUpgradeContainer(container) {
     //
 }
+
+Object.defineProperty(Room.prototype, 'sourceContainers', {
+    get() {
+        return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeContainer', {
+    get() {
+        return Game.getObjectById(this.memory.upgradeContainerId)
+    },
+    configurable: true
+})

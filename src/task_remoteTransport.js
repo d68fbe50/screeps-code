@@ -6,7 +6,7 @@ const remoteTaskConfigs = {
     powerBank: { priority: 0, minUnits: 1, maxUnits: 1 },
 }
 
-const excludeResourceTypes = ['K'] // ['energy', 'ops', 'O', 'H', 'Z', 'K', 'U', 'L', 'X']
+const excludeResourceTypes = ['energy', 'ops', 'O', 'H', 'Z', 'K', 'U', 'L', 'X']
 
 Room.prototype.addRemoteTask = function (key, sourceType) {
     if (!(sourceType in remoteTaskConfigs)) return false
@@ -44,6 +44,7 @@ const fromFlag = {
             }
         }
         flag.remove()
+        creep.memory.dontNeed = true
         return true
     },
     target: (creep) => {

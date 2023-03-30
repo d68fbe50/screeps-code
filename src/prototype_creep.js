@@ -1,4 +1,4 @@
-const mount_role = require('./roles')
+const roles = require('./roles')
 
 Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.say(content)
@@ -8,25 +8,43 @@ Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
 Creep.prototype.run = function () {
     if (this.spawning) return
 
-    const roleRequire = mount_role[this.memory.role].require
-    if (!roleRequire) return this.say('no role!')
-    if (!this.home) return this.say('no home!')
-
+    // undefined check
+    const roleConfig = roles[this.memory.role]
+    if (!roleConfig) return this.say('no role!')
+    const roleRequire = roleConfig.require
+    if (!Game.rooms[this.memory.home]) return this.say('no home!')
     if (!this.memory.config) this.memory.config = {}
     if (!this.memory.task) this.memory.task = {}
 
+    // boostPrepare
+    if (!this.memory.boostReady) {
+        if (roleRequire.boostPrepare) this.memory.boostReady = roleRequire.boostPrepare(this)
+        else this.memory.boostReady = true
+    }
+    if (!this.memory.boostReady) return
+
+    // prepare
     if (!this.memory.ready) {
         if (roleRequire.prepare) this.memory.ready = roleRequire.prepare(this)
         else this.memory.ready = true
     }
     if (!this.memory.ready) return
 
+    // deathPrepare
     if (roleRequire.deathPrepare && roleRequire.deathPrepare(this)) return
 
+    // source & target
     const working = roleRequire.source ? this.memory.working : true
     if (working) roleRequire.target && roleRequire.target(this) && (this.memory.working = !this.memory.working)
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
+
+Object.defineProperty(Creep.prototype, 'inRampart', {
+    get() {
+        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
+    },
+    configurable: true
+})
 
 // =================================================================================================== Base
 
@@ -108,28 +126,6 @@ Object.defineProperty(Creep.prototype, 'home', {
     configurable: true
 })
 
-// =================================================================================================== Boost
-
-Object.defineProperty(Creep.prototype, 'boostCounts', {
-    get() {
-        if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, i => i.boost)
-        }
-        return this._boostCounts
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'boosts', {
-    get() {
-        if (!this._boosts) {
-            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
-        }
-        return this._boosts
-    },
-    configurable: true
-})
-
 // =================================================================================================== Senior
 
 Creep.prototype.buildStructure = function () {
@@ -170,31 +166,31 @@ Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛�
 
 Creep.prototype.fillExtensions = function () {
     if (this.room.energyAvailable === this.room.energyCapacityAvailable) {
-        delete this.memory.needFillExtensionId
+        delete this.memory.task.needFillExtensionId
         return false
     }
-    let target = Game.getObjectById(this.memory.needFillExtensionId)
+    let target = Game.getObjectById(this.memory.task.needFillExtensionId)
     if (!target) {
         target = this.pos.findClosestByRange([...this.room.spawn, ...this.room.extension], { filter: i => !i.isFull })
-        if (target) this.memory.needFillExtensionId = target.id // target 一定存在
+        if (target) this.memory.task.needFillExtensionId = target.id // target 一定存在
     }
     const result = this.putTo(target)
-    if (result !== ERR_NOT_IN_RANGE) delete this.memory.needFillExtensionId
+    if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillExtensionId
     return true
 }
 
 Creep.prototype.fillTowers = function () {
-    let target = Game.getObjectById(this.memory.needFillTowerId)
+    let target = Game.getObjectById(this.memory.task.needFillTowerId)
     if (!target) {
         target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < i.capacity / 2 })
-        if (target) this.memory.needFillTowerId = target.id
+        if (target) this.memory.task.needFillTowerId = target.id
         else {
-            delete this.memory.needFillTowerId
+            delete this.memory.task.needFillTowerId
             return false
         }
     }
     const result = this.putTo(target)
-    if (result !== ERR_NOT_IN_RANGE) delete this.memory.needFillTowerId
+    if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillTowerId
     return true
 }
 
@@ -286,13 +282,6 @@ Object.defineProperty(Creep.prototype, 'capacity', {
 Object.defineProperty(Creep.prototype, 'energy', {
     get() {
         return this.store[RESOURCE_ENERGY]
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'inRampart', {
-    get() {
-        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
     },
     configurable: true
 })

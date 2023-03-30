@@ -35,7 +35,7 @@ Object.defineProperty(RoomPosition.prototype, 'isVisible', {
 
 Object.defineProperty(RoomPosition.prototype, 'neighbors', {
     get: function() {
-        const adjPos = [];
+        const adjPos = []
         for (const dx of [-1, 0, 1]) {
             for (const dy of [-1, 0, 1]) {
                 if (!(dx === 0 && dy === 0)) {

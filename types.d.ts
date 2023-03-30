@@ -1,23 +1,21 @@
-interface Room { container, extension, mineral, rampart, source, spawn, tower, wall }
+interface Room { container, extension, inLab1, inLab2, lab, mineral, rampart, source, spawn, tower, wall }
 interface Structure { onBuildComplete, store }
 
 interface Memory { allCreeps, avoidRooms, delayTasks, isVisualPath, stats }
 interface RoomMemory {
-    centerPos, isAutoLayout, rcl, // base
-    constructionSiteId, constructionSiteType, constructionSitePos, // constructionSite
-    sourceContainerIds, upgradeContainerId, // container
-    centerLinkId, upgradeLinkId, // link
-    spawnLock, remoteLocks, // lock
-    TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest, // task
+    centerPos, isAutoLayout, rcl,
+    constructionSiteId, constructionSiteType, constructionSitePos,
+    sourceContainerIds, upgradeContainerId,
+    centerLinkId, upgradeLinkId,
+    spawnLock, remoteLocks,
+    TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest,
     transporterAmount, workerAmount, upgraderAmount,
-    needRepairWallId, useRuinEnergy // others
+    lab, needRepairWallId, useRuinEnergy
 }
 interface CreepMemory {
     role, home, config, task,
-    ready, working, dontNeed, dontPullMe,
-    energySourceId, needFillExtensionId, needFillTowerId
+    boostReady, ready, working, dontNeed, dontPullMe,
+    energySourceId
 }
 interface PowerCreepMemory {}
 interface FlagMemory { checked }
-
-interface roleRequire { isNeed, prepare, source, target, bodys }

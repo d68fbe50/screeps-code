@@ -17,12 +17,14 @@ Object.defineProperty(Structure.prototype, 'isWalkable', {
 
 Object.defineProperty(Structure.prototype, 'capacity', {
     get() {
-        if (!this.store || this.structureType === STRUCTURE_LAB || this.structureType === STRUCTURE_NUKER) {
-            log('no-store, lab, nuker 建筑不要访问 capacity 属性！', 'error')
+        if (!this.store) {
+            log('no-store！', 'error')
             return
         }
+        if (this.structureType === STRUCTURE_LAB) return 3000
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
+            || this.structureType === STRUCTURE_NUKER
             || this.structureType === STRUCTURE_SPAWN
             || this.structureType === STRUCTURE_TOWER) return this.store.getCapacity(RESOURCE_ENERGY)
         return this.store.getCapacity()
@@ -33,7 +35,7 @@ Object.defineProperty(Structure.prototype, 'capacity', {
 Object.defineProperty(Structure.prototype, 'energy', {
     get() {
         if (!this.store) {
-            log('no-store 建筑不要访问 energy 属性！', 'error')
+            log('no-store！', 'error')
             return
         }
         return this.store[RESOURCE_ENERGY]
@@ -43,12 +45,14 @@ Object.defineProperty(Structure.prototype, 'energy', {
 
 Object.defineProperty(Structure.prototype, 'isEmpty', {
     get() {
-        if (!this.store || this.structureType === STRUCTURE_LAB || this.structureType === STRUCTURE_NUKER) {
-            log('no-store, lab, nuker 建筑不要访问 isEmpty 属性！', 'error')
+        if (!this.store) {
+            log('no-store！', 'error')
             return
         }
+        if (this.structureType === STRUCTURE_LAB) return this.store[this.mineralType || 'X'] <= 0
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
+            || this.structureType === STRUCTURE_NUKER
             || this.structureType === STRUCTURE_SPAWN
             || this.structureType === STRUCTURE_TOWER) return this.store[RESOURCE_ENERGY] <= 0
         return this.store.getUsedCapacity() <= 0
@@ -58,12 +62,14 @@ Object.defineProperty(Structure.prototype, 'isEmpty', {
 
 Object.defineProperty(Structure.prototype, 'isFull', {
     get() {
-        if (!this.store || this.structureType === STRUCTURE_LAB || this.structureType === STRUCTURE_NUKER) {
-            log('no-store, lab, nuker 建筑不要访问 isFull 属性！', 'error')
+        if (!this.store) {
+            log('no-store！', 'error')
             return
         }
+        if (this.structureType === STRUCTURE_LAB) return this.store[this.mineralType || 'X'] >= 3000
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
+            || this.structureType === STRUCTURE_NUKER
             || this.structureType === STRUCTURE_SPAWN
             || this.structureType === STRUCTURE_TOWER) return this.store.getFreeCapacity(RESOURCE_ENERGY) <= 0
         return this.store.getFreeCapacity() <= 0

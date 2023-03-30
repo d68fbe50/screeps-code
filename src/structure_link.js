@@ -60,3 +60,17 @@ function runSourceLink(link) {
     if (supportUpgradeLink(link)) return
     if (link.room.centerLink && link.room.centerLink.energy < 799) link.transferEnergy(link.room.centerLink)
 }
+
+Object.defineProperty(Room.prototype, 'centerLink', {
+    get() {
+        return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'upgradeLink', {
+    get() {
+        return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
+    },
+    configurable: true
+})

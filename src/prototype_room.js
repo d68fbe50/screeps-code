@@ -5,6 +5,7 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
 
 Room.prototype.checkRoomMemory = function () {
     if (!this.memory.centerPos) this.memory.centerPos = {}
+    if (!this.memory.lab) this.memory.lab = {}
     if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
     if (!this.memory.TaskCenter) this.memory.TaskCenter = []
     if (!this.memory.TaskRemote) this.memory.TaskRemote = []
@@ -63,41 +64,10 @@ Object.defineProperty(Room.prototype, 'constructionSites', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'flags', {
-    get() {
-        if (!this._flags) this._flags = this.find(FIND_FLAGS)
-        return this._flags
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'tombstones', {
     get() {
         if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
         return this._tombstones
-    },
-    configurable: true
-})
-
-// =================================================================================================== Controller
-
-Object.defineProperty(Room.prototype, 'level', {
-    get() {
-        return this.controller && this.controller.level
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'my', {
-    get() {
-        return this.controller && this.controller.my
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'owner', {
-    get() {
-        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
     },
     configurable: true
 })
@@ -170,22 +140,22 @@ Object.defineProperty(Room.prototype, 'sourceKeepers', {
 
 // =================================================================================================== Layout
 
-global.visualLayout = function (roomName, centerPosX = 25, centerPosY = 25) {
+global.visualLayout = function (roomName, pos) {
     const visual = new RoomVisual(roomName)
     Object.keys(LAYOUT_DATA).forEach(level => {
         Object.keys(LAYOUT_DATA[level]).forEach(type => {
-            LAYOUT_DATA[level][type].forEach(posXY => {
-                visual.structure(posXY[0]-25+centerPosX, posXY[1]-25+centerPosY, type)
+            LAYOUT_DATA[level][type].forEach(xy => {
+                visual.structure(xy[0] - 25 + pos.x, xy[1] - 25 + pos.y, type)
             })
         })
     })
     visual.connectRoads()
 }
 
-Room.prototype.setCenterPos = function (centerPosX, centerPosY) {
-    this.memory.centerPos.x = centerPosX
-    this.memory.centerPos.y = centerPosY
-    this.log(`房间中心点已设置为 [${centerPosX},${centerPosY}]`)
+Room.prototype.setCenterPos = function (pos) {
+    this.memory.centerPos.x = pos.x
+    this.memory.centerPos.y = pos.y
+    this.log(`房间中心点已设置为 [${pos.x},${pos.y}]`)
 }
 
 Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
@@ -233,7 +203,6 @@ Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
 
 Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
-        if (!this.memory.centerPos) this.memory.centerPos = {}
         if (this.memory.centerPos.x && this.memory.centerPos.y) return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
     },
     configurable: true
@@ -268,19 +237,12 @@ Object.defineProperty(Room.prototype, 'droppedPower', {
 Object.defineProperty(Room.prototype, 'drops', {
     get() {
         if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
-        return this._drops;
+        return this._drops
     },
     configurable: true
 })
 
 // =================================================================================================== Structure
-
-Object.defineProperty(Room.prototype, 'centerLink', {
-    get() {
-        return this.memory.centerLinkId && Game.getObjectById(this.memory.centerLinkId)
-    },
-    configurable: true
-})
 
 Object.defineProperty(Room.prototype, 'hostileStructures', {
     get() {
@@ -290,32 +252,10 @@ Object.defineProperty(Room.prototype, 'hostileStructures', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'sourceContainers', {
-    get() {
-        if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
-        return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'structures', {
     get() {
         if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
         return this._allStructures
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'upgradeContainer', {
-    get() {
-        return Game.getObjectById(this.memory.upgradeContainerId)
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'upgradeLink', {
-    get() {
-        return this.memory.upgradeLinkId && Game.getObjectById(this.memory.upgradeLinkId)
     },
     configurable: true
 })

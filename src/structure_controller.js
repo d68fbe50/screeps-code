@@ -12,10 +12,31 @@ function onLevelChange(room, level) {
     room.memory.rcl = level
     room.updateLayout()
     if (level === 1) {
-        room.log('占领成功！请手动操作：双黄旗子设置source、紫红旗子设置中心点、setCreepAmount发布worker、isAutoLayout开启自动布局、useRuinEnergy使用遗迹能量')
+        room.log('占领成功！请手动操作：[双黄]旗子设置source、[紫红]旗子设置中心点、[setCreepAmount]发布worker、[isAutoLayout]开启自动布局、[useRuinEnergy]使用遗迹能量')
         room.addWorkTask('upgrade')
     } else if (level === 8) {
         room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')
     }
 }
+
+Object.defineProperty(Room.prototype, 'level', {
+    get() {
+        return this.controller && this.controller.level
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'my', {
+    get() {
+        return this.controller && this.controller.my
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'owner', {
+    get() {
+        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
+    },
+    configurable: true
+})
