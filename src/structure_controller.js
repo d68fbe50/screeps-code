@@ -1,24 +1,10 @@
 StructureController.prototype.run = function () {
-    checkRoomMemory(this.room)
     this.room.container.forEach(i => i.run && i.run())
     if (!(Game.time % 10)) {
         [...this.room.wall, ...this.room.rampart].find(i => i.hits < i.hitsMax / 30) && this.room.addWorkTask('repair')
         this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
     }
     onLevelChange(this.room, this.level)
-    visualTaskDetails(this.room)
-    collectRoomStats(this.room, this)
-}
-
-function checkRoomMemory(room) {
-    if (!room.memory.centerPos) room.memory.centerPos = {}
-    if (!room.memory.sourceContainerIds) room.memory.sourceContainerIds = []
-    if (!room.memory.TaskCenter) room.memory.TaskCenter = []
-    if (!room.memory.TaskRemote) room.memory.TaskRemote = []
-    if (!room.memory.TaskSpawn) room.memory.TaskSpawn = []
-    if (!room.memory.TaskTransport) room.memory.TaskTransport = []
-    if (!room.memory.TaskWork) room.memory.TaskWork = []
-    if (!room.memory.remoteLocks) room.memory.remoteLocks = {}
 }
 
 function onLevelChange(room, level) {
@@ -32,35 +18,4 @@ function onLevelChange(room, level) {
         room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')
     }
-}
-
-function visualTaskDetails(room) {
-    let visualTextY = 25
-    room.visual.text(`Transporter: ${room.memory.transporterAmount}, Worker: ${room.memory.workerAmount}, Upgrader: ${room.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
-
-    let text = 'TaskCenter : ' + room.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}:${i.data.resourceType}*${i.data.amount}]`).join(' ')
-    room.visual.text(text, 1, visualTextY++, { align: 'left' })
-
-    text = 'TaskRemote : ' + room.memory['TaskRemote'].map(i => `[${i.data.sourceType}:${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
-    room.visual.text(text, 1, visualTextY++, { align: 'left' })
-
-    text = 'TaskSpawn : ' + room.memory['TaskSpawn'].map(i => `[${i.data.role}:${i.key}]`).join(' ')
-    room.visual.text(text, 1, visualTextY++, { align: 'left' })
-
-    text = 'TaskTransport : ' + room.memory['TaskTransport'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
-    room.visual.text(text, 1, visualTextY++, { align: 'left' })
-
-    text = 'TaskWork : ' + room.memory['TaskWork'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
-    room.visual.text(text, 1, visualTextY++, { align: 'left' })
-}
-
-function collectRoomStats(room, controller) {
-    if (Game.time % 10) return
-    // if (!Memory.stats.rooms[room.name]) Memory.stats.rooms[room.name] = {}
-    // Memory.stats.rooms[room.name].rcl = controller.level
-    // Memory.stats.rooms[room.name].rclPercent = (controller.progress / (controller.progressTotal || 1)) * 100
-    // Memory.stats.rooms[room.name].energy = room[RESOURCE_ENERGY]
-    Memory.stats[room.name + '-rcl'] = controller.level
-    Memory.stats[room.name + '-rclPercent'] = (controller.progress / (controller.progressTotal || 1)) * 100
-    Memory.stats[room.name + '-energy'] = room[RESOURCE_ENERGY]
 }

@@ -1,4 +1,4 @@
-const mount_role = require('./mount_role')
+const mount_role = require('./roles')
 
 const importantRoles = ['harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'

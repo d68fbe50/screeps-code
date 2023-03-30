@@ -1,6 +1,4 @@
-const isNeed = function () {
-    return false
-}
+const isNeed = () => false
 
 const prepare = function (creep) {
     return creep.gotoFlagRoom(creep.memory.config.flagName)

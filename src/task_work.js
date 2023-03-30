@@ -20,8 +20,9 @@ const build = {
             return true
         }
         const result = creep.buildStructure()
-        if (result) creep.memory.dontPullMe = true
-        else creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+        if (!result) return undefined
+        creep.memory.dontPullMe = true
+        return false
     }
 }
 
@@ -33,8 +34,9 @@ const repair = {
             return true
         }
         const result = creep.repairWall()
-        if (result) creep.memory.dontPullMe = true
-        else creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+        if (!result) return undefined
+        creep.memory.dontPullMe = true
+        return false
     }
 }
 
@@ -47,6 +49,7 @@ const upgrade = {
         }
         const result = creep.upgrade()
         if (result === OK) creep.memory.dontPullMe = true
+        return false
     }
 }
 

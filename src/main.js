@@ -1,26 +1,23 @@
 require('./mount')
-const mount_role = require('./mount_role')
-const { manageDelayTask } = require('./utils_delayQueue')
+const mount_role = require('./roles')
 
-!('sim' in Game.rooms) && console.log('[全局重置]')
-if (!Memory.rooms) Memory.rooms = {}
-if (!Memory.creeps) Memory.creeps = {}
+console.log('[全局重置]')
 
 module.exports.loop = function () {
     checkMemory()
+    handleNotExistCreep()
+    handleNotExistFlag()
 
-    Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && i.controller.run && i.controller.run())
-    Object.values(Game.structures).forEach(i => i.structureType !== STRUCTURE_CONTROLLER && i.run && i.run())
+    Object.values(Game.rooms).forEach(i => i.checkRoomMemory && i.checkRoomMemory())
+    Object.values(Game.structures).forEach(i => i.run && i.run())
     Object.values(Game.creeps).forEach(i => i.run && i.run())
     Object.values(Game.powerCreeps).forEach(i => i.run && i.run())
     Object.values(Game.flags).forEach(i => i.run && i.run())
-
-    handleNotExistCreep()
-    manageDelayTask()
-    clearFlag()
-    collectStats()
+    Object.values(Game.rooms).forEach(i => i.roomVisual && i.roomVisual())
 
     if (Game.cpu.bucket >= 10000) Game.cpu.generatePixel && Game.cpu.generatePixel()
+
+    collectStats()
 }
 
 function checkMemory() {
@@ -28,7 +25,6 @@ function checkMemory() {
     if (!Memory.avoidRooms) Memory.avoidRooms = []
     if (!Memory.delayTasks) Memory.delayTasks = []
     if (!Memory.stats) Memory.stats = {}
-    // if (!Memory.stats.rooms) Memory.stats.rooms = {}
 }
 
 function handleNotExistCreep() {
@@ -49,7 +45,7 @@ function handleNotExistCreep() {
     }
 }
 
-function clearFlag() {
+function handleNotExistFlag() {
     for (const flagName in Memory.flags) {
         if (Game.flags[flagName]) continue
         delete Memory.flags[flagName]
@@ -67,4 +63,5 @@ function collectStats() {
     Memory.stats.cpuLimit = Game.cpu.limit
     Memory.stats.bucket = Game.cpu.bucket
     Memory.stats.credit = Game.market.credits
+    Object.values(Game.rooms).forEach(i => i.collectRoomStats && i.collectRoomStats())
 }

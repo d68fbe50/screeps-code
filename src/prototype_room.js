@@ -3,6 +3,43 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
     log(content, type, notifyNow, prefix)
 }
 
+Room.prototype.checkRoomMemory = function () {
+    if (!this.memory.centerPos) this.memory.centerPos = {}
+    if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
+    if (!this.memory.TaskCenter) this.memory.TaskCenter = []
+    if (!this.memory.TaskRemote) this.memory.TaskRemote = []
+    if (!this.memory.TaskSpawn) this.memory.TaskSpawn = []
+    if (!this.memory.TaskTransport) this.memory.TaskTransport = []
+    if (!this.memory.TaskWork) this.memory.TaskWork = []
+    if (!this.memory.remoteLocks) this.memory.remoteLocks = {}
+}
+
+Room.prototype.roomVisual = function () {
+    let visualTextY = 25
+    this.visual.text(`Transporter: ${this.memory.transporterAmount}, Worker: ${this.memory.workerAmount}, Upgrader: ${this.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
+
+    let text = 'TaskCenter : ' + this.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}:${i.data.resourceType}*${i.data.amount}]`).join(' ')
+    this.visual.text(text, 1, visualTextY++, { align: 'left' })
+
+    text = 'TaskRemote : ' + this.memory['TaskRemote'].map(i => `[${i.data.sourceType}:${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
+    this.visual.text(text, 1, visualTextY++, { align: 'left' })
+
+    text = 'TaskSpawn : ' + this.memory['TaskSpawn'].map(i => `[${i.data.role}:${i.key}]`).join(' ')
+    this.visual.text(text, 1, visualTextY++, { align: 'left' })
+
+    text = 'TaskTransport : ' + this.memory['TaskTransport'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
+    this.visual.text(text, 1, visualTextY++, { align: 'left' })
+
+    text = 'TaskWork : ' + this.memory['TaskWork'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
+    this.visual.text(text, 1, visualTextY++, { align: 'left' })
+}
+
+Room.prototype.collectRoomStats = function () {
+    Memory.stats[this.name + '-rcl'] = this.controller.level
+    Memory.stats[this.name + '-rclPercent'] = (this.controller.progress / (this.controller.progressTotal || 1)) * 100
+    Memory.stats[this.name + '-energy'] = this[RESOURCE_ENERGY]
+}
+
 Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     if (this.memory.useRuinEnergy) {
         const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
@@ -197,11 +234,7 @@ Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
 Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
         if (!this.memory.centerPos) this.memory.centerPos = {}
-        if (!this.memory.centerPos.x || !this.memory.centerPos.y) {
-            this.log('未找到房间中心点', 'error')
-            return
-        }
-        return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
+        if (this.memory.centerPos.x && this.memory.centerPos.y) return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
     },
     configurable: true
 })

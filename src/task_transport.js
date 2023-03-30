@@ -24,7 +24,8 @@ const fillExtension = {
     source: (creep) => creep.getEnergy(true, false, 0.1),
     target: (creep) => {
         if (creep.isEmpty) return true
-        !creep.fillExtensions() && creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+        if (!creep.fillExtensions()) return undefined
+        return false
     }
 }
 
@@ -32,7 +33,8 @@ const fillTower = {
     source: (creep) => creep.getEnergy(true, false, 0.1),
     target: (creep) => {
         if (creep.isEmpty) return true
-        !creep.fillTowers() && creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
+        if (!creep.fillTowers()) return undefined
+        return false
     }
 }
 
@@ -66,13 +68,14 @@ const sourceContainerOut = {
             delete creep.memory.task.sourceContainerId
             return true
         } else if (result !== ERR_NOT_IN_RANGE) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
             delete creep.memory.task.sourceContainerId
+            return undefined
         }
+        return false
     },
     target: (creep) => {
         const result = creep.putTo(creep.room.storage || creep.room.terminal)
-        if (result === OK) return true
+        return result === OK;
     }
 }
 
@@ -81,15 +84,10 @@ const upgradeContainerIn = {
     target: (creep) => {
         if (creep.isEmpty) return true
         const container = Game.getObjectById(creep.room.memory.upgradeContainerId)
-        if (!container) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
-            return true
-        }
+        if (!container) return undefined
         const result = creep.putTo(container)
-        if (result === OK) {
-            creep.room.removeTask(TASK_TYPE, creep.memory.task.key)
-            return true
-        }
+        if (result === OK) return undefined
+        return false
     }
 }
 

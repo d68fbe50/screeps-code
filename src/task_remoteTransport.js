@@ -6,6 +6,8 @@ const remoteTaskConfigs = {
     powerBank: { priority: 0, minUnits: 1, maxUnits: 1 },
 }
 
+const excludeResourceTypes = ['K'] // ['energy', 'ops', 'O', 'H', 'Z', 'K', 'U', 'L', 'X']
+
 Room.prototype.addRemoteTask = function (key, sourceType) {
     if (!(sourceType in remoteTaskConfigs)) return false
     const { priority, minUnits, maxUnits } = remoteTaskConfigs[sourceType]
@@ -25,11 +27,30 @@ const fromCreep = {
 const fromFlag = {
     source: (creep) => {
         if (creep.isFull) return true
-        creep.getFrom(Game.flags[creep.memory.task.key].pos.lookForStructure('terminal'))
+        const flag = Game.flags[creep.memory.task.key]
+        if (!flag) return undefined
+        if (!creep.gotoFlag(creep.memory.task.key)) return false
+        const dropped = flag.pos.lookFor(LOOK_RESOURCES)[0]
+        if (dropped) {
+            creep.getFrom(dropped, dropped.resourceType)
+            return false
+        }
+        const source = [...flag.pos.lookFor(LOOK_RUINS), ...flag.pos.lookFor(LOOK_STRUCTURES)].find(i => i.store && i.store.getUsedCapacity() > 0)
+        if (source) {
+            const resourceType = Object.keys(source.store).find(i => !excludeResourceTypes.includes(i) && source.store[i] > 0)
+            if (resourceType) {
+                creep.getFrom(source, resourceType)
+                return false
+            }
+        }
+        flag.remove()
+        return true
     },
     target: (creep) => {
         if (creep.isEmpty) return true
-        creep.putTo(creep.room.storage)
+        if (!creep.goBackHome()) return false
+        creep.clearResources()
+        return false
     }
 }
 

@@ -25,23 +25,44 @@ Creep.prototype.revertTask = function (type) {
 }
 
 Creep.prototype.runTaskSource = function (taskType, actionType = 'key') {
-    if (this.room.memory[taskType].length === 0) return !(delete this.memory.task)
-    if (!this.memory.task.key && !this.receiveTask(taskType)) return false
+    if (this.room.memory[taskType].length === 0) {
+        delete this.memory.task
+        return false
+    }
+    if (!this.memory.task.key) {
+        this.receiveTask(taskType)
+        if (!this.memory.task.key) return false
+    }
     const task = this.room.getTask(taskType, this.memory.task.key)
-    if (!task) return !(delete this.memory.task)
-    const action = taskActions[taskType][task[actionType]] || taskActions[taskType][task.data[actionType]]
+    if (!task) {
+        delete this.memory.task
+        return false
+    }
+    const taskAction = taskActions[taskType]
+    const action = taskAction[task[actionType]] || taskAction[task.data[actionType]]
     if (!action || !action.source) return false
-    return action.source(this)
+    const result = action.source(this)
+    if (result === true) return true
+    else if (result === undefined) this.room.removeTask(taskType, task.key)
+    return false
 }
 
 Creep.prototype.runTaskTarget = function (taskType, actionType = 'key') {
     const task = this.room.getTask(taskType, this.memory.task.key)
     if (!task) return true
-    const action = taskActions[taskType][task[actionType]] || taskActions[taskType][task.data[actionType]]
+    const taskAction = taskActions[taskType]
+    const action = taskAction[task[actionType]] || taskAction[task.data[actionType]]
     if (!action || !action.target) return true
     const result = action.target(this)
-    if (result) this.revertTask(taskType)
-    return result
+    if (result === true) {
+        this.revertTask(taskType)
+        return true
+    }
+    else if (result === undefined) {
+        this.room.removeTask(taskType, task.key)
+        return true
+    }
+    return false
 }
 
 // =================================================================================================== Room prototype

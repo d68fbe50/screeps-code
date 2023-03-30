@@ -2,7 +2,7 @@ const TASK_TYPE = 'TaskRemote'
 
 const isNeed = function (memory) {
     Game.rooms[memory.home].updateTaskUnit(TASK_TYPE, memory.task.key, -1)
-    return !memory.dontNeed;
+    return false
 }
 
 const deathPrepare = function (creep) {

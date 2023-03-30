@@ -30,7 +30,7 @@ Flag.prototype.run = function () {
         if (this.secondaryColor === COLOR_YELLOW) isInMyRoom ? this.room.addHarvester(this.name) : closestMyRoom.addRemoteHarvester(this.name)
         if (this.secondaryColor === COLOR_WHITE) {
             closestMyRoom.addRemoteTask(this.name, 'fromFlag')
-            closestMyRoom.addRemoteTransporter()
+            closestMyRoom.setCreepAmount('remoteTransporter',1)
         }
     }
 }

@@ -1,9 +1,11 @@
-const mount_role = require('./mount_role')
+const mount_role = require('./roles')
 
 // =================================================================================================== transporter & worker & upgrader
 
+const taskRoles = ['remoteTransporter', 'transporter', 'worker', 'upgrader']
+
 Room.prototype.addCreep = function (role, amount = 1) {
-    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
+    if (!taskRoles.includes(role)) return
     for (let i = 0; i < amount; i++) {
         const dontNeedName = _.findKey(Memory.creeps, i => i.home === this.name && i.role === role && i.dontNeed)
         if (dontNeedName) {
@@ -18,7 +20,7 @@ Room.prototype.addCreep = function (role, amount = 1) {
 }
 
 Room.prototype.removeCreep = function (role, amount = 1) {
-    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
+    if (!taskRoles.includes(role)) return
     for (let i = 0; i < amount; i++) {
         const result = this.removeSpawnTaskByRole(role)
         if (result) continue
@@ -30,7 +32,7 @@ Room.prototype.removeCreep = function (role, amount = 1) {
 }
 
 Room.prototype.getCreepAmount = function (role) {
-    if (role !== 'transporter' && role !== 'worker' && role !== 'upgrader') return
+    if (!taskRoles.includes(role)) return
     let amount = _.filter(Memory.creeps, i => i.home === this.name && i.role === role && !i.dontNeed).length
     amount += _.filter(this.memory.TaskSpawn, i => i.data && i.data.role === role).length
     this.memory[role + 'Amount'] = amount
@@ -38,7 +40,7 @@ Room.prototype.getCreepAmount = function (role) {
 }
 
 Room.prototype.setCreepAmount = function (role, amount) {
-    if ((role !== 'transporter' && role !== 'worker' && role !== 'upgrader') || amount === undefined) return
+    if (!taskRoles.includes(role) || amount === undefined) return
     const changeAmount = amount - this.getCreepAmount(role)
     if (changeAmount > 0) this.addCreep(role, changeAmount)
     else if (changeAmount < 0) this.removeCreep(role, changeAmount * -1)

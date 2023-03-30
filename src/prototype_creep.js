@@ -1,4 +1,4 @@
-const mount_role = require('./mount_role')
+const mount_role = require('./roles')
 
 Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.say(content)
@@ -101,7 +101,9 @@ Creep.prototype.upgrade = function (target) {
 
 Object.defineProperty(Creep.prototype, 'home', {
     get() {
-        return Game.rooms[this.memory.home]
+        const home = Game.rooms[this.memory.home]
+        if (home) return home
+        this.say('no home!')
     },
     configurable: true
 })
@@ -218,6 +220,11 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     }
     else if (result !== ERR_NOT_IN_RANGE) delete this.memory.energySourceId
     return false
+}
+
+Creep.prototype.goBackHome = function () {
+    if (this.room.name === this.memory.home) return true
+    this.goto(this.home.centerPos || this.home.controller)
 }
 
 Creep.prototype.gotoFlag = function (flagName, range = 1) {
