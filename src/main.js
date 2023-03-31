@@ -1,5 +1,5 @@
-require('./mount')
-const roles = require('./roles')
+require('./main_mount')
+const roles = require('./role')
 
 console.log('[全局重置]')
 

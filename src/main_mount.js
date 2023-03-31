@@ -1,3 +1,4 @@
+require('./module_autoLayout')
 require('./prototype_creep')
 require('./prototype_creepRelease')
 require('./prototype_flag')
