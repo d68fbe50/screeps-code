@@ -21,7 +21,6 @@ function attackEnemy(tower) {
 function repairStructure(tower) {
     if (Game.time % repairInterval) return false
     if (!tower.room._towerRepairTargets) {
-        // hits 设 301 防止刚放置的 rampart 消失
         tower.room._towerRepairTargets = [...tower.room.rampart.filter(i => i.hits <= 301), ...tower.room.road.filter(i => i.hits / i.hitsMax < repairHitsPercent)]
     }
     if (tower.room._towerRepairTargets.length === 0) return false

@@ -198,7 +198,7 @@ Object.defineProperty(Room.prototype, 'wall', {
 })
 
 let confirmTick
-Room.prototype.unclaimRoom = function (confirm) { // 防止 not defined 错误
+Room.prototype.unclaimRoom = function (confirm) {
     if (!confirm) return false
     if (confirmTick !== Game.time - 1) {
         confirmTick = Game.time

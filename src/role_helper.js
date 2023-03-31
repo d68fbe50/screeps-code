@@ -5,13 +5,9 @@ const isNeed = function (creepMemory) {
     return flag && flag.room && flag.room.level < 3
 }
 
-const prepare = function (creep) {
-    return creep.gotoFlagRoom(creep.memory.config.flagName)
-}
+const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
-const source = function (creep) {
-    return creep.getEnergy()
-}
+const source = (creep) => creep.getEnergy()
 
 const target = function (creep) {
     if (creep.isEmpty) return true

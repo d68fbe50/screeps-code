@@ -11,30 +11,25 @@ Creep.prototype.run = function () {
 
     if (this.spawning) return
 
-    // undefined check
     const roleConfig = roles[this.memory.role]
     if (!roleConfig) return this.say('no role!')
     const roleRequire = roleConfig.require
     if (!Game.rooms[this.memory.home]) return this.say('no home!')
 
-    // boostPrepare
     if (!this.memory.boostReady) {
         if (roleRequire.boostPrepare) this.memory.boostReady = roleRequire.boostPrepare(this)
         else this.memory.boostReady = true
     }
     if (!this.memory.boostReady) return
 
-    // prepare
     if (!this.memory.ready) {
         if (roleRequire.prepare) this.memory.ready = roleRequire.prepare(this)
         else this.memory.ready = true
     }
     if (!this.memory.ready) return
 
-    // deathPrepare
     if (roleRequire.deathPrepare && roleRequire.deathPrepare(this)) return
 
-    // source & target
     const working = roleRequire.source ? this.memory.working : true
     if (working) roleRequire.target && roleRequire.target(this) && (this.memory.working = !this.memory.working)
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
@@ -60,7 +55,7 @@ Creep.prototype.claim = function (target) {
     return result
 }
 
-Creep.prototype.clearCarry = function (excludeResourceType) { // 置空抛所有
+Creep.prototype.clearCarry = function (excludeResourceType) {
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
     const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
@@ -75,7 +70,7 @@ Creep.prototype.dismantleTo = function (target) {
     return result
 }
 
-Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
+Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 0.5) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
         delete this.memory.energySourceId
         delete this.memory.dontPullMe
@@ -93,7 +88,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     }
     const result = this.getFrom(energySource)
     if (result === OK) {
-        if (energySource instanceof Source) this.memory.dontPullMe = true // 采矿时禁止对穿
+        if (energySource instanceof Source) this.memory.dontPullMe = true
     }
     else if (result !== ERR_NOT_IN_RANGE) delete this.memory.energySourceId
     return false

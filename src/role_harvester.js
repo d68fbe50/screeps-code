@@ -1,6 +1,4 @@
-const isNeed = function (creepMemory) {
-    return !!Game.flags[creepMemory.config.flagName]
-}
+const isNeed = (creepMemory) => !!Game.flags[creepMemory.config.flagName]
 
 const prepare = function (creep) {
     if (!creep.gotoFlag(creep.memory.config.flagName)) return false

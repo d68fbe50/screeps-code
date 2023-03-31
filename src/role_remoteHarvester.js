@@ -11,7 +11,6 @@ const prepare = function (creep) {
     if (creep.hits < creep.hitsMax && creep.room.name === flag.pos.roomName && !Game.rooms[creep.memory.home].memory.remoteLocks[creep.room.name]) {
         Game.rooms[creep.memory.home].memory.remoteLocks[creep.room.name] = Game.time + 1500
         creep.memory.dontNeed = true
-        // delayTask
     }
     return harvesterRequire.prepare(creep)
 }

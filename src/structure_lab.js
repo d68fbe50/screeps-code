@@ -13,7 +13,7 @@ const resourcesExpectAmount = {
 }
 
 StructureLab.prototype.run = function () {
-    if (!this.room.inLab1 || !this.room.inLab2) return
+    if (!this.room.terminal || !this.room.inLab1 || !this.room.inLab2) return
     if (!this.room.memory.labs[this.id]) this.room.memory.labs[this.id] = 'reaction'
 
     if (this.energy < this.store.getCapacity(RESOURCE_ENERGY) / 2) this.room.addTransportTask('labEnergy')
@@ -28,29 +28,48 @@ StructureLab.prototype.onBuildComplete = function () {
 }
 
 function runInLab(lab) {
+    if (Game.time % 10) return
+    if (!lab.room.inLab1.isEmpty && !lab.room.inLab2.isEmpty) return
     if (lab.room._hasRunInLab) return
     lab.room._hasRunInLab = true
-
-    if (lab.room.inLab1.isEmpty || lab.room.inLab2.isEmpty) {
-        // lab.room.addTransportTask('labReactionOut')
-        // lab.room.addTransportTask('labReactionIn')
+    if (!lab.room.memory.labs.gettingSource) {
+        if ([lab.room.inLab1, lab.room.inLab2, ...lab.room.reactionLabs].find(i => !i.isEmpty)) return lab.room.addTransportTask('labReactionOut')
+    }
+    if (this.chooseReactionType()) {
+        lab.room.addTransportTask('labReactionIn')
+        lab.room.memory.labs.gettingSource = true
     }
 }
 
 function runReactionLab(lab) {
     if (lab.cooldown > 0 || lab.room.inLab1.isEmpty || lab.room.inLab2.isEmpty) return
     const result = lab.runReaction(lab.room.inLab1, lab.room.inLab2)
-    // if (result === ERR_INVALID_ARGS) lab.room.addTransportTask('labReactionOut')
+    if (result === OK && lab.room.memory.labs.status) delete lab.room.memory.labs.gettingSource
 }
 
 function runBoostLab(lab) {
-    if (lab.mineralType && lab.mineralType !== lab.boostType) lab.room.addTransportTask('labBoostOut')
-    // if (!lab.mineralType || (lab.mineralType === lab.boostType && lab.store[lab.mineralType] < lab.capacity / 2)) lab.room.addTransportTask('labBoostIn')
+    if (!lab.isEmpty && lab.mineralType !== lab.boostType) return lab.room.addTransportTask('labBoostOut')
+    if (lab.isEmpty || (lab.mineralType === lab.boostType && lab.store[lab.mineralType] < lab.capacity / 2)) {
+        if (lab.room.terminal.store[lab.boostType] >= lab.capacity / 2) return lab.room.addTransportTask('labBoostIn')
+    }
 }
 
-StructureLab.prototype.setBoostType = function (boostType) {
+StructureLab.prototype.chooseReactionType = function () {
+    const resourceType = Object.keys(resourcesExpectAmount).find(i => this.room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
+    const [ sourceType1, sourceType2 ] = reactionSourceMap[resourceType]
+    if (this.room.terminal.store[sourceType1] < this.capacity / 2 || this.room.terminal.store[sourceType2] < this.capacity / 2) return false
+    this.room.memory.labs.sourceType1 = sourceType1
+    this.room.memory.labs.sourceType2 = sourceType2
+    return true
+}
+
+StructureLab.prototype.onBoost = function (boostType) {
     if (this.store[boostType] === undefined) return
     this.room.memory.labs[this.id] = boostType
+}
+
+StructureLab.prototype.offBoost = function () {
+    this.room.memory.labs[this.id] = 'reaction'
 }
 
 Room.prototype.setInLab = function (pos) {
@@ -116,38 +135,20 @@ Object.defineProperty(Room.prototype, 'boostLabs', {
 })
 
 const reactionSourceMap = {
-    [RESOURCE_HYDROXIDE]: [RESOURCE_HYDROGEN, RESOURCE_OXYGEN],
-    [RESOURCE_ZYNTHIUM_KEANITE]: [RESOURCE_ZYNTHIUM, RESOURCE_KEANIUM],
-    [RESOURCE_UTRIUM_LEMERGITE]: [RESOURCE_UTRIUM, RESOURCE_LEMERGIUM],
-    [RESOURCE_GHODIUM]: [RESOURCE_ZYNTHIUM_KEANITE, RESOURCE_UTRIUM_LEMERGITE],
-    [RESOURCE_ZYNTHIUM_OXIDE]: [RESOURCE_ZYNTHIUM, RESOURCE_OXYGEN],
-    [RESOURCE_ZYNTHIUM_HYDRIDE]: [RESOURCE_ZYNTHIUM, RESOURCE_HYDROGEN],
-    [RESOURCE_KEANIUM_OXIDE]: [RESOURCE_KEANIUM, RESOURCE_OXYGEN],
-    [RESOURCE_KEANIUM_HYDRIDE]: [RESOURCE_KEANIUM, RESOURCE_HYDROGEN],
-    [RESOURCE_UTRIUM_OXIDE]: [RESOURCE_UTRIUM, RESOURCE_OXYGEN],
-    [RESOURCE_UTRIUM_HYDRIDE]: [RESOURCE_UTRIUM, RESOURCE_HYDROGEN],
-    [RESOURCE_LEMERGIUM_OXIDE]: [RESOURCE_LEMERGIUM, RESOURCE_OXYGEN],
-    [RESOURCE_LEMERGIUM_HYDRIDE]: [RESOURCE_LEMERGIUM, RESOURCE_HYDROGEN],
-    [RESOURCE_GHODIUM_OXIDE]: [RESOURCE_GHODIUM, RESOURCE_OXYGEN],
-    [RESOURCE_GHODIUM_HYDRIDE]: [RESOURCE_GHODIUM, RESOURCE_HYDROGEN],
-    [RESOURCE_ZYNTHIUM_ALKALIDE]: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_ZYNTHIUM_ACID]: [RESOURCE_ZYNTHIUM_HYDRIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_KEANIUM_ALKALIDE]: [RESOURCE_KEANIUM_OXIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_KEANIUM_ACID]: [RESOURCE_KEANIUM_HYDRIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_UTRIUM_ALKALIDE]: [RESOURCE_UTRIUM_OXIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_UTRIUM_ACID]: [RESOURCE_UTRIUM_HYDRIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_LEMERGIUM_ALKALIDE]: [RESOURCE_LEMERGIUM_OXIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_LEMERGIUM_ACID]: [RESOURCE_LEMERGIUM_HYDRIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_GHODIUM_ALKALIDE]: [RESOURCE_GHODIUM_OXIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_GHODIUM_ACID]: [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_HYDROXIDE],
-    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: [RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: [RESOURCE_ZYNTHIUM_ACID, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: [RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: [RESOURCE_KEANIUM_ACID, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: [RESOURCE_UTRIUM_ALKALIDE, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_UTRIUM_ACID]: [RESOURCE_UTRIUM_ACID, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: [RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: [RESOURCE_LEMERGIUM_ACID, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: [RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYST],
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: [RESOURCE_GHODIUM_ACID, RESOURCE_CATALYST],
+    'OH': ['O', 'H'], 'ZK': ['Z', 'K'], 'UL': ['U', 'L'], 'G': ['ZK', 'UL'],
+    'ZO': ['Z', 'O'], 'ZH': ['Z', 'H'],
+    'KO': ['K', 'O'], 'KH': ['K', 'H'],
+    'UO': ['U', 'O'], 'UH': ['U', 'H'],
+    'LO': ['L', 'O'], 'LH': ['L', 'H'],
+    'GO': ['G', 'O'], 'GH': ['G', 'H'],
+    'ZHO2': ['ZO', 'OH'], 'ZH2O': ['ZH', 'OH'],
+    'KHO2': ['KO', 'OH'], 'KH2O': ['KH', 'OH'],
+    'UHO2': ['UO', 'OH'], 'UH2O': ['UH', 'OH'],
+    'LHO2': ['LO', 'OH'], 'LH2O': ['LH', 'OH'],
+    'GHO2': ['GO', 'OH'], 'GH2O': ['GH', 'OH'],
+    'XZHO2': ['X', 'ZHO2'], 'XZH2O': ['X', 'ZH2O'],
+    'XKHO2': ['X', 'KHO2'], 'XKH2O': ['X', 'KH2O'],
+    'XUHO2': ['X', 'UHO2'], 'XUH2O': ['X', 'UH2O'],
+    'XLHO2': ['X', 'LHO2'], 'XLH2O': ['X', 'LH2O'],
+    'XGHO2': ['X', 'GHO2'], 'XGH2O': ['X', 'GH2O']
 }

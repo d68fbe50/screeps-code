@@ -63,7 +63,7 @@ const target = function (creep) {
     return false
 }
 
-const bodys = [ // 5 级出 link 前用不到
+const bodys = [
     [ [MOVE], 1, [CARRY], 1 ],
     [ [MOVE], 1, [CARRY], 1 ],
     [ [MOVE], 1, [CARRY], 1 ],

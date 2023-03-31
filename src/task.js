@@ -114,7 +114,7 @@ Room.prototype.removeTask = function (type, key) {
     return key
 }
 
-Room.prototype.updateTask = function (type, key, content) { // content sample { data: { role: 'harvester' }, maxUnits: 1 }
+Room.prototype.updateTask = function (type, key, content) {
     if (!type || !key || !content) return false
     const index = this.getTaskIndex(type, key)
     if (index === -1) return false
@@ -145,21 +145,4 @@ Room.prototype.lockTask = function (type, key, tick) {
     if (index === -1) return false
     this.memory[type][index].lockTime = Game.time + tick
     return key
-}
-
-Room.prototype.testTaskQueue = function () {
-    this.memory.TaskTest = []
-    this.addTask('TaskTest', 'test1', { data1: 'oldValue1' }, 1)
-    this.addTask('TaskTest', 'test2', undefined, 2)
-    this.addTask('TaskTest', 'test3', undefined, 3)
-    this.removeTask('TaskTest', 'test3')
-    this.updateTask('TaskTest', 'test1', { data: { data1: 'value1' }, maxUnits: 2 })
-    this.updateTaskPriority('TaskTest', 'test1', 3)
-    this.updateTaskUnit('TaskTest', 'test1', 1)
-    this.lockTask('TaskTest', 'test1', 50)
-    const index = this.getTaskIndex('TaskTest', 'test1')
-    const t = this.memory.TaskTest[index]
-    const result = this.getFirstTask('TaskTest').key === 'test2' && t.key === 'test1' && t.lockTime > 0 && t.data && t.data.data1 === 'value1' && t.nowUnits === 1 && t.maxUnits === 2
-    console.log(result ? '测试通过' : 'ERROR: 测试未通过！！！')
-    delete this.memory.TaskTest
 }

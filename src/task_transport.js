@@ -19,12 +19,14 @@ const transportTaskConfigs = {
 
 Room.prototype.addTransportTask = function (key) {
     if (!(key in transportTaskConfigs)) return false
+    if (key === 'labBoostIn' && this.getTask(TASK_TYPE, 'labBoostOut')) return false
+    if (key === 'labReactionIn' && this.getTask(TASK_TYPE, 'labReactionOut')) return false
     const { priority, minUnits, maxUnits } = transportTaskConfigs[key]
     return this.addTask(TASK_TYPE, key, {}, priority, 0, minUnits, 0, maxUnits)
 }
 
 const fillExtension = {
-    source: (creep) => creep.getEnergy(true, false, 1/2),
+    source: (creep) => creep.getEnergy(true, false),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillExtensions()) return undefined
@@ -33,7 +35,7 @@ const fillExtension = {
 }
 
 const fillTower = {
-    source: (creep) => creep.getEnergy(true, false, 1/2),
+    source: (creep) => creep.getEnergy(true, false),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillTowers()) return undefined
@@ -42,7 +44,7 @@ const fillTower = {
 }
 
 const labEnergy = {
-    source: (creep) => creep.getEnergy(true, false, 1/2),
+    source: (creep) => creep.getEnergy(true, false),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillLabEnergy()) return undefined
@@ -52,23 +54,24 @@ const labEnergy = {
 
 const labBoostIn = {
     prepare: (creep) => creep.clearCarry(),
-    source: (creep) => { // TODO
+    source: (creep) => {
         let lab = Game.getObjectById(creep.memory.task.boostInLabId)
         if (!lab) {
-            lab = creep.room.boostLabs.find(i => !i.mineralType || (i.mineralType === i.boostType && i.store[i.mineralType] < i.capacity / 2))
+            lab = creep.room.boostLabs.find(i => i.isEmpty || (i.mineralType === i.boostType && i.store[i.mineralType] < i.capacity / 2))
             if (lab) creep.memory.task.boostInLabId = lab.id
             else return undefined
         }
         const result = creep.getFrom(creep.room.terminal, lab.boostType)
         if (result === OK) return true
-        else if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.boostInLabId
+        else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     },
-    target: (creep) => { // TODO
+    target: (creep) => {
         const lab = Game.getObjectById(creep.memory.task.boostInLabId)
         if (!lab) return true
         const result = creep.putTo(lab, lab.boostType)
-        // if (result !== ERR_NOT_IN_RANGE)
+        if (result === OK) return true
+        else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     }
 }
@@ -79,7 +82,7 @@ const labBoostOut = {
         if (creep.isFull) return true
         let lab = Game.getObjectById(creep.memory.task.boostOutLabId)
         if (!lab) {
-            lab = creep.room.boostLabs.find(i => i.mineralType && i.mineralType !== i.boostType)
+            lab = creep.room.boostLabs.find(i => !i.isEmpty && i.mineralType !== i.boostType)
             if (lab) creep.memory.task.boostOutLabId = lab.id
             else if (creep.isEmpty) return undefined
             else return true
@@ -97,8 +100,23 @@ const labBoostOut = {
 
 const labReactionIn = {
     prepare: (creep) => creep.clearCarry(),
-    source: (creep) => {},
-    target: (creep) => {}
+    source: (creep) => {
+        const sourceType = creep.room.memory.labs.sourceType1 || creep.room.memory.labs.sourceType2
+        if (!sourceType) return undefined
+        const result = creep.getFrom(creep.room.terminal, sourceType)
+        if (result === OK) return true
+        else if (result !== ERR_NOT_IN_RANGE) return undefined
+        return false
+    },
+    target: (creep) => {
+        const sourceType = creep.room.memory.labs.sourceType1 || creep.room.memory.labs.sourceType2
+        const lab = creep.room.memory.labs.sourceType1 ? creep.room.inLab1 : creep.room.inLab2
+        if (!sourceType || !lab) return undefined
+        const result = creep.putTo(lab, sourceType)
+        if (result === OK) return true
+        else if (result !== ERR_NOT_IN_RANGE) return undefined
+        return false
+    }
 }
 
 const labReactionOut = {
@@ -107,7 +125,7 @@ const labReactionOut = {
         if (creep.isFull) return true
         let lab = Game.getObjectById(creep.memory.task.reactionOutLabId)
         if (!lab) {
-            lab = [creep.room.inLab1, creep.room.inLab2, ...creep.room.reactionLabs].find(i => i.mineralType)
+            lab = [creep.room.inLab1, creep.room.inLab2, ...creep.room.reactionLabs].find(i => !i.isEmpty)
             if (lab) creep.memory.task.reactionOutLabId = lab.id
             else if (creep.isEmpty) return undefined
             else return true
@@ -143,7 +161,7 @@ const sourceContainerOut = {
             else return undefined
         }
         const result = creep.getFrom(container)
-        if (result === OK) return true // 没装满也回去
+        if (result === OK) return true
         else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     },

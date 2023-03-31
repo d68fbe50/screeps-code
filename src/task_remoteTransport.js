@@ -6,7 +6,7 @@ const remoteTaskConfigs = {
     powerBank: { priority: 0, minUnits: 1, maxUnits: 1 },
 }
 
-const excludeResourceTypes = ['energy', 'ops', 'O', 'H', 'Z', 'K', 'U', 'L', 'X']
+const excludeResourceTypes = ['energy', 'ops', 'O', 'H', 'Z', 'K', 'U', 'LL', 'X']
 
 Room.prototype.addRemoteTask = function (key, sourceType) {
     if (!(sourceType in remoteTaskConfigs)) return false

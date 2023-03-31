@@ -2,9 +2,9 @@ const TASK_TYPE = 'TaskRemote'
 
 const transporterRequire = require('./role_transporter')
 
-const isNeed = function (memory) {
-    Game.rooms[memory.home].updateTaskUnit(TASK_TYPE, memory.task.key, -1)
-    return !memory.dontNeed
+const isNeed = function (creepMemory) {
+    Game.rooms[creepMemory.home].updateTaskUnit(TASK_TYPE, creepMemory.task.key, -1)
+    return !creepMemory.dontNeed
 }
 
 const deathPrepare = function (creep) {

@@ -33,7 +33,7 @@ function handleNotExistCreep() {
         const creepMemory = Memory.creeps[creepName]
         const { role, home, config, dontNeed } = creepMemory
         const roleRequire = roles[role] && roles[role].require
-        if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) { // 注意顺序
+        if (!roleRequire || (roleRequire.isNeed && !roleRequire.isNeed(creepMemory, creepName)) || dontNeed) {
             delete Memory.creeps[creepName]
             Memory.allCreeps = _.pull(Memory.allCreeps, creepName)
             log(`unallowed spawn creep: ${creepName}`)

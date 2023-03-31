@@ -1,8 +1,6 @@
 const workerRequire = require('./role_worker')
 
-const isNeed = function (creepMemory) {
-    return !!Game.flags[creepMemory.config.flagName]
-}
+const isNeed = (creepMemory) => !!Game.flags[creepMemory.config.flagName]
 
 const prepare = function (creep) {
     if (creep.ticksToLive < (creep.room.name === creep.memory.home ? 100 : 200)) return creep.suicide()

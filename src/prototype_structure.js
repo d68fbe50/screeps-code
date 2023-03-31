@@ -49,7 +49,7 @@ Object.defineProperty(Structure.prototype, 'isEmpty', {
             log('no-store！', 'error')
             return
         }
-        if (this.structureType === STRUCTURE_LAB) return this.store[this.mineralType || 'X'] <= 0
+        if (this.structureType === STRUCTURE_LAB) return !this.mineralType
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
             || this.structureType === STRUCTURE_NUKER
@@ -66,7 +66,7 @@ Object.defineProperty(Structure.prototype, 'isFull', {
             log('no-store！', 'error')
             return
         }
-        if (this.structureType === STRUCTURE_LAB) return this.store[this.mineralType || 'X'] >= 3000
+        if (this.structureType === STRUCTURE_LAB) return this.mineralType && this.store.getFreeCapacity(this.mineralType) <= 0
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
             || this.structureType === STRUCTURE_NUKER

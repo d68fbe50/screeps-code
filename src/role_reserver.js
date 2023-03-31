@@ -4,9 +4,7 @@ const isNeed = function (creepMemory) {
     return Game.time > Game.rooms[creepMemory.home].memory.remoteLocks[flag.pos.roomName]
 }
 
-const prepare = function (creep) {
-    return creep.gotoFlagRoom(creep.memory.config.flagName)
-}
+const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
 const target = function (creep) {
     if (creep.hits < creep.hitsMax && !Game.rooms[creep.memory.home].memory.remoteLocks[creep.room.name]) {

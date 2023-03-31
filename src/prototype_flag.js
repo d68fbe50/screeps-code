@@ -5,14 +5,7 @@ Flag.prototype.run = function () {
     const isInMyRoom = this.room && this.room.my
     const closestMyRoom = isInMyRoom ? this.room : findClosestMyRoom(this.pos.roomName)
 
-    if (this.color === COLOR_RED) {
-        if (this.secondaryColor === COLOR_RED) ;
-        if (this.secondaryColor === COLOR_PURPLE) ;
-        if (this.secondaryColor === COLOR_BLUE) ;
-        if (this.secondaryColor === COLOR_GREEN) ;
-        if (this.secondaryColor === COLOR_YELLOW) ;
-        if (this.secondaryColor === COLOR_WHITE) ;
-    }
+    if (this.color === COLOR_RED) {}
     if (this.color === COLOR_PURPLE) {
         if (this.secondaryColor === COLOR_RED) isInMyRoom && this.room.setCenterPos(this.pos) || this.remove()
         if (this.secondaryColor === COLOR_PURPLE) closestMyRoom.addReserver(this.name)
@@ -25,9 +18,7 @@ Flag.prototype.run = function () {
         if (this.secondaryColor === COLOR_RED) addAvoidRoom(this.pos.roomName) || this.remove()
     }
     if (this.color === COLOR_YELLOW) {
-        if (this.secondaryColor === COLOR_RED) ; // powerBank
         if (this.secondaryColor === COLOR_BLUE) closestMyRoom.addMineHarvester(this.name)
-        if (this.secondaryColor === COLOR_GREEN) ; // deposit
         if (this.secondaryColor === COLOR_YELLOW) isInMyRoom ? this.room.addHarvester(this.name) : closestMyRoom.addRemoteHarvester(this.name)
         if (this.secondaryColor === COLOR_WHITE) {
             closestMyRoom.addRemoteTask(this.name, 'fromFlag')
