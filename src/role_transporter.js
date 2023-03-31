@@ -11,7 +11,7 @@ const deathPrepare = function (creep) {
         if (!creep.room.memory.spawnLock) creep.room.memory.spawnLock = Game.time + creep.ticksToLive + 2
         return false
     }
-    if (!creep.clearResources()) return true
+    if (!creep.clearCarry()) return true
     creep.room.memory.spawnLock = Game.time + 2
     creep.suicide()
     return true

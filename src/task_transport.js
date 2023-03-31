@@ -27,7 +27,7 @@ const fillExtension = {
     source: (creep) => creep.getEnergy(true, false, 1/2),
     target: (creep) => {
         if (creep.isEmpty) return true
-        if (!creep.fillExtensions()) return undefined
+        if (creep.fillExtensions()) return undefined
         return false
     }
 }
@@ -36,7 +36,7 @@ const fillTower = {
     source: (creep) => creep.getEnergy(true, false, 1/2),
     target: (creep) => {
         if (creep.isEmpty) return true
-        if (!creep.fillTowers()) return undefined
+        if (creep.fillTowers()) return undefined
         return false
     }
 }
@@ -45,18 +45,83 @@ const labEnergy = {
     source: (creep) => creep.getEnergy(true, false, 1/2),
     target: (creep) => {
         if (creep.isEmpty) return true
-        if (!creep.fillLabEnergy()) return undefined
+        if (creep.fillLabEnergy()) return undefined
         return false
     }
 }
 
-const labBoostIn = {}
+const labBoostIn = {
+    prepare: (creep) => creep.clearCarry(),
+    source: (creep) => { // TODO
+        let lab = Game.getObjectById(creep.memory.task.boostInLabId)
+        if (!lab) {
+            lab = creep.room.boostLabs.find(i => !i.mineralType || (i.mineralType === i.boostType && i.store[i.mineralType] < i.capacity / 2))
+            if (lab) creep.memory.task.boostInLabId = lab.id
+            else return undefined
+        }
+        const result = creep.getFrom(creep.room.terminal, lab.boostType)
+        if (result === OK) return true
+        else if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.boostInLabId
+        return false
+    },
+    target: (creep) => { // TODO
+        const lab = Game.getObjectById(creep.memory.task.boostInLabId)
+        if (!lab) return true
+        const result = creep.putTo(lab, lab.boostType)
+        // if (result !== ERR_NOT_IN_RANGE)
+        return false
+    }
+}
 
-const labBoostOut = {}
+const labBoostOut = {
+    prepare: (creep) => creep.clearCarry(),
+    source: (creep) => {
+        if (creep.isFull) return true
+        let lab = Game.getObjectById(creep.memory.task.boostOutLabId)
+        if (!lab) {
+            lab = creep.room.boostLabs.find(i => i.mineralType && i.mineralType !== i.boostType)
+            if (lab) creep.memory.task.boostOutLabId = lab.id
+            else if (creep.isEmpty) return undefined
+            else return true
+        }
+        const result = creep.getFrom(lab, lab.mineralType)
+        if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.boostOutLabId
+        return false
+    },
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        creep.clearCarry()
+        return false
+    }
+}
 
-const labReactionIn = {}
+const labReactionIn = {
+    prepare: (creep) => creep.clearCarry(),
+    source: (creep) => {},
+    target: (creep) => {}
+}
 
-const labReactionOut = {}
+const labReactionOut = {
+    prepare: (creep) => creep.clearCarry(),
+    source: (creep) => {
+        if (creep.isFull) return true
+        let lab = Game.getObjectById(creep.memory.task.reactionOutLabId)
+        if (!lab) {
+            lab = [creep.room.inLab1, creep.room.inLab2, ...creep.room.reactionLabs].find(i => i.mineralType)
+            if (lab) creep.memory.task.reactionOutLabId = lab.id
+            else if (creep.isEmpty) return undefined
+            else return true
+        }
+        const result = creep.getFrom(lab, lab.mineralType)
+        if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.reactionOutLabId
+        return false
+    },
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        creep.clearCarry()
+        return false
+    }
+}
 
 const nukerEnergy = {}
 
@@ -69,43 +134,27 @@ const powerSpawnEnergy = {}
 const powerSpawnPower = {}
 
 const sourceContainerOut = {
+    prepare: (creep) => creep.clearCarry(),
     source: (creep) => {
-        if (!creep.isEmpty) {
-            creep.clearResources()
-            return false
-        }
         let container = Game.getObjectById(creep.memory.task.sourceContainerId)
         if (!container) {
             container = creep.room.sourceContainers.filter(i => i.energy >= creep.capacity / 2).sort((a, b) => b.energy - a.energy)[0]
             if (container) creep.memory.task.sourceContainerId = container.id
+            else return undefined
         }
         const result = creep.getFrom(container)
-        if (result === OK) {
-            delete creep.memory.task.sourceContainerId
-            return true
-        } else if (result !== ERR_NOT_IN_RANGE) {
-            delete creep.memory.task.sourceContainerId
-            return undefined
-        }
+        if (result === OK) return true // 没装满也回去
+        else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     },
     target: (creep) => {
         const result = creep.putTo(creep.room.storage || creep.room.terminal)
-        return result === OK
-    }
-}
-
-const upgradeContainerIn = {
-    source: (creep) => creep.getEnergy(false, false, 0.5),
-    target: (creep) => {
-        if (creep.isEmpty) return true
-        const container = Game.getObjectById(creep.room.memory.upgradeContainerId)
-        if (!container) return undefined
-        const result = creep.putTo(container)
-        if (result === OK) return undefined
+        if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     }
 }
+
+const upgradeContainerIn = {}
 
 module.exports = {
     fillExtension,
@@ -125,16 +174,16 @@ module.exports = {
 }
 
 Creep.prototype.fillExtensions = function () {
-    if (this.room.energyAvailable === this.room.energyCapacityAvailable) return false
+    if (this.room.energyAvailable === this.room.energyCapacityAvailable) return true
     let target = Game.getObjectById(this.memory.task.needFillExtensionId)
     if (!target) {
         target = this.pos.findClosestByRange([...this.room.spawn, ...this.room.extension], { filter: i => !i.isFull })
         if (target) this.memory.task.needFillExtensionId = target.id
-        else return false
+        else return true
     }
     const result = this.putTo(target)
     if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillExtensionId
-    return true
+    return false
 }
 
 Creep.prototype.fillTowers = function () {
@@ -142,11 +191,11 @@ Creep.prototype.fillTowers = function () {
     if (!target) {
         target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < i.capacity / 2 })
         if (target) this.memory.task.needFillTowerId = target.id
-        else return false
+        else return true
     }
     const result = this.putTo(target)
     if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillTowerId
-    return true
+    return false
 }
 
 Creep.prototype.fillLabEnergy = function () {
@@ -154,9 +203,9 @@ Creep.prototype.fillLabEnergy = function () {
     if (!target) {
         target = this.pos.findClosestByRange(this.room.lab, { filter: i => i.energy < i.store.getCapacity(RESOURCE_ENERGY) / 2 })
         if (target) this.memory.task.needFillLabId = target.id
-        else return false
+        else return true
     }
     const result = this.putTo(target)
     if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillLabId
-    return true
+    return false
 }

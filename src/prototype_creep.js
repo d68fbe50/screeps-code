@@ -6,6 +6,9 @@ Creep.prototype.log = function (content, type = 'info', notifyNow = false) {
 }
 
 Creep.prototype.run = function () {
+    if (!this.memory.config) this.memory.config = {}
+    if (!this.memory.task) this.memory.task = {}
+
     if (this.spawning) return
 
     // undefined check
@@ -13,8 +16,6 @@ Creep.prototype.run = function () {
     if (!roleConfig) return this.say('no role!')
     const roleRequire = roleConfig.require
     if (!Game.rooms[this.memory.home]) return this.say('no home!')
-    if (!this.memory.config) this.memory.config = {}
-    if (!this.memory.task) this.memory.task = {}
 
     // boostPrepare
     if (!this.memory.boostReady) {
@@ -59,7 +60,7 @@ Creep.prototype.claim = function (target) {
     return result
 }
 
-Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛所有
+Creep.prototype.clearCarry = function (excludeResourceType) { // 置空抛所有
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
     const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
@@ -80,7 +81,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
         delete this.memory.dontPullMe
         return true
     }
-    if (!this.clearResources(RESOURCE_ENERGY)) return false
+    if (!this.clearCarry(RESOURCE_ENERGY)) return false
     if (!this.memory.energySourceId) {
         const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
         this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
@@ -171,6 +172,26 @@ Creep.prototype.upgrade = function (target) {
     if (result === ERR_NOT_IN_RANGE) this.goto(target, {range: 3}) || this.repairRoad()
     return result
 }
+
+Object.defineProperty(Creep.prototype, 'boosts', {
+    get() {
+        if (!this._boosts) {
+            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
+        }
+        return this._boosts
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'boostCounts', {
+    get() {
+        if (!this._boostCounts) {
+            this._boostCounts = _.countBy(this.body, i => i.boost)
+        }
+        return this._boostCounts
+    },
+    configurable: true
+})
 
 Object.defineProperty(Creep.prototype, 'home', {
     get() {

@@ -50,7 +50,7 @@ const fromFlag = {
     target: (creep) => {
         if (creep.isEmpty) return true
         if (!creep.goBackHome()) return false
-        creep.clearResources()
+        creep.clearCarry()
         return false
     }
 }

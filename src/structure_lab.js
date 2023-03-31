@@ -18,8 +18,6 @@ StructureLab.prototype.run = function () {
 
     if (this.energy < this.store.getCapacity(RESOURCE_ENERGY) / 2) this.room.addTransportTask('labEnergy')
 
-    return
-
     if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') runInLab(this)
     else if (this.room.memory.labs[this.id] === 'reaction') runReactionLab(this)
     else runBoostLab(this)
@@ -46,9 +44,13 @@ function runReactionLab(lab) {
 }
 
 function runBoostLab(lab) {
-    const boostType = lab.room.memory.labs[lab.id]
-    if (lab.mineralType && lab.mineralType !== boostType) lab.room.addTransportTask('labBoostOut')
-    if (!lab.mineralType || (lab.mineralType === boostType && lab.store[lab.mineralType] < lab.capacity / 2)) lab.room.addTransportTask('labBoostIn')
+    if (lab.mineralType && lab.mineralType !== lab.boostType) lab.room.addTransportTask('labBoostOut')
+    // if (!lab.mineralType || (lab.mineralType === lab.boostType && lab.store[lab.mineralType] < lab.capacity / 2)) lab.room.addTransportTask('labBoostIn')
+}
+
+StructureLab.prototype.setBoostType = function (boostType) {
+    if (this.store[boostType] === undefined) return
+    this.room.memory.labs[this.id] = boostType
 }
 
 Room.prototype.setInLab = function (pos) {
@@ -59,22 +61,9 @@ Room.prototype.setInLab = function (pos) {
     this.log(`inLab${hasInLab1 ? 2 : 1} 已设置在 [${pos.x},${pos.y}]`)
 }
 
-Object.defineProperty(Creep.prototype, 'boosts', {
+Object.defineProperty(StructureLab.prototype, 'boostType', {
     get() {
-        if (!this._boosts) {
-            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
-        }
-        return this._boosts
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'boostCounts', {
-    get() {
-        if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, i => i.boost)
-        }
-        return this._boostCounts
+        return this.room.memory.labs[this.id]
     },
     configurable: true
 })

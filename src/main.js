@@ -1,7 +1,7 @@
 require('./main_mount')
 const roles = require('./role')
 
-console.log('[全局重置]')
+!('sim' in Game.rooms) && console.log('[全局重置]')
 
 module.exports.loop = function () {
     checkMemory()

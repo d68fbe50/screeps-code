@@ -40,6 +40,11 @@ Creep.prototype.runTaskSource = function (taskType, actionType = 'key') {
     }
     const taskAction = taskActions[taskType]
     const action = taskAction[task[actionType]] || taskAction[task.data[actionType]]
+    if (!this.memory.task.ready) {
+        if (action.prepare) this.memory.task.ready = action.prepare(this)
+        else this.memory.task.ready = true
+    }
+    if (!this.memory.task.ready) return false
     if (!action || !action.source) return false
     const result = action.source(this)
     if (result === true) return true

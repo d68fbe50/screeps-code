@@ -37,11 +37,11 @@ StructureSpawn.prototype.run = function () {
     }
 }
 
-StructureExtension.prototype.onBuildComplete = function () {
+StructureSpawn.prototype.onBuildComplete = function () {
     this.room.addTransportTask('fillExtension')
 }
 
-StructureSpawn.prototype.onBuildComplete = function () {
+StructureExtension.prototype.onBuildComplete = function () {
     this.room.addTransportTask('fillExtension')
 }
 

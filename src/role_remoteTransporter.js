@@ -9,7 +9,7 @@ const isNeed = function (memory) {
 
 const deathPrepare = function (creep) {
     if (!creep.ticksToLive || creep.ticksToLive > 50 || creep.memory.working) return false
-    if (!creep.clearResources()) return true
+    if (!creep.clearCarry()) return true
     creep.suicide()
     return true
 }

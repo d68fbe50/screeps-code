@@ -15,7 +15,7 @@ const prepare = function (creep) {
 const source = function (creep) {
     if (creep.ticksToLive <= 5) return false
     if (creep.room.memory.TaskCenter.length === 0) return false
-    if (!creep.clearResources()) return false
+    if (!creep.clearCarry()) return false
 
     const task = creep.room.getFirstTask(TASK_TYPE)
     if (!task) return false
