@@ -17,16 +17,18 @@ const transportTaskConfigs = {
     upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
 }
 
+Room.prototype.getTransportTask = function (key) {
+    return this.getTask(TASK_TYPE, key)
+}
+
 Room.prototype.addTransportTask = function (key) {
     if (!(key in transportTaskConfigs)) return false
-    if (key === 'labBoostIn' && this.getTask(TASK_TYPE, 'labBoostOut')) return false
-    if (key === 'labReactionIn' && this.getTask(TASK_TYPE, 'labReactionOut')) return false
     const { priority, minUnits, maxUnits } = transportTaskConfigs[key]
     return this.addTask(TASK_TYPE, key, {}, priority, 0, minUnits, 0, maxUnits)
 }
 
 const fillExtension = {
-    source: (creep) => creep.getEnergy(true, false),
+    source: (creep) => creep.getEnergy(true, false, 0.5),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillExtensions()) return undefined
@@ -35,7 +37,7 @@ const fillExtension = {
 }
 
 const fillTower = {
-    source: (creep) => creep.getEnergy(true, false),
+    source: (creep) => creep.getEnergy(true, false, 0.5),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillTowers()) return undefined
@@ -44,7 +46,7 @@ const fillTower = {
 }
 
 const labEnergy = {
-    source: (creep) => creep.getEnergy(true, false),
+    source: (creep) => creep.getEnergy(true, false, 0.5),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (creep.fillLabEnergy()) return undefined
@@ -101,7 +103,7 @@ const labBoostOut = {
 const labReactionIn = {
     prepare: (creep) => creep.clearCarry(),
     source: (creep) => {
-        const sourceType = creep.room.memory.labs.sourceType1 || creep.room.memory.labs.sourceType2
+        const sourceType = creep.room.memory.labs.source1 || creep.room.memory.labs.source2
         if (!sourceType) return undefined
         const result = creep.getFrom(creep.room.terminal, sourceType)
         if (result === OK) return true
@@ -109,11 +111,14 @@ const labReactionIn = {
         return false
     },
     target: (creep) => {
-        const sourceType = creep.room.memory.labs.sourceType1 || creep.room.memory.labs.sourceType2
-        const lab = creep.room.memory.labs.sourceType1 ? creep.room.inLab1 : creep.room.inLab2
+        const sourceType = creep.room.memory.labs.source1 || creep.room.memory.labs.source2
+        const lab = creep.room.memory.labs.source1 ? creep.room.inLab1 : creep.room.inLab2
         if (!sourceType || !lab) return undefined
         const result = creep.putTo(lab, sourceType)
-        if (result === OK) return true
+        if (result === OK) {
+            creep.room.memory.labs.source1 ? delete creep.room.memory.labs.source1 : delete creep.room.memory.labs.source2
+            return true
+        }
         else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
     }

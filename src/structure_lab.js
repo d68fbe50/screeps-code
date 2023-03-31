@@ -32,34 +32,30 @@ function runInLab(lab) {
     if (!lab.room.inLab1.isEmpty && !lab.room.inLab2.isEmpty) return
     if (lab.room._hasRunInLab) return
     lab.room._hasRunInLab = true
-    if (!lab.room.memory.labs.gettingSource) {
-        if ([lab.room.inLab1, lab.room.inLab2, ...lab.room.reactionLabs].find(i => !i.isEmpty)) return lab.room.addTransportTask('labReactionOut')
-    }
-    if (this.chooseReactionType()) {
-        lab.room.addTransportTask('labReactionIn')
-        lab.room.memory.labs.gettingSource = true
-    }
+    if (lab.room.getTransportTask('labReactionOut') || lab.room.getTransportTask('labReactionIn')) return
+    if ([lab.room.inLab1, lab.room.inLab2, ...lab.room.reactionLabs].find(i => !i.isEmpty)) return lab.room.addTransportTask('labReactionOut')
+    if (chooseReactionType(lab.room)) lab.room.addTransportTask('labReactionIn')
 }
 
 function runReactionLab(lab) {
     if (lab.cooldown > 0 || lab.room.inLab1.isEmpty || lab.room.inLab2.isEmpty) return
-    const result = lab.runReaction(lab.room.inLab1, lab.room.inLab2)
-    if (result === OK && lab.room.memory.labs.status) delete lab.room.memory.labs.gettingSource
+    lab.runReaction(lab.room.inLab1, lab.room.inLab2)
 }
 
 function runBoostLab(lab) {
+    if (lab.room.getTransportTask('labBoostOut') || lab.room.getTransportTask('labBoostIn')) return
     if (!lab.isEmpty && lab.mineralType !== lab.boostType) return lab.room.addTransportTask('labBoostOut')
     if (lab.isEmpty || (lab.mineralType === lab.boostType && lab.store[lab.mineralType] < lab.capacity / 2)) {
         if (lab.room.terminal.store[lab.boostType] >= lab.capacity / 2) return lab.room.addTransportTask('labBoostIn')
     }
 }
 
-StructureLab.prototype.chooseReactionType = function () {
-    const resourceType = Object.keys(resourcesExpectAmount).find(i => this.room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
-    const [ sourceType1, sourceType2 ] = reactionSourceMap[resourceType]
-    if (this.room.terminal.store[sourceType1] < this.capacity / 2 || this.room.terminal.store[sourceType2] < this.capacity / 2) return false
-    this.room.memory.labs.sourceType1 = sourceType1
-    this.room.memory.labs.sourceType2 = sourceType2
+function chooseReactionType (room) {
+    const resourceType = Object.keys(resourcesExpectAmount).find(i => room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
+    const [ source1, source2 ] = reactionSourceMap[resourceType]
+    if (room.terminal.store[source1] < 3000 / 2 || room.terminal.store[source2] < 3000 / 2) return false
+    room.memory.labs.source1 = source1
+    room.memory.labs.source2 = source2
     return true
 }
 

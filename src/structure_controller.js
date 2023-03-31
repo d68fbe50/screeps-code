@@ -14,7 +14,10 @@ function onLevelChange(room, level) {
     if (level === 1) {
         room.log('占领成功！请手动操作：[双黄]旗子设置source、[紫红]旗子设置中心点、[setCreepAmount]发布worker、[isAutoLayout]开启自动布局、[useRuinEnergy]使用遗迹能量')
         room.addWorkTask('upgrade')
+    } else if (level === 7) {
+        room.addTransportTask('fillExtension')
     } else if (level === 8) {
+        room.addTransportTask('fillExtension')
         // room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')
     }

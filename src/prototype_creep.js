@@ -70,7 +70,7 @@ Creep.prototype.dismantleTo = function (target) {
     return result
 }
 
-Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 0.5) {
+Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
     if (this.energy / this.store.getCapacity() >= energyPercent) {
         delete this.memory.energySourceId
         delete this.memory.dontPullMe
