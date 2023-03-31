@@ -13,7 +13,7 @@ const transportTaskConfigs = {
     pickupDropped: { priority: 0, minUnits: 1, maxUnits: 1 },
     powerSpawnEnergy: { priority: 1, minUnits: 1, maxUnits: 1 },
     powerSpawnPower: { priority: 1, minUnits: 1, maxUnits: 1 },
-    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 2 },
+    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 1 },
     upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
 }
 
@@ -24,7 +24,7 @@ Room.prototype.addTransportTask = function (key) {
 }
 
 const fillExtension = {
-    source: (creep) => creep.getEnergy(true, false, 0.1),
+    source: (creep) => creep.getEnergy(true, false, 1/2),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (!creep.fillExtensions()) return undefined
@@ -33,7 +33,7 @@ const fillExtension = {
 }
 
 const fillTower = {
-    source: (creep) => creep.getEnergy(true, false, 0.1),
+    source: (creep) => creep.getEnergy(true, false, 1/2),
     target: (creep) => {
         if (creep.isEmpty) return true
         if (!creep.fillTowers()) return undefined
@@ -41,7 +41,14 @@ const fillTower = {
     }
 }
 
-const labEnergy = {}
+const labEnergy = {
+    source: (creep) => creep.getEnergy(true, false, 1/2),
+    target: (creep) => {
+        if (creep.isEmpty) return true
+        if (!creep.fillLabEnergy()) return undefined
+        return false
+    }
+}
 
 const labBoostIn = {}
 

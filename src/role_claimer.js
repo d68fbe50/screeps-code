@@ -13,14 +13,14 @@ const target = function (creep) {
 }
 
 const bodys = [
-    { move: 1, claim: 1 },
-    { move: 1, claim: 1 },
-    { move: 3, claim: 1 },
-    { move: 5, claim: 1 },
-    { move: 5, claim: 1 },
-    { move: 5, claim: 1 },
-    { move: 5, claim: 1 },
-    { move: 5, claim: 1 }
+    [ [MOVE], 1, [CLAIM], 1 ],
+    [ [MOVE], 1, [CLAIM], 1 ],
+    [ [MOVE], 3, [CLAIM], 1 ],
+    [ [MOVE], 5, [CLAIM], 1 ],
+    [ [MOVE], 5, [CLAIM], 1 ],
+    [ [MOVE], 5, [CLAIM], 1 ],
+    [ [MOVE], 5, [CLAIM], 1 ],
+    [ [MOVE], 5, [CLAIM], 1 ]
 ]
 
 module.exports = { isNeed, prepare, target, bodys }

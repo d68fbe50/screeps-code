@@ -10,7 +10,7 @@ interface RoomMemory {
     spawnLock, remoteLocks,
     TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest,
     transporterAmount, workerAmount, upgraderAmount,
-    lab, needRepairWallId, useRuinEnergy
+    labs, needRepairWallId, useRuinEnergy
 }
 interface CreepMemory {
     role, home, config, task,

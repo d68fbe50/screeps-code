@@ -64,14 +64,14 @@ const target = function (creep) {
 }
 
 const bodys = [ // 5 级出 link 前用不到
-    { carry: 1, move: 1 },
-    { carry: 1, move: 1 },
-    { carry: 1, move: 1 },
-    { carry: 1, move: 1 },
-    { carry: 16, move: 1 },
-    { carry: 16, move: 1 },
-    { carry: 16, move: 1 },
-    { carry: 16, move: 1 }
+    [ [MOVE], 1, [CARRY], 1 ],
+    [ [MOVE], 1, [CARRY], 1 ],
+    [ [MOVE], 1, [CARRY], 1 ],
+    [ [MOVE], 1, [CARRY], 1 ],
+    [ [MOVE], 1, [CARRY], 16 ],
+    [ [MOVE], 1, [CARRY], 16 ],
+    [ [MOVE], 1, [CARRY], 16 ],
+    [ [MOVE], 1, [CARRY], 16 ]
 ]
 
 module.exports = { prepare, source, target, bodys }

@@ -69,14 +69,14 @@ const target = function (creep) {
 }
 
 const bodys = [
-    { work: 2, carry: 1, move: 1 },
-    { work: 4, carry: 1, move: 2 },
-    { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 1, move: 3 },
-    { work: 6, carry: 2, move: 3 },
-    { work: 6, carry: 2, move: 3 },
-    { work: 12, carry: 2, move: 6 }
+    [ [CARRY], 1, [MOVE, WORK, WORK], 1 ],
+    [ [CARRY], 1, [MOVE, WORK, WORK], 2 ],
+    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
+    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
+    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
+    [ [CARRY], 2, [MOVE, WORK, WORK], 3 ],
+    [ [CARRY], 2, [MOVE, WORK, WORK], 3 ],
+    [ [CARRY], 3, [MOVE, WORK, WORK], 6 ]
 ]
 
 module.exports = { isNeed, prepare, target, bodys }

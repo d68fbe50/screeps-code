@@ -165,17 +165,27 @@ Creep.prototype.clearResources = function (excludeResourceType) { // 置空抛�
 }
 
 Creep.prototype.fillExtensions = function () {
-    if (this.room.energyAvailable === this.room.energyCapacityAvailable) {
-        delete this.memory.task.needFillExtensionId
-        return false
-    }
+    if (this.room.energyAvailable === this.room.energyCapacityAvailable) return false
     let target = Game.getObjectById(this.memory.task.needFillExtensionId)
     if (!target) {
         target = this.pos.findClosestByRange([...this.room.spawn, ...this.room.extension], { filter: i => !i.isFull })
-        if (target) this.memory.task.needFillExtensionId = target.id // target 一定存在
+        if (target) this.memory.task.needFillExtensionId = target.id
+        else return false
     }
     const result = this.putTo(target)
     if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillExtensionId
+    return true
+}
+
+Creep.prototype.fillLabEnergy = function () {
+    let target = Game.getObjectById(this.memory.task.needFillLabId)
+    if (!target) {
+        target = this.pos.findClosestByRange(this.room.lab, { filter: i => i.energy < i.store.getCapacity(RESOURCE_ENERGY) / 2 })
+        if (target) this.memory.task.needFillLabId = target.id
+        else return false
+    }
+    const result = this.putTo(target)
+    if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillLabId
     return true
 }
 
@@ -184,10 +194,7 @@ Creep.prototype.fillTowers = function () {
     if (!target) {
         target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < i.capacity / 2 })
         if (target) this.memory.task.needFillTowerId = target.id
-        else {
-            delete this.memory.task.needFillTowerId
-            return false
-        }
+        else return false
     }
     const result = this.putTo(target)
     if (result !== ERR_NOT_IN_RANGE) delete this.memory.task.needFillTowerId

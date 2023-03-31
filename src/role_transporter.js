@@ -22,14 +22,14 @@ const source = (creep) => creep.runTaskSource(TASK_TYPE)
 const target = (creep) => creep.runTaskTarget(TASK_TYPE)
 
 const bodys = [
-    { carry: 1, move: 1 },
-    { carry: 5, move: 5 },
-    { carry: 10, move: 5 },
-    { carry: 16, move: 8 },
-    { carry: 24, move: 12 },
-    { carry: 30, move: 15 },
-    { carry: 32, move: 16 },
-    { carry: 32, move: 16 }
+    [ [CARRY, MOVE], 1 ],
+    [ [CARRY, CARRY, MOVE], 3 ],
+    [ [CARRY, CARRY, MOVE], 5 ],
+    [ [CARRY, CARRY, MOVE], 8 ],
+    [ [CARRY, CARRY, MOVE], 12 ],
+    [ [CARRY, CARRY, MOVE], 15 ],
+    [ [CARRY, CARRY, MOVE], 16 ],
+    [ [CARRY, CARRY, MOVE], 16 ]
 ]
 
 module.exports = { isNeed, deathPrepare, source, target, bodys }

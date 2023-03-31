@@ -5,7 +5,7 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
 
 Room.prototype.checkRoomMemory = function () {
     if (!this.memory.centerPos) this.memory.centerPos = {}
-    if (!this.memory.lab) this.memory.lab = {}
+    if (!this.memory.labs) this.memory.labs = {}
     if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
     if (!this.memory.TaskCenter) this.memory.TaskCenter = []
     if (!this.memory.TaskRemote) this.memory.TaskRemote = []
@@ -191,8 +191,9 @@ Room.prototype.updateLayout = function () {
 Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
     let paths = this.findPath(fromPos, toPos, {
         ignoreCreeps: true,
-        ignoreDestructibleStructures: true,
-        ignoreRoads: true
+        ignoreDestructibleStructures: false,
+        ignoreRoads: false,
+        range: 0
     })
     paths.shift()
     paths = _.dropRight(paths, cut)

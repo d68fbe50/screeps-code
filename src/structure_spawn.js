@@ -49,7 +49,10 @@ function calcBodyPart(bodysRequire, energyAmount) {
     const energyLevels = [10000, 5600, 2300, 1800, 1300, 800, 550, 300]
     let index = energyLevels.findIndex(i => i <= energyAmount)
     const level = 7 - (index === -1 ? 7 : index)
+    const bodysConfig = bodysRequire[level]
     const bodys = []
-    Object.keys(bodysRequire[level]).forEach(i => bodys.push(...Array(bodysRequire[level][i]).fill(i)))
-    return bodys
+    for (let i = 0; i < bodysConfig.length / 2; i++) {
+        bodys.push(...Array(bodysConfig[i*2+1]).fill(bodysConfig[i*2]))
+    }
+    return [].concat(...bodys)
 }

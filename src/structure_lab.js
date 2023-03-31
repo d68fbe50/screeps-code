@@ -9,18 +9,20 @@ const resourcesExpectAmount = {
     'GO': 2000, 'GHO2': 2000, 'XGHO2': 10000, // tough
     'UO': 2000, 'UHO2': 2000, 'XUHO2': 5000, // harvest
     'KH': 2000, 'KH2O': 2000, 'XKH2O': 5000, // carry
-    'GH': 2000, 'GH2O': 2000, 'XGH2O': 5000 // upgrade
+    'GH': 2000, 'GH2O': 2000, 'XGH2O': 5000, // upgrade
 }
 
 StructureLab.prototype.run = function () {
     if (!this.room.inLab1 || !this.room.inLab2) return
-    if (!this.room.memory.lab[this.id]) this.room.memory.lab[this.id] = 'reaction'
+    if (!this.room.memory.labs[this.id]) this.room.memory.labs[this.id] = 'reaction'
 
     if (this.energy < this.store.getCapacity(RESOURCE_ENERGY) / 2) this.room.addTransportTask('labEnergy')
 
-    if (this.room.memory.lab[this.id] === 'inLab1' || this.room.memory.lab[this.id] === 'inLab2') runInLab(this)
-    else if (this.room.memory.lab[this.id] === 'reaction') runReactionLab(this)
-    else runBoostLab()
+    return
+
+    if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') runInLab(this)
+    else if (this.room.memory.labs[this.id] === 'reaction') runReactionLab(this)
+    else runBoostLab(this)
 }
 
 StructureLab.prototype.onBuildComplete = function () {
@@ -40,32 +42,22 @@ function runInLab(lab) {
 function runReactionLab(lab) {
     if (lab.cooldown > 0 || lab.room.inLab1.isEmpty || lab.room.inLab2.isEmpty) return
     const result = lab.runReaction(lab.room.inLab1, lab.room.inLab2)
-    if (result === ERR_INVALID_ARGS) lab.room.addTransportTask('labBoostOut')
+    // if (result === ERR_INVALID_ARGS) lab.room.addTransportTask('labReactionOut')
 }
 
 function runBoostLab(lab) {
-    const boostType = lab.room.memory.lab[lab.id]
+    const boostType = lab.room.memory.labs[lab.id]
     if (lab.mineralType && lab.mineralType !== boostType) lab.room.addTransportTask('labBoostOut')
-    if (lab.store[lab.mineralType] < lab.capacity / 2) lab.room.addTransportTask('labBoostIn')
+    if (!lab.mineralType || (lab.mineralType === boostType && lab.store[lab.mineralType] < lab.capacity / 2)) lab.room.addTransportTask('labBoostIn')
 }
 
 Room.prototype.setInLab = function (pos) {
     const lab = pos.lookForStructure(STRUCTURE_LAB)
     if (!lab) return
     const hasInLab1 = !!this.inLab1
-    hasInLab1 ? (this.memory.lab[lab.id] = 'inLab2') : (this.memory.lab[lab.id] = 'inLab1')
+    hasInLab1 ? (this.memory.labs[lab.id] = 'inLab2') : (this.memory.labs[lab.id] = 'inLab1')
     this.log(`inLab${hasInLab1 ? 2 : 1} 已设置在 [${pos.x},${pos.y}]`)
 }
-
-Object.defineProperty(Creep.prototype, 'boostCounts', {
-    get() {
-        if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, i => i.boost)
-        }
-        return this._boostCounts
-    },
-    configurable: true
-})
 
 Object.defineProperty(Creep.prototype, 'boosts', {
     get() {
@@ -77,11 +69,21 @@ Object.defineProperty(Creep.prototype, 'boosts', {
     configurable: true
 })
 
+Object.defineProperty(Creep.prototype, 'boostCounts', {
+    get() {
+        if (!this._boostCounts) {
+            this._boostCounts = _.countBy(this.body, i => i.boost)
+        }
+        return this._boostCounts
+    },
+    configurable: true
+})
+
 Object.defineProperty(Room.prototype, 'inLab1', {
     get() {
         if (!this._hasAccessInLab1) {
             this._hasAccessInLab1 = true
-            this._inLab1 = Game.getObjectById(_.findKey(this.memory.lab, i => i === 'inLab1'))
+            this._inLab1 = this.lab.find(i => this.memory.labs[i.id] === 'inLab1')
         }
         return this._inLab1
     },
@@ -92,9 +94,34 @@ Object.defineProperty(Room.prototype, 'inLab2', {
     get() {
         if (!this._hasAccessInLab2) {
             this._hasAccessInLab2 = true
-            this._inLab2 = Game.getObjectById(_.findKey(this.memory.lab, i => i === 'inLab2'))
+            this._inLab2 = this.lab.find(i => this.memory.labs[i.id] === 'inLab2')
         }
         return this._inLab2
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'reactionLabs', {
+    get() {
+        if (!this._hasAccessReactionLabs) {
+            this._hasAccessReactionLabs = true
+            this._reactionLabs = this.lab.filter(i => this.memory.labs[i.id] === 'reaction')
+        }
+        return this._reactionLabs
+    },
+    configurable: true
+})
+
+Object.defineProperty(Room.prototype, 'boostLabs', {
+    get() {
+        if (!this._hasAccessBoostLabs) {
+            this._hasAccessBoostLabs = true
+            this._boostLabs = this.lab.filter(i => this.memory.labs[i.id]
+                && this.memory.labs[i.id] !== 'inLab1'
+                && this.memory.labs[i.id] !== 'inLab2'
+                && this.memory.labs[i.id] !== 'reaction')
+        }
+        return this._boostLabs
     },
     configurable: true
 })

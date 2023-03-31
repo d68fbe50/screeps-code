@@ -1,5 +1,7 @@
 const TASK_TYPE = 'TaskRemote'
 
+const transporterRequire = require('./role_transporter')
+
 const isNeed = function (memory) {
     Game.rooms[memory.home].updateTaskUnit(TASK_TYPE, memory.task.key, -1)
     return !memory.dontNeed
@@ -16,15 +18,6 @@ const source = (creep) => creep.runTaskSource(TASK_TYPE, 'sourceType')
 
 const target = (creep) => creep.runTaskTarget(TASK_TYPE, 'sourceType')
 
-const bodys = [
-    { carry: 4, move: 2 },
-    { carry: 6, move: 3 },
-    { carry: 10, move: 5 },
-    { carry: 16, move: 8 },
-    { carry: 24, move: 12 },
-    { carry: 30, move: 15 },
-    { carry: 32, move: 16 },
-    { carry: 32, move: 16 }
-]
+const bodys = transporterRequire.bodys
 
 module.exports = { isNeed, deathPrepare, source, target, bodys }
