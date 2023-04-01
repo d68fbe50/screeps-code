@@ -6,6 +6,7 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
 Room.prototype.checkRoomMemory = function () {
     if (!this.memory.centerPos) this.memory.centerPos = {}
     if (!this.memory.labs) this.memory.labs = {}
+    if (!this.memory.roomStatus) this.memory.roomStatus = 'Normal'
     if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
     if (!this.memory.TaskCenter) this.memory.TaskCenter = []
     if (!this.memory.TaskRemote) this.memory.TaskRemote = []
@@ -16,7 +17,10 @@ Room.prototype.checkRoomMemory = function () {
 }
 
 Room.prototype.roomVisual = function () {
-    let visualTextY = 25
+    let visualTextY = 20
+
+    this.visual.text(`RoomStatus: ${this.memory.roomStatus}`, 1, visualTextY++, { align: 'left' })
+
     this.visual.text(`Transporter: ${this.memory.transporterAmount}, Worker: ${this.memory.workerAmount}, Upgrader: ${this.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
 
     let text = 'TaskCenter : ' + this.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}:${i.data.resourceType}*${i.data.amount}]`).join(' ')
@@ -54,8 +58,6 @@ Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     return this.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)
 }
 
-// =================================================================================================== Base
-
 Object.defineProperty(Room.prototype, 'constructionSites', {
     get() {
         if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
@@ -64,120 +66,10 @@ Object.defineProperty(Room.prototype, 'constructionSites', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'tombstones', {
-    get() {
-        if (!this._tombstones) this._tombstones = this.find(FIND_TOMBSTONES)
-        return this._tombstones
-    },
-    configurable: true
-})
-
-// =================================================================================================== Creep
-
 Object.defineProperty(Room.prototype, 'creeps', {
     get() {
         if (!this._creeps) this._creeps = this.find(FIND_MY_CREEPS)
         return this._creeps
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'dangerousHostiles', {
-    get() {
-        if (!this._dangerousHostiles) {
-            if (this.my) this._dangerousHostiles = _.filter(this.hostiles,
-                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-            else this._dangerousHostiles = _.filter(this.hostiles,
-                i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-        }
-        return this._dangerousHostiles
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'dangerousPlayerHostiles', {
-    get() {
-        if (!this._dangerousPlayerHostiles) this._dangerousPlayerHostiles = _.filter(this.playerHostiles,
-            i => i.getActiveBodyparts(ATTACK) > 0 || i.getActiveBodyparts(WORK) > 0 || i.getActiveBodyparts(RANGED_ATTACK) > 0 || i.getActiveBodyparts(HEAL) > 0)
-        return this._dangerousPlayerHostiles
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'hostiles', {
-    get() {
-        if (!this._hostiles) this._hostiles = this.find(FIND_HOSTILE_CREEPS)
-        return this._hostiles
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'invaders', {
-    get() {
-        if (!this._invaders) this._invaders = _.filter(this.hostiles, i => i.owner.username === 'Invader')
-        return this._invaders
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'playerHostiles', {
-    get() {
-        if (!this._playerHostiles) {
-            this._playerHostiles = _.filter(this.hostiles, i => i.owner.username !== 'Invader' && i.owner.username !== 'Source Keeper')
-        }
-        return this._playerHostiles
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'sourceKeepers', {
-    get() {
-        if (!this._sourceKeepers) this._sourceKeepers = _.filter(this.hostiles, i => i.owner.username === 'Source Keeper')
-        return this._sourceKeepers
-    },
-    configurable: true
-})
-
-// =================================================================================================== Market
-
-Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
-    return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
-}
-
-Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
-    return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
-}
-
-// =================================================================================================== Resources
-
-Object.defineProperty(Room.prototype, 'droppedEnergy', {
-    get() {
-        return this.drops[RESOURCE_ENERGY] || []
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'droppedPower', {
-    get() {
-        return this.drops[RESOURCE_POWER] || []
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'drops', {
-    get() {
-        if (!this._drops) this._drops = _.groupBy(this.find(FIND_DROPPED_RESOURCES), i => i.resourceType)
-        return this._drops
-    },
-    configurable: true
-})
-
-// =================================================================================================== Structure
-
-Object.defineProperty(Room.prototype, 'hostileStructures', {
-    get() {
-        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
-        return this._hostileStructures
     },
     configurable: true
 })
@@ -196,15 +88,3 @@ Object.defineProperty(Room.prototype, 'wall', {
     },
     configurable: true
 })
-
-let confirmTick
-Room.prototype.unclaimRoom = function (confirm) {
-    if (!confirm) return false
-    if (confirmTick !== Game.time - 1) {
-        confirmTick = Game.time
-        log('危险操作！！！请在 1 tick 内再次调用以移除！！！', 'warning')
-        return
-    }
-    this.controller.unclaim()
-    log(`room: ${this.name} 已移除！`, 'warning')
-}

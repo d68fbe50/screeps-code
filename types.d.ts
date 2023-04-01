@@ -3,7 +3,7 @@ interface Structure { onBuildComplete, store }
 
 interface Memory { allCreeps, avoidRooms, delayTasks, isVisualPath, stats }
 interface RoomMemory {
-    centerPos, isAutoLayout, rcl,
+    centerPos, isAutoLayout, rcl, roomStatus,
     constructionSiteId, constructionSiteType, constructionSitePos,
     sourceContainerIds, upgradeContainerId,
     centerLinkId, upgradeLinkId,

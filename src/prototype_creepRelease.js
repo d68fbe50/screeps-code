@@ -7,7 +7,7 @@ const taskRoles = ['remoteTransporter', 'transporter', 'worker', 'upgrader']
 Room.prototype.addCreep = function (role, amount = 1) {
     if (!taskRoles.includes(role)) return
     for (let i = 0; i < amount; i++) {
-        const dontNeedName = _.findKey(Memory.creeps, i => i.home === this.name && i.role === role && i.dontNeed)
+        const dontNeedName = _.findLastKey(Memory.creeps, i => i.home === this.name && i.role === role && i.dontNeed)
         if (dontNeedName) {
             Memory.creeps[dontNeedName].dontNeed = undefined
             this.log(`creep: ${dontNeedName} 已取消 dontNeed 标记`)

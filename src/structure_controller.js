@@ -18,24 +18,9 @@ function onLevelChange(room, level) {
         room.addTransportTask('fillExtension')
     } else if (level === 8) {
         room.addTransportTask('fillExtension')
-        // room.setCreepAmount('upgrader', 1)
         room.removeTask('TaskWork', 'upgrade')
     }
 }
-
-Object.defineProperty(Room.prototype, 'level', {
-    get() {
-        return this.controller && this.controller.level
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'my', {
-    get() {
-        return this.controller && this.controller.my
-    },
-    configurable: true
-})
 
 Object.defineProperty(Room.prototype, 'owner', {
     get() {

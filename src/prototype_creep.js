@@ -169,68 +169,11 @@ Creep.prototype.upgrade = function (target) {
     return result
 }
 
-Object.defineProperty(Creep.prototype, 'boosts', {
-    get() {
-        if (!this._boosts) {
-            this._boosts = _.compact(_.unique(_.map(this.body, i => i.boost)))
-        }
-        return this._boosts
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'boostCounts', {
-    get() {
-        if (!this._boostCounts) {
-            this._boostCounts = _.countBy(this.body, i => i.boost)
-        }
-        return this._boostCounts
-    },
-    configurable: true
-})
-
 Object.defineProperty(Creep.prototype, 'home', {
     get() {
         const home = Game.rooms[this.memory.home]
         if (home) return home
         this.say('no home!')
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'inRampart', {
-    get() {
-        return !!this.pos.lookForStructure(STRUCTURE_RAMPART)
-    },
-    configurable: true
-})
-
-// =================================================================================================== Store
-
-Object.defineProperty(Creep.prototype, 'capacity', {
-    get() {
-        return this.store.getCapacity()
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'energy', {
-    get() {
-        return this.store[RESOURCE_ENERGY]
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'isEmpty', {
-    get() {
-        return this.store.getUsedCapacity() <= 0
-    },
-    configurable: true
-})
-
-Object.defineProperty(Creep.prototype, 'isFull', {
-    get() {
-        return this.store.getFreeCapacity() <= 0
     },
     configurable: true
 })

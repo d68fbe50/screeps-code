@@ -69,20 +69,6 @@ Object.defineProperty(global, 't', {
     configurable: true
 })
 
-// =================================================================================================== Market
-
-global.cop = function (orderId, newPrice) {
-    return Game.market.changeOrderPrice(orderId, newPrice)
-}
-
-global.eo = function (orderId, addAmount) {
-    return Game.market.extendOrder(orderId, addAmount)
-}
-
-global.res = function () {
-    return HelperRoomResource.showAllRes()
-}
-
 // =================================================================================================== Visual Path
 
 global.offVisualPath = function () {
