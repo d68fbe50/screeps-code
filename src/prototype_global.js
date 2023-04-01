@@ -5,9 +5,9 @@ const { updateAvoidRooms } = require('./wheel_move')
 const logHistory = []
 global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     content = prefix + content
-    if (type === 'error') content = '<text style="color:red">[ERROR]&nbsp;</text>' + content
-    else if (type === 'warning') content = '<text style="color:yellow">[WARNING]&nbsp;</text>' + content
-    else if (type === 'info') content = '<text style="color:lightblue">[INFO]&nbsp;</text>' + content
+    if (type === 'error') content = Game.time + '<text style="color:red">&nbsp;[ERROR]&nbsp;</text>' + content
+    else if (type === 'warning') content = Game.time + '<text style="color:yellow">&nbsp;[WARNING]&nbsp;</text>' + content
+    else if (type === 'info') content = Game.time + '<text style="color:lightblue">&nbsp;[INFO]&nbsp;</text>' + content
     console.log(content)
     if (notifyNow) Game.notify(content)
     if (logHistory.length >= 1000) logHistory.shift()
@@ -16,7 +16,7 @@ global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
 
 global.hLog = function (amount = 10) {
     if (amount > logHistory.length) amount = logHistory.length
-    console.log(logHistory.slice(amount * -1).join('\n'))
+    return logHistory.slice(amount * -1).join('\n')
 }
 
 global.addAvoidRoom = function (roomName) {
@@ -68,3 +68,14 @@ Object.defineProperty(global, 't', {
     get() { return Game.time },
     configurable: true
 })
+
+Object.defineProperty(global, 'help', {
+    get() {
+        return showHelp()
+    },
+    configurable: true
+})
+
+function showHelp() {
+    return 'help: TODO'
+}

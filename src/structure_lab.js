@@ -23,10 +23,6 @@ StructureLab.prototype.run = function () {
     else runBoostLab(this)
 }
 
-StructureLab.prototype.onBuildComplete = function () {
-    if (!this.room.inLab1 || !this.room.inLab2) this.room.log('请插[绿蓝]旗子初始化输入 lab', 'warning')
-}
-
 function runInLab(lab) {
     if (Game.time % 10) return
     if (!lab.room.inLab1.isEmpty && !lab.room.inLab2.isEmpty) return

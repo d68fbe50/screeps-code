@@ -8,7 +8,7 @@ const centerTaskConfigs = {
 }
 
 Room.prototype.addCenterTask = function (key, source, target, resourceType, amount) {
-    if (!(key in centerTaskConfigs)) return false
+    if (!(key in centerTaskConfigs) || (typeof amount !== 'number')) return false
     const data = { source, target, resourceType, amount }
     return this.addTask(TASK_TYPE, key, data, centerTaskConfigs[key].priority)
 }

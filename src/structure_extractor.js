@@ -8,5 +8,5 @@ StructureExtractor.prototype.run = function () {
 }
 
 StructureExtractor.prototype.onBuildComplete = function () {
-    if (!this.pos.flags[0]) this.pos.createFlag(undefined, COLOR_YELLOW, COLOR_BLUE)
+    // if (!this.pos.flags[0]) this.pos.createFlag(undefined, COLOR_YELLOW, COLOR_BLUE)
 }

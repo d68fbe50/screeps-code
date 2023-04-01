@@ -1,5 +1,12 @@
 const boostPrepare = function (creep) {
-    return true
+    if (creep.room.memory.roomStatus !== 'Upgrade') return true
+    const lab = creep.room.boostLabs.find(i => i.boostType === 'XGH2O')
+    if (!lab) return true
+    if (creep.pos.isNearTo(lab)) {
+        lab.boostCreep(creep)
+        return true
+    }
+    creep.goto(lab)
 }
 
 const prepare = function (creep) {

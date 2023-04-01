@@ -8,10 +8,6 @@ StructureTower.prototype.run = function () {
     repairStructure(this)
 }
 
-StructureTower.prototype.onBuildComplete = function () {
-    //
-}
-
 function attackEnemy(tower) {
     if (tower.room.hostiles.length === 0) return false
     tower.attack(tower.pos.findClosestByRange(tower.room.hostiles))

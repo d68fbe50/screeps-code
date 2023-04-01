@@ -4,6 +4,7 @@ StructureController.prototype.run = function () {
         [...this.room.wall, ...this.room.rampart].find(i => i.hits < i.hitsMax / 30) && this.room.addWorkTask('repair')
         this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
     }
+    this.room.creepDynamicAdjust()
     onLevelChange(this.room, this.level)
 }
 
