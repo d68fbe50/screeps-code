@@ -46,12 +46,12 @@ Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
         const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
         if (ruins.length > 0) return ruins
     }
-    if (this.storage && this.storage.energy > (ignoreLimit ? 0 : 10000)) return [this.storage]
-    if (this.terminal && this.terminal.energy > (ignoreLimit ? 0 : 10000)) return [this.terminal]
-    const containers = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 0 : 500))
+    if (this.storage && this.storage.energy > (ignoreLimit ? 1000 : 10000)) return [this.storage]
+    if (this.terminal && this.terminal.energy > (ignoreLimit ? 1000 : 10000)) return [this.terminal]
+    const containers = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 100 : 500))
     if (containers.length > 0) return containers
     if (!includeSource) return []
-    return this.source.filter(i => i.energy > (ignoreLimit ? 0 : 500) && i.pos.availableNeighbors().length > 0)
+    return this.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)
 }
 
 // =================================================================================================== Base

@@ -34,7 +34,7 @@ Room.prototype.updateLayout = function () {
             })
         })
     })
-    if (this.level >= 1) {
+    if (this.level >= 2) {
         this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
     }
     if (this.level >= 3) {

@@ -77,6 +77,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
         return true
     }
     if (!this.clearCarry(RESOURCE_ENERGY)) return false
+    if (!(Game.time % 10) && this.isEmpty) delete this.memory.energySourceId
     if (!this.memory.energySourceId) {
         const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
         this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
@@ -111,7 +112,7 @@ Creep.prototype.goBackHome = function () {
 Creep.prototype.goto = function (firstArg, secondArg, opts) {
     if (Memory.isVisualPath) {
         const toPos = (typeof firstArg == 'object') ? (firstArg.pos || firstArg) : new RoomPosition(firstArg, secondArg, this.room.name)
-        this.room.visual.line(this.pos, toPos, { width: 0.05 })
+        if (this.room.name === toPos.roomName) this.room.visual.line(this.pos, toPos, { width: 0.05 })
     }
     this.moveTo(firstArg, secondArg, opts)
 }

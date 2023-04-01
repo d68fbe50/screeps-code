@@ -20,7 +20,7 @@ const build = {
             return true
         }
         const result = creep.buildStructure()
-        if (!result) return undefined
+        if (result) return undefined
         creep.memory.dontPullMe = true
         return false
     }
@@ -34,7 +34,7 @@ const repair = {
             return true
         }
         const result = creep.repairWall()
-        if (!result) return undefined
+        if (result) return undefined
         creep.memory.dontPullMe = true
         return false
     }
@@ -60,7 +60,7 @@ Creep.prototype.buildStructure = function () {
     const cs = Game.getObjectById(csId)
     if (cs) {
         this.buildTo(cs)
-        return true
+        return false
     }
     if (csId) {
         const pos = this.room.memory.constructionSitePos && new RoomPosition(this.room.memory.constructionSitePos.x, this.room.memory.constructionSitePos.y, this.room.name)
@@ -70,7 +70,7 @@ Creep.prototype.buildStructure = function () {
         delete this.room.memory.constructionSiteType
         delete this.room.memory.constructionSitePos
         this.room.update()
-        return true
+        return false
     }
     const importantCs = this.room.constructionSites.find(i => [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(i.structureType))
     const closestCs = importantCs ? importantCs : this.pos.findClosestByRange(this.room.constructionSites)
@@ -78,8 +78,8 @@ Creep.prototype.buildStructure = function () {
         this.room.memory.constructionSiteId = closestCs.id
         this.room.memory.constructionSiteType = closestCs.structureType
         this.room.memory.constructionSitePos = { x: closestCs.pos.x, y: closestCs.pos.y }
-        return true
-    } else return false
+        return false
+    } else return true
 }
 
 Creep.prototype.repairWall = function () {
@@ -91,14 +91,14 @@ Creep.prototype.repairWall = function () {
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {
             delete this.room.memory.needRepairWallId
-            return false
+            return true
         }
     }
     const needRepairWall = Game.getObjectById(this.room.memory.needRepairWallId)
     if (!needRepairWall) {
         delete this.room.memory.needRepairWallId
-        return true
+        return false
     }
     this.repairTo(needRepairWall)
-    return true
+    return false
 }
