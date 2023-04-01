@@ -14,7 +14,7 @@ Creep.prototype.run = function () {
     const roleConfig = roles[this.memory.role]
     if (!roleConfig) return this.say('no role!')
     const roleRequire = roleConfig.require
-    if (!Game.rooms[this.memory.home]) return this.say('no home!')
+    if (!this.home) return this.say('no home!')
 
     if (!this.memory.boostReady) {
         if (roleRequire.boostPrepare) this.memory.boostReady = roleRequire.boostPrepare(this)
@@ -58,7 +58,7 @@ Creep.prototype.claim = function (target) {
 Creep.prototype.clearCarry = function (excludeResourceType) {
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
     const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
-    const putTarget = this.room.terminal ? this.room.terminal : this.room.storage
+    const putTarget = this.room.storage ? this.room.storage : this.room.terminal
     if (putTarget) this.putTo(putTarget, resourceType)
     else this.drop(resourceType)
     return false
@@ -79,7 +79,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     if (!this.clearCarry(RESOURCE_ENERGY)) return false
     if (!(Game.time % 10) && this.isEmpty) delete this.memory.energySourceId
     if (!this.memory.energySourceId) {
-        const energySources = this.room.getEnergySources(ignoreLimit, includeSource)
+        const energySources = getEnergySources(this.room, ignoreLimit, includeSource)
         this.memory.energySourceId = energySources.length > 1 ? this.pos.findClosestByRange(energySources).id : (energySources[0] && energySources[0].id)
     }
     const energySource = Game.getObjectById(this.memory.energySourceId)
@@ -177,3 +177,16 @@ Object.defineProperty(Creep.prototype, 'home', {
     },
     configurable: true
 })
+
+function getEnergySources (room, ignoreLimit, includeSource) {
+    if (room.memory.useRuinEnergy) {
+        const ruins = room.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
+        if (ruins.length > 0) return ruins
+    }
+    if (room.storage && room.storage.energy > (ignoreLimit ? 1000 : 10000)) return [room.storage]
+    if (room.terminal && room.terminal.energy > (ignoreLimit ? 1000 : 10000)) return [room.terminal]
+    const containers = room.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 100 : 500))
+    if (containers.length > 0) return containers
+    if (!includeSource) return []
+    return room.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)
+}

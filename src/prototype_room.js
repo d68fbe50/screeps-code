@@ -1,3 +1,7 @@
+const defendBoostTypes = ['XUH2O', 'XZHO2', 'XLHO2', 'XKHO2', 'XGHO2', 'XLH2O']
+const warBoostTypes = ['XUH2O', 'XZHO2', 'XLHO2', 'XKHO2', 'XGHO2', 'XZH2O']
+const upgradeBoostTypes = ['XGH2O']
+
 Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     prefix = `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${this.name}">[${this.name}]&nbsp;</a>${prefix}`
     log(content, type, notifyNow, prefix)
@@ -14,6 +18,45 @@ Room.prototype.checkRoomMemory = function () {
     if (!this.memory.TaskTransport) this.memory.TaskTransport = []
     if (!this.memory.TaskWork) this.memory.TaskWork = []
     if (!this.memory.remoteLocks) this.memory.remoteLocks = {}
+}
+
+Room.prototype.collectRoomStats = function () {
+    Memory.stats[this.name + '-rcl'] = this.controller.level
+    Memory.stats[this.name + '-rclPercent'] = (this.controller.progress / (this.controller.progressTotal || 1)) * 100
+    Memory.stats[this.name + '-energy'] = this[RESOURCE_ENERGY]
+}
+
+Room.prototype.onNormal = function () {
+    this.boostLabs.forEach(i => i.offBoost())
+    this.memory.roomStatus = 'Normal'
+    this.log(`房间已切换至 ${this.memory.roomStatus} 模式`)
+}
+
+Room.prototype.onDefend = function () {
+    this.boostLabs.forEach(i => i.offBoost())
+    defendBoostTypes.forEach((t, index) => this.reactionLabs[index] && this.reactionLabs[index].onBoost(t))
+    this.memory.roomStatus = 'Defend'
+    this.log(`房间已切换至 ${this.memory.roomStatus} 模式`)
+}
+
+Room.prototype.onWar = function () {
+    this.boostLabs.forEach(i => i.offBoost())
+    warBoostTypes.forEach((t, index) => this.reactionLabs[index] && this.reactionLabs[index].onBoost(t))
+    this.memory.roomStatus = 'War'
+    this.log(`房间已切换至 ${this.memory.roomStatus} 模式`)
+}
+
+Room.prototype.onNukerEmergency = function () {
+    this.boostLabs.forEach(i => i.offBoost())
+    this.memory.roomStatus = 'NukerEmergency'
+    this.log(`房间已切换至 ${this.memory.roomStatus} 模式`)
+}
+
+Room.prototype.onUpgrade = function () {
+    this.boostLabs.forEach(i => i.offBoost())
+    upgradeBoostTypes.forEach((t, index) => this.reactionLabs[index] && this.reactionLabs[index].onBoost(t))
+    this.memory.roomStatus = 'Upgrade'
+    this.log(`房间已切换至 ${this.memory.roomStatus} 模式`)
 }
 
 Room.prototype.roomVisual = function () {
@@ -38,29 +81,3 @@ Room.prototype.roomVisual = function () {
     text = 'TaskWork : ' + this.memory['TaskWork'].map(i => `[${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')
     this.visual.text(text, 1, visualTextY++, { align: 'left' })
 }
-
-Room.prototype.collectRoomStats = function () {
-    Memory.stats[this.name + '-rcl'] = this.controller.level
-    Memory.stats[this.name + '-rclPercent'] = (this.controller.progress / (this.controller.progressTotal || 1)) * 100
-    Memory.stats[this.name + '-energy'] = this[RESOURCE_ENERGY]
-}
-
-Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
-    if (this.memory.useRuinEnergy) {
-        const ruins = this.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
-        if (ruins.length > 0) return ruins
-    }
-    if (this.storage && this.storage.energy > (ignoreLimit ? 1000 : 10000)) return [this.storage]
-    if (this.terminal && this.terminal.energy > (ignoreLimit ? 1000 : 10000)) return [this.terminal]
-    const containers = this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 100 : 500))
-    if (containers.length > 0) return containers
-    if (!includeSource) return []
-    return this.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)
-}
-
-Object.defineProperty(Room.prototype, 'wall', {
-    get() {
-        return this[STRUCTURE_WALL]
-    },
-    configurable: true
-})

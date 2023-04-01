@@ -1,7 +1,5 @@
 const mount_role = require('./role')
 
-// =================================================================================================== transporter & worker & upgrader
-
 const taskRoles = ['remoteTransporter', 'transporter', 'worker', 'upgrader']
 
 Room.prototype.addCreep = function (role, amount = 1) {
@@ -59,8 +57,6 @@ Room.prototype.setw = function (amount) {
     return this.setCreepAmount('worker', amount)
 }
 
-// =================================================================================================== Other Roles
-
 Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
     if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇', 'warning')
     const role = 'centerTransporter'
@@ -74,10 +70,6 @@ Room.prototype.addClaimer = function (flagName) {
     const creepName = getAvailableCreepName(mount_role[role].shortName)
     this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
     this.log(`${role}: ${creepName} 发布成功！`)
-}
-
-Room.prototype.addDefender = function () {
-    //
 }
 
 Room.prototype.addHarvester = function (flagName) {

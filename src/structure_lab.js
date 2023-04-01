@@ -50,13 +50,12 @@ function runBoostLab(lab) {
     }
 }
 
-function chooseReactionType (room) {
-    const resourceType = Object.keys(resourcesExpectAmount).find(i => room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
-    const [ source1, source2 ] = reactionSourceMap[resourceType]
-    if (room.terminal.store[source1] < LAB_MINERAL_CAPACITY / 2 || room.terminal.store[source2] < LAB_MINERAL_CAPACITY / 2) return false
-    room.memory.labs.source1 = source1
-    room.memory.labs.source2 = source2
-    return true
+Room.prototype.setInLab = function (pos) {
+    const lab = pos.lookForStructure(STRUCTURE_LAB)
+    if (!lab) return
+    const hasInLab1 = !!this.inLab1
+    hasInLab1 ? (this.memory.labs[lab.id] = 'inLab2') : (this.memory.labs[lab.id] = 'inLab1')
+    this.log(`inLab${hasInLab1 ? 2 : 1} 已设置在 [${pos.x},${pos.y}]`)
 }
 
 StructureLab.prototype.onBoost = function (boostType) {
@@ -67,21 +66,6 @@ StructureLab.prototype.onBoost = function (boostType) {
 StructureLab.prototype.offBoost = function () {
     this.room.memory.labs[this.id] = 'reaction'
 }
-
-Room.prototype.setInLab = function (pos) {
-    const lab = pos.lookForStructure(STRUCTURE_LAB)
-    if (!lab) return
-    const hasInLab1 = !!this.inLab1
-    hasInLab1 ? (this.memory.labs[lab.id] = 'inLab2') : (this.memory.labs[lab.id] = 'inLab1')
-    this.log(`inLab${hasInLab1 ? 2 : 1} 已设置在 [${pos.x},${pos.y}]`)
-}
-
-Object.defineProperty(StructureLab.prototype, 'boostType', {
-    get() {
-        return this.room.memory.labs[this.id]
-    },
-    configurable: true
-})
 
 Object.defineProperty(Room.prototype, 'inLab1', {
     get() {
@@ -105,17 +89,6 @@ Object.defineProperty(Room.prototype, 'inLab2', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'reactionLabs', {
-    get() {
-        if (!this._hasAccessReactionLabs) {
-            this._hasAccessReactionLabs = true
-            this._reactionLabs = this.lab.filter(i => this.memory.labs[i.id] === 'reaction')
-        }
-        return this._reactionLabs
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'boostLabs', {
     get() {
         if (!this._hasAccessBoostLabs) {
@@ -129,6 +102,33 @@ Object.defineProperty(Room.prototype, 'boostLabs', {
     },
     configurable: true
 })
+
+Object.defineProperty(Room.prototype, 'reactionLabs', {
+    get() {
+        if (!this._hasAccessReactionLabs) {
+            this._hasAccessReactionLabs = true
+            this._reactionLabs = this.lab.filter(i => this.memory.labs[i.id] === 'reaction')
+        }
+        return this._reactionLabs
+    },
+    configurable: true
+})
+
+Object.defineProperty(StructureLab.prototype, 'boostType', {
+    get() {
+        return this.room.memory.labs[this.id]
+    },
+    configurable: true
+})
+
+function chooseReactionType (room) {
+    const resourceType = Object.keys(resourcesExpectAmount).find(i => room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
+    const [ source1, source2 ] = reactionSourceMap[resourceType]
+    if (room.terminal.store[source1] < LAB_MINERAL_CAPACITY / 2 || room.terminal.store[source2] < LAB_MINERAL_CAPACITY / 2) return false
+    room.memory.labs.source1 = source1
+    room.memory.labs.source2 = source2
+    return true
+}
 
 const reactionSourceMap = {
     'OH': ['O', 'H'], 'ZK': ['Z', 'K'], 'UL': ['U', 'L'], 'G': ['ZK', 'UL'],

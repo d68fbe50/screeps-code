@@ -7,8 +7,6 @@ const taskActions = {
     TaskWork: require('./task_work')
 }
 
-// =================================================================================================== Creep prototype
-
 Creep.prototype.receiveTask = function (type) {
     const task = this.room.getExpectTask(type)
     if (task) {
@@ -73,8 +71,6 @@ Creep.prototype.runTaskTarget = function (taskType, actionType = 'key') {
     }
     return false
 }
-
-// =================================================================================================== Room prototype
 
 Room.prototype.getTask = function (type, key) {
     if (!type || !key) return undefined

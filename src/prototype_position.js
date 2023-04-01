@@ -56,3 +56,10 @@ Object.defineProperty(RoomPosition.prototype, 'rangeToEdge', {
     },
     configurable: true
 })
+
+Object.defineProperty(RoomPosition.prototype, 'room', {
+    get() {
+        return Game.rooms[this.roomName]
+    },
+    configurable: true
+})

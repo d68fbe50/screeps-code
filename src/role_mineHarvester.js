@@ -7,7 +7,7 @@ const prepare = function (creep) {
 
     if (!creep.gotoFlag(creep.memory.config.flagName)) return false
 
-    const mineral = Game.flags[creep.memory.config.flagName].pos.lookFor(LOOK_MINERALS)[0]
+    const mineral = Game.flags[creep.memory.config.flagName].pos.mineral
     if (!mineral) {
         creep.say('no mineral!')
         creep.memory.dontNeed = true
@@ -37,9 +37,8 @@ const target = function (creep) {
         creep.memory.ready = false
         return true
     }
-    creep.putTo(creep.room.terminal || creep.room.storage
-        || (Game.rooms[creep.memory.home].terminal || Game.rooms[creep.memory.home].storage)
-        , Object.keys(creep.store)[0])
+    if (!creep.goBackHome()) return false
+    creep.putTo(creep.room.storage || creep.room.terminal, Object.keys(creep.store)[0])
 }
 
 const bodys = workerRequire.bodys

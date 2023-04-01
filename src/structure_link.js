@@ -8,7 +8,7 @@ StructureLink.prototype.run = function () {
 
 StructureLink.prototype.onBuildComplete = function () {
     const structuresInRange = this.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: i => i.structureType === STRUCTURE_STORAGE || i.structureType === STRUCTURE_TERMINAL || i.structureType === STRUCTURE_FACTORY
+        filter: i => i.structureType === STRUCTURE_STORAGE || i.structureType === STRUCTURE_TERMINAL || i.structureType === STRUCTURE_POWER_SPAWN
     })
     if (structuresInRange[0]) {
         this.room.addCenterTransporter(this.room.memory.centerPos.x, this.room.memory.centerPos.y)
@@ -17,27 +17,15 @@ StructureLink.prototype.onBuildComplete = function () {
         return
     }
 
-    const sourcesInRange = this.pos.findInRange(FIND_SOURCES, 2)
-    if (sourcesInRange[0]) {
+    if (this.pos.findInRange(FIND_SOURCES, 2).length > 0) {
         this.log('已注册为 sourceLink')
         return
     }
 
-    const controllersInRange = this.pos.findInRange(FIND_STRUCTURES, 4, {
-        filter: i => i.structureType === STRUCTURE_CONTROLLER
-    })
-    if (controllersInRange[0]) {
+    if (this.pos.findStructureInRange(STRUCTURE_CONTROLLER, 4)) {
         this.room.memory.upgradeLinkId = this.id
         this.log('已注册为 upgradeLink')
     }
-}
-
-function supportUpgradeLink(link) {
-    if (link.room.upgradeLink && link.room.upgradeLink.energy <= 100) {
-        link.transferEnergy(link.room.upgradeLink)
-        return true
-    }
-    return false
 }
 
 function runCenterLink(link) {
@@ -57,6 +45,14 @@ function runSourceLink(link) {
     if (link.energy < 700) return
     if (supportUpgradeLink(link)) return
     if (link.room.centerLink && link.room.centerLink.energy < 799) link.transferEnergy(link.room.centerLink)
+}
+
+function supportUpgradeLink(link) {
+    if (link.room.upgradeLink && link.room.upgradeLink.energy <= 100) {
+        link.transferEnergy(link.room.upgradeLink)
+        return true
+    }
+    return false
 }
 
 Object.defineProperty(Room.prototype, 'centerLink', {

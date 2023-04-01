@@ -14,15 +14,12 @@ const prepare = function (creep) {
             return false
         }
     }
-    const freePos = energySource.pos.availableNeighbors().find(i => i.getRangeTo(creep.room.controller) <= 3)
-    if (!freePos) {
-        creep.say('no pos!')
-        return false
-    }
     if (creep.pos.isNearTo(energySource) && creep.pos.getRangeTo(creep.room.controller) <= 3) {
         creep.memory.dontPullMe = true
         return true
     }
+    const freePos = energySource.pos.availableNeighbors().find(i => i.getRangeTo(creep.room.controller) <= 3)
+    if (!freePos) return false
     creep.goto(freePos)
 }
 

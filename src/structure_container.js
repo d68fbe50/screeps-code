@@ -12,7 +12,7 @@ StructureContainer.prototype.onBuildComplete = function () {
         this.log('已注册为 sourceContainer')
         return
     }
-    if (this.pos.findInRange(FIND_STRUCTURES, 4, { filter: { structureType: STRUCTURE_CONTROLLER } }).length > 0) {
+    if (this.pos.findStructureInRange(STRUCTURE_CONTROLLER, 4)) {
         this.room.memory.upgradeContainerId = this.id
         this.log('已注册为 upgradeContainer')
     }

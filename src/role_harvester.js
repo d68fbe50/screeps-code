@@ -3,7 +3,7 @@ const isNeed = (creepMemory) => !!Game.flags[creepMemory.config.flagName]
 const prepare = function (creep) {
     if (!creep.gotoFlag(creep.memory.config.flagName)) return false
 
-    const source = Game.flags[creep.memory.config.flagName].pos.lookFor(LOOK_SOURCES)[0]
+    const source = Game.flags[creep.memory.config.flagName].pos.source
     if (!source) {
         creep.say('no source!')
         creep.memory.dontNeed = true
@@ -50,7 +50,7 @@ const target = function (creep) {
     if (creep.memory.constructionSiteId) {
         const constructionSite = Game.getObjectById(creep.memory.constructionSiteId)
         if (!constructionSite) {
-            const container = source.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } })[0]
+            const container = source.pos.findStructureInRange(STRUCTURE_CONTAINER, 1)
             if (container) {
                 creep.memory.containerId = container.id
                 container.onBuildComplete()

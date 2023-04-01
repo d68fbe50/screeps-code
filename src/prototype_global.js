@@ -1,3 +1,5 @@
+Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
+
 const { updateAvoidRooms } = require('./wheel_move')
 
 const logHistory = []
@@ -17,8 +19,6 @@ global.hLog = function (amount = 10) {
     console.log(logHistory.slice(amount * -1).join('\n'))
 }
 
-// =================================================================================================== Avoid Rooms
-
 global.addAvoidRoom = function (roomName) {
     Memory.avoidRooms = _.uniq([...Memory.avoidRooms, roomName])
     updateAvoidRooms()
@@ -31,12 +31,12 @@ global.removeAvoidRoom = function (roomName) {
     log(`房间：${roomName} 恢复为可通行`)
 }
 
-// =================================================================================================== Fast Access
-
-Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
-
 global.get = function (id) {
     return Game.getObjectById(id)
+}
+
+global.res = function () {
+    return HelperRoomResource.showAllRes()
 }
 
 Object.defineProperty(global, 'c', {
@@ -68,13 +68,3 @@ Object.defineProperty(global, 't', {
     get() { return Game.time },
     configurable: true
 })
-
-// =================================================================================================== Visual Path
-
-global.offVisualPath = function () {
-    delete Memory.isVisualPath
-}
-
-global.onVisualPath = function () {
-    Memory.isVisualPath = true
-}

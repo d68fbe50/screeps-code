@@ -3,10 +3,10 @@ StructureExtractor.prototype.run = function () {
     if (this.room.mineral.ticksToRegeneration) return
     if (this.room.creeps.find(i => i.memory.role === 'mineHarvester')) return
     if (this.room.memory['TaskSpawn'].find(i => i.data && i.data.role === 'mineHarvester')) return
-    const flag = this.pos.lookFor(LOOK_FLAGS)[0]
+    const flag = this.pos.flags[0]
     if (flag) this.room.addMineHarvester(flag.name)
 }
 
 StructureExtractor.prototype.onBuildComplete = function () {
-    if (!this.pos.lookFor(LOOK_FLAGS)[0]) this.pos.createFlag(undefined, COLOR_YELLOW, COLOR_BLUE)
+    if (!this.pos.flags[0]) this.pos.createFlag(undefined, COLOR_YELLOW, COLOR_BLUE)
 }

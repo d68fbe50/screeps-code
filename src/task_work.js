@@ -2,7 +2,7 @@ const TASK_TYPE = 'TaskWork'
 
 const workTaskConfigs = {
     build: { priority: 9, minUnits: 1, maxUnits: 5 },
-    repair: { priority: 6, minUnits: 1, maxUnits: 1 },
+    repair: { priority: 6, minUnits: 0, maxUnits: 1 },
     upgrade: { priority: 3, minUnits: 0, maxUnits: 10 }
 }
 
@@ -64,7 +64,7 @@ Creep.prototype.buildStructure = function () {
     }
     if (csId) {
         const pos = this.room.memory.constructionSitePos && new RoomPosition(this.room.memory.constructionSitePos.x, this.room.memory.constructionSitePos.y, this.room.name)
-        const newStructure = pos && pos.lookFor(LOOK_STRUCTURES).find(i => i.structureType === this.room.memory.constructionSiteType)
+        const newStructure = pos && pos.structures.find(i => i.structureType === this.room.memory.constructionSiteType)
         if (newStructure) newStructure.onBuildComplete && newStructure.onBuildComplete()
         delete this.room.memory.constructionSiteId
         delete this.room.memory.constructionSiteType

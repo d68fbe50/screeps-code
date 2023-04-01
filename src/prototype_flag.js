@@ -28,7 +28,6 @@ Flag.prototype.run = function () {
 }
 
 function findClosestMyRoom(fromRoomName) {
-    const myRoomNames = Object.keys(Game.rooms).filter(i => Game.rooms[i] && Game.rooms[i].my)
-    const roomName = _.sortBy(myRoomNames, i => Game.map.getRoomLinearDistance(fromRoomName, i))[0]
-    return Game.rooms[roomName]
+    const myRooms = Object.values(Game.rooms).filter(i => i.my)
+    return _.sortBy(myRooms, i => Game.map.getRoomLinearDistance(fromRoomName, i.name))[0]
 }

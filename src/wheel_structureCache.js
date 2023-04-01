@@ -294,6 +294,13 @@ Object.defineProperty(Room.prototype, 'level', {
     configurable: true
 })
 
+Object.defineProperty(Room.prototype, 'wall', { // 加个快捷方式
+    get() {
+        return this[STRUCTURE_WALL]
+    },
+    configurable: true
+})
+
 for (let type of RESOURCES_ALL) {
     let last_fetch_time = 0
     let sum

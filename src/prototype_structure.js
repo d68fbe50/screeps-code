@@ -2,8 +2,6 @@ Structure.prototype.log = function (content, type = 'info', notifyNow = false) {
     this.room.log(content, type, notifyNow, `[${this.structureType},${this.pos.x},${this.pos.y}]&nbsp;`)
 }
 
-// =================================================================================================== Base
-
 Object.defineProperty(Structure.prototype, 'isWalkable', {
     get() {
         return this.structureType === STRUCTURE_ROAD

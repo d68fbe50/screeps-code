@@ -30,12 +30,12 @@ const fromFlag = {
         const flag = Game.flags[creep.memory.task.key]
         if (!flag) return undefined
         if (!creep.gotoFlag(creep.memory.task.key)) return false
-        const dropped = flag.pos.lookFor(LOOK_RESOURCES)[0]
+        const dropped = flag.pos.resources[0]
         if (dropped) {
             creep.getFrom(dropped, dropped.resourceType)
             return false
         }
-        const source = [...flag.pos.lookFor(LOOK_RUINS), ...flag.pos.lookFor(LOOK_STRUCTURES)].find(i => i.store && i.store.getUsedCapacity() > 0)
+        const source = [...flag.pos.ruins, ...flag.pos.structures].find(i => i.store && i.store.getUsedCapacity() > 0)
         if (source) {
             const resourceType = Object.keys(source.store).find(i => !excludeResourceTypes.includes(i) && source.store[i] > 0)
             if (resourceType) {
