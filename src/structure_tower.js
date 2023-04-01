@@ -27,19 +27,3 @@ function repairStructure(tower) {
     tower.repair(tower.pos.findClosestByRange(tower.room._towerRepairTargets))
     return true
 }
-
-Object.defineProperty(Room.prototype, 'hostiles', {
-    get() {
-        if (!this._hostiles) this._hostiles = this.find(FIND_HOSTILE_CREEPS)
-        return this._hostiles
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'hostileStructures', {
-    get() {
-        if (!this._hostileStructures) this._hostileStructures = this.find(FIND_HOSTILE_STRUCTURES, { filter: i => i.hitsMax })
-        return this._hostileStructures
-    },
-    configurable: true
-})

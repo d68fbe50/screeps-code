@@ -58,30 +58,6 @@ Room.prototype.getEnergySources = function (ignoreLimit, includeSource) {
     return this.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)
 }
 
-Object.defineProperty(Room.prototype, 'constructionSites', {
-    get() {
-        if (!this._constructionSites) this._constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
-        return this._constructionSites
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'creeps', {
-    get() {
-        if (!this._creeps) this._creeps = this.find(FIND_MY_CREEPS)
-        return this._creeps
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'structures', {
-    get() {
-        if (!this._allStructures) this._allStructures = this.find(FIND_STRUCTURES)
-        return this._allStructures
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'wall', {
     get() {
         return this[STRUCTURE_WALL]

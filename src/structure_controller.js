@@ -21,10 +21,3 @@ function onLevelChange(room, level) {
         room.removeTask('TaskWork', 'upgrade')
     }
 }
-
-Object.defineProperty(Room.prototype, 'owner', {
-    get() {
-        return this.controller && this.controller.owner ? this.controller.owner.username : undefined
-    },
-    configurable: true
-})

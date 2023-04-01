@@ -1,22 +1,22 @@
 RoomPosition.prototype.availableNeighbors = function(ignoreCreeps = false) {
-    return _.filter(this.neighbors, i => i.isWalkable(ignoreCreeps))
+    return this.neighbors.filter(i => i.isWalkable(ignoreCreeps))
 }
 
 RoomPosition.prototype.findStructureInRange = function(structureType, range) {
-    return _.find(this.findInRange(FIND_STRUCTURES, range), i => i.structureType === structureType)
+    return this.findInRange(FIND_STRUCTURES, range).find(i => i.structureType === structureType)
 }
 
 RoomPosition.prototype.isWalkable = function(ignoreCreeps = false) {
     if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) return false
     if (this.isVisible) {
-        if (ignoreCreeps === false && this.lookFor(LOOK_CREEPS).length > 0) return false
-        if (_.filter(this.lookFor(LOOK_STRUCTURES), i => !i.isWalkable).length > 0) return false
+        if (ignoreCreeps === false && this.creep) return false
+        if (this.structures.filter(i => !i.isWalkable).length > 0) return false
     }
     return true
 }
 
 RoomPosition.prototype.lookForStructure = function(structureType) {
-    return _.find(this.lookFor(LOOK_STRUCTURES), i => i.structureType === structureType)
+    return this.structures.find(i => i.structureType === structureType)
 }
 
 Object.defineProperty(RoomPosition.prototype, 'isEdge', {
@@ -27,14 +27,14 @@ Object.defineProperty(RoomPosition.prototype, 'isEdge', {
 })
 
 Object.defineProperty(RoomPosition.prototype, 'isVisible', {
-    get: function() {
+    get() {
         return Game.rooms[this.roomName] !== undefined
     },
     configurable: true
 })
 
 Object.defineProperty(RoomPosition.prototype, 'neighbors', {
-    get: function() {
+    get() {
         const adjPos = []
         for (const dx of [-1, 0, 1]) {
             for (const dy of [-1, 0, 1]) {
@@ -51,7 +51,7 @@ Object.defineProperty(RoomPosition.prototype, 'neighbors', {
 })
 
 Object.defineProperty(RoomPosition.prototype, 'rangeToEdge', {
-    get: function() {
+    get() {
         return _.min([this.x, 49 - this.x, this.y, 49 - this.y])
     },
     configurable: true

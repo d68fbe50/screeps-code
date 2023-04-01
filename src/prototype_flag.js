@@ -32,11 +32,3 @@ function findClosestMyRoom(fromRoomName) {
     const roomName = _.sortBy(myRoomNames, i => Game.map.getRoomLinearDistance(fromRoomName, i))[0]
     return Game.rooms[roomName]
 }
-
-Object.defineProperty(Room.prototype, 'flags', {
-    get() {
-        if (!this._flags) this._flags = this.find(FIND_FLAGS)
-        return this._flags
-    },
-    configurable: true
-})

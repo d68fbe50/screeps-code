@@ -32,7 +32,7 @@ Object.defineProperty(Structure.prototype, 'capacity', {
             log('no-store！', 'error')
             return
         }
-        if (this.structureType === STRUCTURE_LAB) return 3000
+        if (this.structureType === STRUCTURE_LAB) return LAB_MINERAL_CAPACITY
         if (this.structureType === STRUCTURE_EXTENSION
             || this.structureType === STRUCTURE_LINK
             || this.structureType === STRUCTURE_NUKER

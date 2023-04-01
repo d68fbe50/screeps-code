@@ -53,7 +53,7 @@ function runBoostLab(lab) {
 function chooseReactionType (room) {
     const resourceType = Object.keys(resourcesExpectAmount).find(i => room.terminal.store[i] < resourcesExpectAmount[i]) || 'XGH2O'
     const [ source1, source2 ] = reactionSourceMap[resourceType]
-    if (room.terminal.store[source1] < 3000 / 2 || room.terminal.store[source2] < 3000 / 2) return false
+    if (room.terminal.store[source1] < LAB_MINERAL_CAPACITY / 2 || room.terminal.store[source2] < LAB_MINERAL_CAPACITY / 2) return false
     room.memory.labs.source1 = source1
     room.memory.labs.source2 = source2
     return true
