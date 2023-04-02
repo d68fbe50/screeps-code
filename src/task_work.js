@@ -86,7 +86,7 @@ Creep.prototype.repairWall = function () {
     const needRepairWallId = this.room.memory.needRepairWallId
     if (!(Game.time % 300) || !needRepairWallId) {
         const minHitsWall = [...this.room.wall, ...this.room.rampart]
-            .filter(i => i.hits < i.hitsMax / 9)
+            .filter(i => i.hits < i.hitsMax / 25)
             .sort((a, b) => a.hits - b.hits)[0]
         if (minHitsWall) this.room.memory.needRepairWallId = minHitsWall.id
         else {

@@ -3,7 +3,7 @@ const mount_role = require('./role')
 const taskRoles = ['remoteTransporter', 'transporter', 'worker', 'upgrader']
 
 Room.prototype.creepDynamicAdjust = function () {
-    return // TODO
+    if (!this.memory.isDynamicAdjust) return // TODO
     if (Game.time % 100) return
     if (this.storage) {
         //
@@ -39,11 +39,10 @@ Room.prototype.setw = function (amount) {
     return this.setCreepAmount('worker', amount)
 }
 
-Room.prototype.addCenterTransporter = function (centerPosX, centerPosY) {
-    if (!centerPosX || !centerPosY) this.log('房间未设置中心点，中心爬现在是无头苍蝇', 'warning')
+Room.prototype.addCenterTransporter = function () {
     const role = 'centerTransporter'
     const creepName = getAvailableCreepName(mount_role[role].shortName)
-    this.addSpawnTask(creepName, { role, home: this.name, config: { centerPosX, centerPosY } })
+    this.addSpawnTask(creepName, { role, home: this.name })
     this.log(`${role}: ${creepName} 发布成功！`)
 }
 

@@ -63,6 +63,7 @@ Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
 Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
         if (this.memory.centerPos.x && this.memory.centerPos.y) return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
+        else this.log('房间未设置中心点！', 'error')
     },
     configurable: true
 })

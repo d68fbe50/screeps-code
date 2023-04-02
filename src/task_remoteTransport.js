@@ -30,7 +30,7 @@ const fromFlag = {
         const flag = Game.flags[creep.memory.task.key]
         if (!flag) return undefined
         if (!creep.gotoFlag(creep.memory.task.key)) return false
-        const dropped = flag.pos.resources[0]
+        const dropped = flag.pos.drops[0]
         if (dropped) {
             creep.getFrom(dropped, dropped.resourceType)
             return false

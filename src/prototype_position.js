@@ -6,6 +6,10 @@ RoomPosition.prototype.findStructureInRange = function(structureType, range) {
     return this.findInRange(FIND_STRUCTURES, range).find(i => i.structureType === structureType)
 }
 
+RoomPosition.prototype.findStructuresInRange = function(structureType, range) {
+    return this.findInRange(FIND_STRUCTURES, range).filter(i => i.structureType === structureType)
+}
+
 RoomPosition.prototype.isWalkable = function(ignoreCreeps = false) {
     if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) return false
     if (this.isVisible) {

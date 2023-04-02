@@ -35,37 +35,17 @@ Creep.prototype.run = function () {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
-Creep.prototype.attackC = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.attackController(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
-}
-
 Creep.prototype.boostDeathPrepare = function () {
     if (!this.room.labContainer) return true
-    const lab = this.room.labContainer.pos.findStructureInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
-    if (!lab) return true
+    const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
+    if (!lab) return undefined
     if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
-    if (this.pos.isNearTo(lab)) {
+    if (this.pos.isEqualTo(this.room.labContainer)) {
         lab.unboostCreep(this)
         return true
     }
-    this.goto(lab)
+    this.goto(this.room.labContainer)
     return false
-}
-
-Creep.prototype.buildTo = function (target) {
-    const result = this.build(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target) || this.repairRoad()
-    return result
-}
-
-Creep.prototype.claim = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.claimController(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
 }
 
 Creep.prototype.clearCarry = function (excludeResourceType = undefined) {
@@ -75,12 +55,6 @@ Creep.prototype.clearCarry = function (excludeResourceType = undefined) {
     if (putTarget) this.putTo(putTarget, resourceType)
     else this.drop(resourceType)
     return false
-}
-
-Creep.prototype.dismantleTo = function (target) {
-    const result = this.dismantle(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
 }
 
 Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true, energyPercent = 1) {
@@ -108,26 +82,9 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
     return false
 }
 
-Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
-    let result
-    if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
-    else if (target instanceof Resource) result = this.pickup(target)
-    else result = this.harvest(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
-}
-
 Creep.prototype.goBackHome = function () {
     if (this.room.name === this.memory.home) return true
     this.goto(this.home.centerPos || this.home.controller)
-}
-
-Creep.prototype.goto = function (firstArg, secondArg, opts) {
-    if (Memory.isVisualPath) {
-        const toPos = (typeof firstArg == 'object') ? (firstArg.pos || firstArg) : new RoomPosition(firstArg, secondArg, this.room.name)
-        if (this.room.name === toPos.roomName) this.room.visual.line(this.pos, toPos, { width: 0.05 })
-    }
-    this.moveTo(firstArg, secondArg, opts)
 }
 
 Creep.prototype.gotoFlag = function (flagName, range = 1) {
@@ -150,36 +107,10 @@ Creep.prototype.gotoFlagRoom = function (flagName) {
     this.goto(flag)
 }
 
-Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
-    const result = this.transfer(target, resourceType, amount)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
-}
-
 Creep.prototype.repairRoad = function () {
     if (this.room.my && this.room.tower.length > 0) return false
     const road = this.pos.lookForStructure(STRUCTURE_ROAD)
     if (road && road.hits < road.hitsMax / 2) return this.repair(road)
-}
-
-Creep.prototype.repairTo = function (target) {
-    const result = this.repair(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target) || this.repairRoad()
-    return result
-}
-
-Creep.prototype.reserve = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.reserveController(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target)
-    return result
-}
-
-Creep.prototype.upgrade = function (target) {
-    if (!target) target = this.room.controller
-    const result = this.upgradeController(target)
-    if (result === ERR_NOT_IN_RANGE) this.goto(target, {range: 3}) || this.repairRoad()
-    return result
 }
 
 Object.defineProperty(Creep.prototype, 'bodyCounts', {

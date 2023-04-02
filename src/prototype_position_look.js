@@ -5,14 +5,7 @@ Object.defineProperty(RoomPosition.prototype, 'creep', {
     configurable: true
 })
 
-Object.defineProperty(RoomPosition.prototype, 'energy', {
-    get() {
-        return this.lookFor(LOOK_ENERGY)
-    },
-    configurable: true
-})
-
-Object.defineProperty(RoomPosition.prototype, 'resources', {
+Object.defineProperty(RoomPosition.prototype, 'drops', {
     get() {
         return this.lookFor(LOOK_RESOURCES)
     },

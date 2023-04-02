@@ -1,15 +1,13 @@
 const TASK_TYPE = 'TaskCenter'
 
 const prepare = function (creep) {
-    const { centerPosX, centerPosY } = creep.memory.config
-    if (centerPosX && centerPosY) {
-        if (creep.pos.x !== centerPosX || creep.pos.y !== centerPosY) {
-            creep.goto(centerPosX, centerPosY)
-            return false
-        }
+    if (!creep.room.centerPos) return true
+    if (creep.pos.isEqualTo(creep.room.centerPos)) {
         creep.memory.dontPullMe = true
+        return true
     }
-    return true
+    creep.goto(creep.room.centerPos)
+    return false
 }
 
 const source = function (creep) {

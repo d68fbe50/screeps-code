@@ -12,7 +12,9 @@ const boostPrepare = function (creep) {
 
 const deathPrepare = function (creep) {
     if (!creep.ticksToLive || creep.ticksToLive > 100 || !creep.boostCounts['XGH2O']) return false
-    if (creep.boostDeathPrepare()) creep.suicide()
+    const result = creep.boostDeathPrepare()
+    if (result === true) creep.suicide()
+    else if (result === undefined) return false
     return true
 }
 
@@ -47,10 +49,10 @@ const bodys = [
     [ [WORK], 4, [CARRY], 1, [MOVE], 1 ],
     [ [WORK], 4, [CARRY], 1, [MOVE], 1 ],
     [ [WORK], 8, [CARRY], 1, [MOVE], 2 ],
-    [ [WORK], 12, [CARRY], 2, [MOVE], 3 ],
-    [ [WORK], 16, [CARRY], 2, [MOVE], 4 ],
-    [ [WORK], 20, [CARRY], 2, [MOVE], 5 ],
-    [ [WORK], 15, [CARRY], 2, [MOVE], 4 ]
+    [ [WORK], 12, [CARRY], 1, [MOVE], 3 ],
+    [ [WORK], 16, [CARRY], 1, [MOVE], 4 ],
+    [ [WORK], 36, [CARRY], 2, [MOVE], 9 ],
+    [ [WORK], 15, [CARRY], 1, [MOVE], 4 ]
 ]
 
 module.exports = { boostPrepare, deathPrepare, prepare, target, bodys }

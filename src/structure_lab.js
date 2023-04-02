@@ -18,31 +18,27 @@ StructureLab.prototype.run = function () {
 
     if (this.energy < this.store.getCapacity(RESOURCE_ENERGY) / 2) this.room.addTransportTask('labEnergy')
 
-    if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') runInLab(this)
-    else if (this.room.memory.labs[this.id] === 'reaction') runReactionLab(this)
-    else runBoostLab(this)
-}
+    if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') {
+        if (Game.time % 10) return
+        if (!this.room.inLab1.isEmpty && !this.room.inLab2.isEmpty) return
+        if (this.room._hasRunInLab) return
+        this.room._hasRunInLab = true
+        if (this.room.getTransportTask('labReactionOut') || this.room.getTransportTask('labReactionIn')) return
+        if ([this.room.inLab1, this.room.inLab2, ...this.room.reactionLabs].find(i => !i.isEmpty)) return this.room.addTransportTask('labReactionOut')
+        if (chooseReactionType(this.room)) this.room.addTransportTask('labReactionIn')
+    }
 
-function runInLab(lab) {
-    if (Game.time % 10) return
-    if (!lab.room.inLab1.isEmpty && !lab.room.inLab2.isEmpty) return
-    if (lab.room._hasRunInLab) return
-    lab.room._hasRunInLab = true
-    if (lab.room.getTransportTask('labReactionOut') || lab.room.getTransportTask('labReactionIn')) return
-    if ([lab.room.inLab1, lab.room.inLab2, ...lab.room.reactionLabs].find(i => !i.isEmpty)) return lab.room.addTransportTask('labReactionOut')
-    if (chooseReactionType(lab.room)) lab.room.addTransportTask('labReactionIn')
-}
+    else if (this.room.memory.labs[this.id] === 'reaction') {
+        if (this.cooldown > 0 || this.room.inLab1.isEmpty || this.room.inLab2.isEmpty) return
+        this.runReaction(this.room.inLab1, this.room.inLab2)
+    }
 
-function runReactionLab(lab) {
-    if (lab.cooldown > 0 || lab.room.inLab1.isEmpty || lab.room.inLab2.isEmpty) return
-    lab.runReaction(lab.room.inLab1, lab.room.inLab2)
-}
-
-function runBoostLab(lab) {
-    if (lab.room.getTransportTask('labBoostOut') || lab.room.getTransportTask('labBoostIn')) return
-    if (!lab.isEmpty && lab.mineralType !== lab.boostType) return lab.room.addTransportTask('labBoostOut')
-    if (lab.isEmpty || (lab.mineralType === lab.boostType && lab.store[lab.mineralType] < lab.capacity / 2)) {
-        if (lab.room.getResources(lab.boostType, lab.capacity / 2)) return lab.room.addTransportTask('labBoostIn')
+    else {
+        if (this.room.getTransportTask('labBoostOut') || this.room.getTransportTask('labBoostIn')) return
+        if (!this.isEmpty && this.mineralType !== this.boostType) return this.room.addTransportTask('labBoostOut')
+        if (this.isEmpty || (this.mineralType === this.boostType && this.store[this.mineralType] < this.capacity / 2)) {
+            if (this.room.getResources(this.boostType, this.capacity / 2)) return this.room.addTransportTask('labBoostIn')
+        }
     }
 }
 
@@ -62,53 +58,6 @@ StructureLab.prototype.onBoost = function (boostType) {
 StructureLab.prototype.offBoost = function () {
     this.room.memory.labs[this.id] = 'reaction'
 }
-
-Object.defineProperty(Room.prototype, 'inLab1', {
-    get() {
-        if (!this._hasAccessInLab1) {
-            this._hasAccessInLab1 = true
-            this._inLab1 = this.lab.find(i => this.memory.labs[i.id] === 'inLab1')
-        }
-        return this._inLab1
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'inLab2', {
-    get() {
-        if (!this._hasAccessInLab2) {
-            this._hasAccessInLab2 = true
-            this._inLab2 = this.lab.find(i => this.memory.labs[i.id] === 'inLab2')
-        }
-        return this._inLab2
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'boostLabs', {
-    get() {
-        if (!this._hasAccessBoostLabs) {
-            this._hasAccessBoostLabs = true
-            this._boostLabs = this.lab.filter(i => this.memory.labs[i.id]
-                && this.memory.labs[i.id] !== 'inLab1'
-                && this.memory.labs[i.id] !== 'inLab2'
-                && this.memory.labs[i.id] !== 'reaction')
-        }
-        return this._boostLabs
-    },
-    configurable: true
-})
-
-Object.defineProperty(Room.prototype, 'reactionLabs', {
-    get() {
-        if (!this._hasAccessReactionLabs) {
-            this._hasAccessReactionLabs = true
-            this._reactionLabs = this.lab.filter(i => this.memory.labs[i.id] === 'reaction')
-        }
-        return this._reactionLabs
-    },
-    configurable: true
-})
 
 Object.defineProperty(StructureLab.prototype, 'boostType', {
     get() {

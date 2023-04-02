@@ -4,11 +4,7 @@ const importantRoles = ['harvester', 'transporter']
 const TASK_TYPE = 'TaskSpawn'
 
 StructureSpawn.prototype.run = function () {
-    if (this.spawning) {
-        if (this.spawning.needTime - this.spawning.remainingTime === 1) this.room.addTransportTask('fillExtension')
-        return
-    }
-    if (this.room.memory[TASK_TYPE].length === 0 || this.room.memory.spawnLock > Game.time) return
+    if (this.spawning || this.room.memory[TASK_TYPE].length === 0 || this.room.memory.spawnLock > Game.time) return
     delete this.room.memory.spawnLock
     const task = this.room.getFirstTask(TASK_TYPE)
     if (!task) return
@@ -35,14 +31,6 @@ StructureSpawn.prototype.run = function () {
         this.room.removeTask(TASK_TYPE, key)
         this.log(`${key} 生成失败，错误码 ${result}，任务数据 ${JSON.stringify(task)}`, 'error')
     }
-}
-
-StructureSpawn.prototype.onBuildComplete = function () {
-    this.room.addTransportTask('fillExtension')
-}
-
-StructureExtension.prototype.onBuildComplete = function () {
-    this.room.addTransportTask('fillExtension')
 }
 
 function calcBodyPart(bodysRequire, energyAmount) {
