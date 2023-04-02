@@ -20,7 +20,7 @@ const build = {
             return true
         }
         const result = creep.buildStructure()
-        if (result) return undefined
+        if (result) return ERR_NOT_FOUND
         creep.memory.dontPullMe = true
         return false
     }
@@ -34,7 +34,7 @@ const repair = {
             return true
         }
         const result = creep.repairWall()
-        if (result) return undefined
+        if (result) return ERR_NOT_FOUND
         creep.memory.dontPullMe = true
         return false
     }

@@ -33,7 +33,24 @@ Creep.prototype.run = function () {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
-Creep.prototype.clearCarry = function (excludeResourceType = undefined) {
+Creep.prototype.boost = function () {
+    //
+}
+
+Creep.prototype.unboost = function () {
+    if (!this.room.labContainer) return false
+    const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
+    if (!lab) return false
+    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
+    if (this.pos.isEqualTo(this.room.labContainer)) {
+        lab.unboostCreep(this)
+        return true
+    }
+    this.goto(this.room.labContainer)
+    return ERR_NOT_IN_RANGE
+}
+
+Creep.prototype.clearCarry = function (excludeResourceType) {
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
     const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     const putTarget = this.room.storage ? this.room.storage : this.room.terminal
@@ -111,19 +128,6 @@ Creep.prototype.repairRoad = function () {
     if (this.room.my && this.room.tower.length > 0) return false
     const road = this.pos.lookForStructure(STRUCTURE_ROAD)
     if (road && road.hits < road.hitsMax / 2) return this.repair(road)
-}
-
-Creep.prototype.unboost = function () {
-    if (!this.room.labContainer) return false
-    const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
-    if (!lab) return false
-    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
-    if (this.pos.isEqualTo(this.room.labContainer)) {
-        lab.unboostCreep(this)
-        return true
-    }
-    this.goto(this.room.labContainer)
-    return ERR_NOT_IN_RANGE
 }
 
 Object.defineProperty(Creep.prototype, 'bodyCounts', {

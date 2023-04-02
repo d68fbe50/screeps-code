@@ -108,7 +108,7 @@ function addCreep (room, role, amount = 1) {
     for (let i = 0; i < amount; i++) {
         const dontNeedName = _.findLastKey(Memory.creeps, i => i.home === room.name && i.role === role && i.dontNeed)
         if (dontNeedName) {
-            Memory.creeps[dontNeedName].dontNeed = undefined
+            delete Memory.creeps[dontNeedName].dontNeed
             room.log(`creep: ${dontNeedName} 已取消 dontNeed 标记`)
             continue
         }

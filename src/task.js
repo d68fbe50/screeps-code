@@ -31,11 +31,11 @@ Creep.prototype.runTaskSource = function (taskType, actionType = 'key') {
     if (!action || !action.source) return false
     const result = action.source(this)
     if (result === true) return true
-    else if (result === undefined) {
+    else if (result === false) return false
+    else {
         this.room.removeTask(taskType, task.key)
         this.memory.task = {}
     }
-    return false
 }
 
 Creep.prototype.runTaskTarget = function (taskType, actionType = 'key') {
@@ -49,12 +49,12 @@ Creep.prototype.runTaskTarget = function (taskType, actionType = 'key') {
         this.revertTask(taskType)
         return true
     }
-    else if (result === undefined) {
+    else if (result === false) return false
+    else {
         this.room.removeTask(taskType, task.key)
         this.memory.task = {}
         return true
     }
-    return false
 }
 
 Room.prototype.getTask = function (type, key) {
