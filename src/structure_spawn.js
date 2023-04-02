@@ -17,7 +17,6 @@ StructureSpawn.prototype.run = function () {
         this.log(`${key} 找不到角色或身体配置`, 'error')
         return
     }
-
     const bodys = calcBodyPart(roleRequire.bodys, importantRoles.includes(role) ? this.room.energyAvailable : this.room.energyCapacityAvailable)
 
     const result = this.spawnCreep(bodys, key, { memory: _.cloneDeep(data) })

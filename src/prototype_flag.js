@@ -18,7 +18,6 @@ Flag.prototype.run = function () {
         if (this.secondaryColor === COLOR_RED) addAvoidRoom(this.pos.roomName) || this.remove()
     }
     if (this.color === COLOR_YELLOW) {
-        if (this.secondaryColor === COLOR_BLUE) closestMyRoom.addMineHarvester(this.name)
         if (this.secondaryColor === COLOR_YELLOW) isInMyRoom ? this.room.addHarvester(this.name) : closestMyRoom.addRemoteHarvester(this.name)
         if (this.secondaryColor === COLOR_WHITE) {
             closestMyRoom.addRemoteTask(this.name, 'fromFlag')

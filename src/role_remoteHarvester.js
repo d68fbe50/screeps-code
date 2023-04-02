@@ -1,15 +1,15 @@
 const harvesterRequire = require('./role_harvester')
 
-const isNeed = function (creepMemory) {
+const isNeed = (creepMemory) => {
     //
 }
 
-const prepare = function (creep) {
+const prepare = (creep) => {
     // remoteLock
     return harvesterRequire.prepare(creep)
 }
 
-const target = function (creep) {
+const target = (creep) => {
     // remoteLock
     return harvesterRequire.target(creep)
 }

@@ -1,6 +1,6 @@
 const isNeed = (creepMemory) => !!Game.flags[creepMemory.config.flagName]
 
-const prepare = function (creep) {
+const prepare = (creep) => {
     if (!creep.gotoFlag(creep.memory.config.flagName)) return false
 
     const source = Game.flags[creep.memory.config.flagName].pos.source
@@ -25,9 +25,7 @@ const prepare = function (creep) {
     return true
 }
 
-const target = function (creep) {
-    if (creep.ticksToLive < 2) creep.drop(RESOURCE_ENERGY)
-
+const target = (creep) => {
     const source = Game.getObjectById(creep.memory.sourceId)
     if (creep.memory.linkId) {
         const link = Game.getObjectById(creep.memory.linkId)

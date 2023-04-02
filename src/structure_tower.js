@@ -2,7 +2,7 @@ const repairInterval = 3
 const repairHitsPercent = 0.5
 
 StructureTower.prototype.run = function () {
-    if (this.energy < this.capacity / 2) this.room.addTransportTask('fillTower')
+    if (this.energy < TOWER_CAPACITY / 2) this.room.addTransportTask('fillTower')
     if (this.energy < 10) return
     if (attackEnemy(this)) return
     repairStructure(this)

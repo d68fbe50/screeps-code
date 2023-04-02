@@ -1,4 +1,4 @@
-const boostPrepare = function (creep) {
+const boostPrepare = (creep) => {
     if (creep.room.level === 8) return true
     if (creep.room.memory.roomStatus !== 'Upgrade') return true
     const lab = creep.room.boostLabs.find(i => i.boostType === 'XGH2O')
@@ -10,15 +10,7 @@ const boostPrepare = function (creep) {
     creep.goto(lab)
 }
 
-const deathPrepare = function (creep) {
-    if (!creep.ticksToLive || creep.ticksToLive > 100 || !creep.boostCounts['XGH2O']) return false
-    const result = creep.boostDeathPrepare()
-    if (result === true) creep.suicide()
-    else if (result === undefined) return false
-    return true
-}
-
-const prepare = function (creep) {
+const prepare = (creep) => {
     let energySource = Game.getObjectById(creep.memory.energySourceId)
     if (!energySource) {
         if (creep.room.terminal && creep.room.terminal.pos.getRangeTo(creep.room.controller) <= 4) energySource = creep.room.terminal
@@ -39,7 +31,12 @@ const prepare = function (creep) {
     creep.goto(freePos)
 }
 
-const target = function (creep) {
+const target = (creep) => {
+    if (creep.ticksToLive < 100 && creep.boostCounts['XGH2O']) {
+        const result = creep.unboost()
+        if (result === true) return creep.suicide()
+        else if (result === ERR_NOT_IN_RANGE) return
+    }
     if (creep.energy <= creep.bodyCounts[WORK]) creep.getFrom(Game.getObjectById(creep.memory.energySourceId))
     creep.upgrade()
 }
@@ -55,4 +52,4 @@ const bodys = [
     [ [WORK], 15, [CARRY], 1, [MOVE], 4 ]
 ]
 
-module.exports = { boostPrepare, deathPrepare, prepare, target, bodys }
+module.exports = { boostPrepare, prepare, target, bodys }

@@ -7,21 +7,6 @@ const taskActions = {
     TaskWork: require('./task_work')
 }
 
-Creep.prototype.receiveTask = function (type) {
-    const task = this.room.getExpectTask(type)
-    if (task) {
-        this.memory.task = _.cloneDeep(task)
-        this.room.updateTaskUnit(type, task.key, 1)
-    }
-    return task
-}
-
-Creep.prototype.revertTask = function (type) {
-    this.room.updateTaskUnit(type, this.memory.task.key, -1)
-    this.memory.task = {}
-    return true
-}
-
 Creep.prototype.runTaskSource = function (taskType, actionType = 'key') {
     if (this.room.memory[taskType].length === 0) {
         this.memory.task = {}

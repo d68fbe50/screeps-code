@@ -36,8 +36,8 @@ StructureLab.prototype.run = function () {
     else {
         if (this.room.getTransportTask('labBoostOut') || this.room.getTransportTask('labBoostIn')) return
         if (!this.isEmpty && this.mineralType !== this.boostType) return this.room.addTransportTask('labBoostOut')
-        if (this.isEmpty || (this.mineralType === this.boostType && this.store[this.mineralType] < this.capacity / 2)) {
-            if (this.room.getResources(this.boostType, this.capacity / 2)) return this.room.addTransportTask('labBoostIn')
+        if (this.isEmpty || (this.mineralType === this.boostType && this.store[this.mineralType] < LAB_MINERAL_CAPACITY / 2)) {
+            if (this.room.getResources(this.boostType, LAB_MINERAL_CAPACITY / 2)) return this.room.addTransportTask('labBoostIn')
         }
     }
 }

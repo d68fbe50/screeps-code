@@ -59,7 +59,7 @@ const labBoostIn = {
     source: (creep) => {
         let lab = Game.getObjectById(creep.memory.task.boostInLabId)
         if (!lab) {
-            lab = creep.room.boostLabs.find(i => i.isEmpty || (i.mineralType === i.boostType && i.store[i.mineralType] < i.capacity / 2))
+            lab = creep.room.boostLabs.find(i => i.isEmpty || (i.mineralType === i.boostType && i.store[i.mineralType] < LAB_MINERAL_CAPACITY / 2))
             if (lab) creep.memory.task.boostInLabId = lab.id
             else return undefined
         }
@@ -171,7 +171,7 @@ const sourceContainerOut = {
     source: (creep) => {
         let container = Game.getObjectById(creep.memory.task.sourceContainerId)
         if (!container) {
-            container = creep.room.sourceContainers.filter(i => i.energy >= creep.capacity / 2).sort((a, b) => b.energy - a.energy)[0]
+            container = creep.room.sourceContainers.filter(i => i.energy >= creep.store.getCapacity() / 2).sort((a, b) => b.energy - a.energy)[0]
             if (container) creep.memory.task.sourceContainerId = container.id
             else return undefined
         }
@@ -222,7 +222,7 @@ Creep.prototype.fillExtensions = function () {
 Creep.prototype.fillTowers = function () {
     let target = Game.getObjectById(this.memory.task.needFillTowerId)
     if (!target) {
-        target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < i.capacity / 2 })
+        target = this.pos.findClosestByRange(this.room.tower, { filter: i => i.energy < TOWER_CAPACITY / 2 })
         if (target) this.memory.task.needFillTowerId = target.id
         else return true
     }

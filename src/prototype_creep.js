@@ -28,24 +28,9 @@ Creep.prototype.run = function () {
     }
     if (!this.memory.ready) return
 
-    if (roleRequire.deathPrepare && roleRequire.deathPrepare(this)) return
-
     const working = roleRequire.source ? this.memory.working : true
     if (working) roleRequire.target && roleRequire.target(this) && (this.memory.working = !this.memory.working)
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
-}
-
-Creep.prototype.boostDeathPrepare = function () {
-    if (!this.room.labContainer) return true
-    const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
-    if (!lab) return undefined
-    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
-    if (this.pos.isEqualTo(this.room.labContainer)) {
-        lab.unboostCreep(this)
-        return true
-    }
-    this.goto(this.room.labContainer)
-    return false
 }
 
 Creep.prototype.clearCarry = function (excludeResourceType = undefined) {
@@ -107,10 +92,38 @@ Creep.prototype.gotoFlagRoom = function (flagName) {
     this.goto(flag)
 }
 
+Creep.prototype.receiveTask = function (type) {
+    const task = this.room.getExpectTask(type)
+    if (task) {
+        this.memory.task = _.cloneDeep(task)
+        this.room.updateTaskUnit(type, task.key, 1)
+    }
+    return task
+}
+
+Creep.prototype.revertTask = function (type) {
+    this.room.updateTaskUnit(type, this.memory.task.key, -1)
+    this.memory.task = {}
+    return true
+}
+
 Creep.prototype.repairRoad = function () {
     if (this.room.my && this.room.tower.length > 0) return false
     const road = this.pos.lookForStructure(STRUCTURE_ROAD)
     if (road && road.hits < road.hitsMax / 2) return this.repair(road)
+}
+
+Creep.prototype.unboost = function () {
+    if (!this.room.labContainer) return false
+    const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
+    if (!lab) return false
+    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
+    if (this.pos.isEqualTo(this.room.labContainer)) {
+        lab.unboostCreep(this)
+        return true
+    }
+    this.goto(this.room.labContainer)
+    return ERR_NOT_IN_RANGE
 }
 
 Object.defineProperty(Creep.prototype, 'bodyCounts', {

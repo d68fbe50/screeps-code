@@ -1,6 +1,6 @@
 const TASK_TYPE = 'TaskCenter'
 
-const prepare = function (creep) {
+const prepare = (creep) => {
     if (!creep.room.centerPos) return true
     if (creep.pos.isEqualTo(creep.room.centerPos)) {
         creep.memory.dontPullMe = true
@@ -10,7 +10,7 @@ const prepare = function (creep) {
     return false
 }
 
-const source = function (creep) {
+const source = (creep) => {
     if (creep.ticksToLive <= 5) return false
     if (creep.room.memory.TaskCenter.length === 0) return false
     if (!creep.clearCarry()) return false
@@ -36,7 +36,7 @@ const source = function (creep) {
     return false
 }
 
-const target = function (creep) {
+const target = (creep) => {
     const task = creep.room.getTask(TASK_TYPE, creep.memory.task.key)
     if (!task) return true
     const key = task.key

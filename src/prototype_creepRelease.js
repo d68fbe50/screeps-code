@@ -67,10 +67,10 @@ Room.prototype.addHelper = function (flagName) {
     this.log(`${role}: ${creepName} 发布成功！`)
 }
 
-Room.prototype.addMineHarvester = function (flagName) {
+Room.prototype.addMineHarvester = function () {
     const role = 'mineHarvester'
     const creepName = getAvailableCreepName(mount_role[role].shortName)
-    this.addSpawnTask(creepName, { role, home: this.name, config: { flagName } })
+    this.addSpawnTask(creepName, { role, home: this.name })
     this.log(`${role}: ${creepName} 发布成功！`)
 }
 

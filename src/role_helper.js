@@ -6,7 +6,7 @@ const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
 const source = (creep) => creep.getEnergy()
 
-const target = function (creep) {
+const target = (creep) => {
     if (creep.isEmpty) {
         delete creep.memory.dontPullMe
         return true

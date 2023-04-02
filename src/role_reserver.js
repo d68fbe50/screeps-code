@@ -1,10 +1,10 @@
-const isNeed = function (creepMemory) {
+const isNeed = (creepMemory) => {
     //
 }
 
 const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
-const target = function (creep) {
+const target = (creep) => {
     // remoteLock
 }
 

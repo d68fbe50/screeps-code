@@ -2,7 +2,7 @@ const isNeed = () => false
 
 const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
-const target = function (creep) {
+const target = (creep) => {
     const result = creep.claim()
     if (result === OK) {
         creep.home.addHelper(creep.memory.config.flagName)
