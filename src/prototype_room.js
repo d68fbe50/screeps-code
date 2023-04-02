@@ -26,6 +26,11 @@ Room.prototype.collectRoomStats = function () {
     Memory.stats[this.name + '-energy'] = this[RESOURCE_ENERGY]
 }
 
+Room.prototype.getResources = function (resourceType, amount = 1) {
+    if (this.storage && this.storage.store[resourceType] >= amount) return this.storage
+    if (this.terminal && this.terminal.store[resourceType] >= amount) return this.terminal
+}
+
 Room.prototype.onNormal = function () {
     this.boostLabs.forEach(i => i.offBoost())
     this.memory.roomStatus = 'Normal'

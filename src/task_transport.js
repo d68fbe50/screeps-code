@@ -63,7 +63,7 @@ const labBoostIn = {
             if (lab) creep.memory.task.boostInLabId = lab.id
             else return undefined
         }
-        const result = creep.getFrom(creep.room.terminal, lab.boostType)
+        const result = creep.getFrom(creep.room.getResources(lab.boostType), lab.boostType)
         if (result === OK) return true
         else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false
@@ -105,7 +105,7 @@ const labReactionIn = {
     source: (creep) => {
         const sourceType = creep.room.memory.labs.source1 || creep.room.memory.labs.source2
         if (!sourceType) return undefined
-        const result = creep.getFrom(creep.room.terminal, sourceType)
+        const result = creep.getFrom(creep.room.getResources(sourceType), sourceType)
         if (result === OK) return true
         else if (result !== ERR_NOT_IN_RANGE) return undefined
         return false

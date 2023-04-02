@@ -15,14 +15,14 @@ const target = function (creep) {
 }
 
 const bodys = [
-    [ [CARRY], 1, [MOVE, WORK, WORK], 1 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 2 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ],
-    [ [CARRY], 1, [MOVE, WORK, WORK], 3 ]
+    [ [MOVE], 1, [WORK], 2, [CARRY], 1 ],
+    [ [MOVE], 2, [WORK], 4, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ],
+    [ [MOVE], 3, [WORK], 6, [CARRY], 1 ]
 ]
 
 module.exports = { isNeed, prepare, target, bodys }
