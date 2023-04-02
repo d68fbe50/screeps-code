@@ -33,7 +33,7 @@ const target = function (creep) {
         const link = Game.getObjectById(creep.memory.linkId)
         if (!link) return delete creep.memory.linkId
         if (link.isFull) return
-        if (creep.store.getFreeCapacity() <= 2 * 12) creep.putTo(link)
+        if (creep.store.getFreeCapacity() <= creep.bodyCounts[WORK] * 2) creep.putTo(link)
         creep.getFrom(source)
         return
     }
@@ -43,7 +43,7 @@ const target = function (creep) {
         if (!container) return delete creep.memory.containerId
         if (!(Game.time % 100)) container.onBuildComplete()
         if (!creep.pos.isEqualTo(container)) return creep.goto(container)
-        if (container.hits < container.hitsMax / 2 && creep.energy >= 6) return creep.repairTo(container)
+        if (container.hits < container.hitsMax / 2 && creep.energy >= creep.bodyCounts[WORK]) return creep.repairTo(container)
         if (!container.isFull) creep.getFrom(source)
         return
     }
@@ -57,7 +57,7 @@ const target = function (creep) {
             }
             return delete creep.memory.constructionSiteId
         }
-        if (creep.energy >= 5 * 6) return creep.buildTo(constructionSite)
+        if (creep.energy >= creep.bodyCounts[WORK] * 5) return creep.buildTo(constructionSite)
         creep.getFrom(source)
         return
     }

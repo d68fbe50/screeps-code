@@ -10,6 +10,12 @@ const boostPrepare = function (creep) {
     creep.goto(lab)
 }
 
+const deathPrepare = function (creep) {
+    if (!creep.ticksToLive || creep.ticksToLive > 100 || !creep.boostCounts['XGH2O']) return false
+    if (creep.boostDeathPrepare()) creep.suicide()
+    return true
+}
+
 const prepare = function (creep) {
     let energySource = Game.getObjectById(creep.memory.energySourceId)
     if (!energySource) {
@@ -32,7 +38,7 @@ const prepare = function (creep) {
 }
 
 const target = function (creep) {
-    if (creep.energy <= 20) creep.getFrom(Game.getObjectById(creep.memory.energySourceId))
+    if (creep.energy <= creep.bodyCounts[WORK]) creep.getFrom(Game.getObjectById(creep.memory.energySourceId))
     creep.upgrade()
 }
 
@@ -42,9 +48,9 @@ const bodys = [
     [ [WORK], 4, [CARRY], 1, [MOVE], 1 ],
     [ [WORK], 8, [CARRY], 1, [MOVE], 2 ],
     [ [WORK], 12, [CARRY], 2, [MOVE], 3 ],
-    [ [WORK], 20, [CARRY], 2, [MOVE], 4 ],
+    [ [WORK], 16, [CARRY], 2, [MOVE], 4 ],
     [ [WORK], 20, [CARRY], 2, [MOVE], 5 ],
     [ [WORK], 15, [CARRY], 2, [MOVE], 4 ]
 ]
 
-module.exports = { boostPrepare, prepare, target, bodys }
+module.exports = { boostPrepare, deathPrepare, prepare, target, bodys }

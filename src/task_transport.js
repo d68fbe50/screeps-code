@@ -5,14 +5,14 @@ const transportTaskConfigs = {
     fillTower: { priority: 7, minUnits: 1, maxUnits: 2 },
     labEnergy: { priority: 5, minUnits: 1, maxUnits: 1 },
     labBoostIn: { priority: 5, minUnits: 1, maxUnits: 1 },
-    labBoostOut: { priority: 5, minUnits: 1, maxUnits: 1 },
-    labReactionIn: { priority: 5, minUnits: 1, maxUnits: 1 },
-    labReactionOut: { priority: 5, minUnits: 1, maxUnits: 1 },
-    nukerEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
-    nukerG: { priority: 0, minUnits: 1, maxUnits: 1 },
-    pickupDropped: { priority: 0, minUnits: 1, maxUnits: 1 },
-    powerSpawnEnergy: { priority: 1, minUnits: 1, maxUnits: 1 },
-    powerSpawnPower: { priority: 1, minUnits: 1, maxUnits: 1 },
+    labBoostOut: { priority: 0, minUnits: 1, maxUnits: 1 },
+    labContainerOut: { priority: 0, minUnits: 1, maxUnits: 1 },
+    labReactionIn: { priority: 0, minUnits: 1, maxUnits: 1 },
+    labReactionOut: { priority: 0, minUnits: 1, maxUnits: 1 },
+    nukerEnergy: { priority: -1, minUnits: 1, maxUnits: 1 },
+    nukerG: { priority: -1, minUnits: 1, maxUnits: 1 },
+    powerSpawnEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
+    powerSpawnPower: { priority: 0, minUnits: 1, maxUnits: 1 },
     sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 1 },
     upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
 }
@@ -93,11 +93,27 @@ const labBoostOut = {
         if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.boostOutLabId
         return false
     },
-    target: (creep) => {
-        if (creep.isEmpty) return true
-        creep.clearCarry()
+    target: (creep) => creep.clearCarry()
+}
+
+const labContainerOut = {
+    prepare: (creep) => creep.clearCarry(),
+    source: (creep) => {
+        if (creep.isFull) return true
+        if (!creep.room.labContainer) return undefined
+        let target = Game.getObjectById(creep.memory.task.dropsId)
+        if (!target) {
+            target = creep.room.labContainer.pos.drops[0]
+            if (target) creep.memory.task.dropsId = target.id
+            else if (!creep.room.labContainer.isEmpty) target = creep.room.labContainer
+            else if (creep.isEmpty) return undefined
+            else return true
+        }
+        const result = creep.getFrom(target, target.resourceType || Object.keys(target.store).find(i => target.store[i] > 0))
+        if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.dropsId
         return false
-    }
+    },
+    target: (creep) => creep.clearCarry()
 }
 
 const labReactionIn = {
@@ -139,18 +155,12 @@ const labReactionOut = {
         if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.reactionOutLabId
         return false
     },
-    target: (creep) => {
-        if (creep.isEmpty) return true
-        creep.clearCarry()
-        return false
-    }
+    target: (creep) => creep.clearCarry()
 }
 
 const nukerEnergy = {}
 
 const nukerG = {}
-
-const pickupDropped = {}
 
 const powerSpawnEnergy = {}
 
@@ -185,11 +195,11 @@ module.exports = {
     labEnergy,
     labBoostIn,
     labBoostOut,
+    labContainerOut,
     labReactionIn,
     labReactionOut,
     nukerEnergy,
     nukerG,
-    pickupDropped,
     powerSpawnEnergy,
     powerSpawnPower,
     sourceContainerOut,

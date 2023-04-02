@@ -42,6 +42,19 @@ Creep.prototype.attackC = function (target) {
     return result
 }
 
+Creep.prototype.boostDeathPrepare = function () {
+    if (!this.room.labContainer) return true
+    const lab = this.room.labContainer.pos.findStructureInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
+    if (!lab) return true
+    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
+    if (this.pos.isNearTo(lab)) {
+        lab.unboostCreep(this)
+        return true
+    }
+    this.goto(lab)
+    return false
+}
+
 Creep.prototype.buildTo = function (target) {
     const result = this.build(target)
     if (result === ERR_NOT_IN_RANGE) this.goto(target) || this.repairRoad()
@@ -55,7 +68,7 @@ Creep.prototype.claim = function (target) {
     return result
 }
 
-Creep.prototype.clearCarry = function (excludeResourceType) {
+Creep.prototype.clearCarry = function (excludeResourceType = undefined) {
     if (this.isEmpty || this.store.getUsedCapacity() === this.store[excludeResourceType]) return true
     const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     const putTarget = this.room.storage ? this.room.storage : this.room.terminal
@@ -168,6 +181,22 @@ Creep.prototype.upgrade = function (target) {
     if (result === ERR_NOT_IN_RANGE) this.goto(target, {range: 3}) || this.repairRoad()
     return result
 }
+
+Object.defineProperty(Creep.prototype, 'bodyCounts', {
+    get() {
+        if (this.my && !this.memory.bodyCounts) this.memory.bodyCounts = _.countBy(this.body, i => i.type)
+        return this.my ? this.memory.bodyCounts : _.countBy(this.body, i => i.type)
+    },
+    configurable: true
+})
+
+Object.defineProperty(Creep.prototype, 'boostCounts', {
+    get() {
+        if (this.my && !this.memory.boostCounts) this.memory.boostCounts = _.countBy(this.body, i => i.boost)
+        return this.my ? this.memory.boostCounts : _.countBy(this.body, i => i.boost)
+    },
+    configurable: true
+})
 
 Object.defineProperty(Creep.prototype, 'home', {
     get() {

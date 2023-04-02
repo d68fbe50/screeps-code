@@ -5,7 +5,7 @@ interface Memory { allCreeps, avoidRooms, delayTasks, isVisualPath, stats }
 interface RoomMemory {
     centerPos, isAutoLayout, rcl, roomStatus,
     constructionSiteId, constructionSiteType, constructionSitePos,
-    sourceContainerIds, upgradeContainerId,
+    sourceContainerIds, upgradeContainerId, labContainerId,
     centerLinkId, upgradeLinkId,
     spawnLock, remoteLocks,
     TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest,
@@ -15,6 +15,7 @@ interface RoomMemory {
 interface CreepMemory {
     role, home, config, task,
     boostReady, ready, working, dontNeed, dontPullMe,
+    bodyCounts, boostCounts,
     energySourceId
 }
 interface PowerCreepMemory {}

@@ -1,7 +1,7 @@
 StructureController.prototype.run = function () {
     this.room.container.forEach(i => i.run && i.run())
     if (!(Game.time % 10)) {
-        [...this.room.wall, ...this.room.rampart].find(i => i.hits < i.hitsMax / 30) && this.room.addWorkTask('repair')
+        [...this.room.wall, ...this.room.rampart].find(i => i.hits < i.hitsMax / 10) && this.room.addWorkTask('repair')
         this.room.constructionSites.length > 0 && this.room.addWorkTask('build')
     }
     this.room.creepDynamicAdjust()
