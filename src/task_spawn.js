@@ -1,6 +1,6 @@
 const TASK_TYPE = 'TaskSpawn'
 
-const mount_role = require("./role")
+const mount_role = require('./role')
 
 Room.prototype.addSpawnTask = function (key, creepMemory) {
     if (key in Game.creeps || !creepMemory || !(creepMemory.role in mount_role)) return false

@@ -132,16 +132,22 @@ Creep.prototype.repairRoad = function () {
 
 Object.defineProperty(Creep.prototype, 'bodyCounts', {
     get() {
-        if (this.my && !this.memory.bodyCounts) this.memory.bodyCounts = _.countBy(this.body, i => i.type)
-        return this.my ? this.memory.bodyCounts : _.countBy(this.body, i => i.type)
+        if (!this._bodyCounts) {
+            if (this.my && !this.memory.bodyCounts) this.memory.bodyCounts = _.countBy(this.body, i => i.type)
+            this._bodyCounts = this.my ? this.memory.bodyCounts : _.countBy(this.body, i => i.type)
+        }
+        return this._bodyCounts
     },
     configurable: true
 })
 
 Object.defineProperty(Creep.prototype, 'boostCounts', {
     get() {
-        if (this.my && !this.memory.boostCounts) this.memory.boostCounts = _.countBy(this.body, i => i.boost)
-        return this.my ? this.memory.boostCounts : _.countBy(this.body, i => i.boost)
+        if (!this._boostCounts) {
+            if (this.my && !this.memory.boostCounts) this.memory.boostCounts = _.countBy(this.body, i => i.boost)
+            this._boostCounts = this.my ? this.memory.boostCounts : _.countBy(this.body, i => i.boost)
+        }
+        return this._boostCounts
     },
     configurable: true
 })
