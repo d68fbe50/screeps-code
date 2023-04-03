@@ -1,5 +1,6 @@
 Object.defineProperty(Room.prototype, 'sourceContainers', {
     get() {
+        if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
         return this.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => !!i)
     },
     configurable: true

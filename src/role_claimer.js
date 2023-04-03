@@ -4,10 +4,9 @@ const prepare = (creep) => creep.gotoFlagRoom(creep.memory.config.flagName)
 
 const target = (creep) => {
     const result = creep.claim()
-    if (result === OK) {
-        creep.home.addHelper(creep.memory.config.flagName)
-        return creep.suicide()
-    }
+    if (result !== OK) return
+    creep.home.addHelper(creep.memory.config.flagName)
+    creep.suicide()
 }
 
 const bodys = [

@@ -162,7 +162,7 @@ function getEnergySources (room, ignoreLimit, includeSource) {
     }
     if (room.storage && room.storage.energy > (ignoreLimit ? 1000 : 10000)) return [room.storage]
     if (room.terminal && room.terminal.energy > (ignoreLimit ? 1000 : 10000)) return [room.terminal]
-    const containers = room.memory.sourceContainerIds.map(i => Game.getObjectById(i)).filter(i => i && i.energy > (ignoreLimit ? 100 : 500))
+    const containers = room.sourceContainers.filter(i => i.energy > (ignoreLimit ? 100 : 500))
     if (containers.length > 0) return containers
     if (!includeSource) return []
     return room.source.filter(i => i.energy > (ignoreLimit ? 100 : 500) && i.pos.availableNeighbors().length > 0)

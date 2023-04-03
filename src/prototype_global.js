@@ -20,12 +20,14 @@ global.hLog = function (amount = 10) {
 }
 
 global.addAvoidRoom = function (roomName) {
+    if (!Memory.avoidRooms) Memory.avoidRooms = []
     Memory.avoidRooms = _.uniq([...Memory.avoidRooms, roomName])
     updateAvoidRooms()
     log(`房间：${roomName} 设置为绕过`)
 }
 
 global.removeAvoidRoom = function (roomName) {
+    if (!Memory.avoidRooms) Memory.avoidRooms = []
     Memory.avoidRooms = _.pull(Memory.avoidRooms, roomName)
     updateAvoidRooms()
     log(`房间：${roomName} 恢复为可通行`)

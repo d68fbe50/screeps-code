@@ -17,7 +17,11 @@ function attackEnemy(tower) {
 function repairStructure(tower) {
     if (Game.time % repairInterval) return false
     if (!tower.room._towerRepairTargets) {
-        tower.room._towerRepairTargets = [...tower.room.rampart.filter(i => i.hits <= 301), ...tower.room.road.filter(i => i.hits / i.hitsMax < repairHitsPercent)]
+        tower.room._towerRepairTargets = [
+            ...tower.room.rampart.filter(i => i.hits <= 301),
+            ...tower.room.road.filter(i => i.hits / i.hitsMax < repairHitsPercent),
+            ...tower.room.container.filter(i => i.hits / i.hitsMax < repairHitsPercent)
+        ]
     }
     if (tower.room._towerRepairTargets.length === 0) return false
     tower.repair(tower.pos.findClosestByRange(tower.room._towerRepairTargets))

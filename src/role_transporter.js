@@ -22,8 +22,8 @@ const bodys = [
     [ [CARRY, CARRY, MOVE], 8 ],
     [ [CARRY, CARRY, MOVE], 12 ],
     [ [CARRY, CARRY, MOVE], 15 ],
-    [ [CARRY, CARRY, MOVE], 16 ],
-    [ [CARRY, CARRY, MOVE], 16 ]
+    [ [CARRY, CARRY, MOVE], 15 ],
+    [ [CARRY, CARRY, MOVE], 15 ]
 ]
 
 module.exports = { isNeed, source, target, bodys }

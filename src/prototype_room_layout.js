@@ -11,6 +11,7 @@ global.visualLayout = function (roomName, pos) {
 }
 
 Room.prototype.setCenterPos = function (pos) {
+    if (!this.memory.centerPos) this.memory.centerPos = {}
     this.memory.centerPos.x = pos.x
     this.memory.centerPos.y = pos.y
     this.log(`房间中心点已设置为 [${pos.x},${pos.y}]`)
@@ -24,26 +25,23 @@ Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
 
 Room.prototype.updateLayout = function () {
     if (!this.memory.isAutoLayout || !this.centerPos) return this.log('自动布局未开启或中心点未设置', 'warning')
-    let needBuild = false
     Object.keys(LAYOUT_DATA).forEach(level => {
         level <= this.level && Object.keys(LAYOUT_DATA[level]).forEach(type => {
             LAYOUT_DATA[level][type].forEach(posXY => {
                 const pos = new RoomPosition(posXY[0]-25+this.centerPos.x, posXY[1]-25+this.centerPos.y, this.name)
-                const result = pos.createConstructionSite(type)
-                if (result) needBuild = true
+                pos.createConstructionSite(type)
             })
         })
     })
     if (this.level >= 2) {
-        this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4) && (needBuild = true))
+        this.source.forEach(i => this.structRoadPath(i.pos, this.controller.pos, 4))
     }
     if (this.level >= 3) {
-        this.source.forEach(i => this.structRoadPath(i.pos, this.centerPos, 5) && (needBuild = true))
+        this.source.forEach(i => this.structRoadPath(i.pos, this.centerPos, 5))
     }
     if (this.level >= 4) {
-        this.structRoadPath(this.controller.pos, this.centerPos, 5) && (needBuild = true)
+        this.structRoadPath(this.controller.pos, this.centerPos, 5)
     }
-    if (needBuild) this.addWorkTask('build')
 }
 
 Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
@@ -62,6 +60,7 @@ Room.prototype.visualRoadPath = function (fromPos, toPos, cut = 2) {
 
 Object.defineProperty(Room.prototype, 'centerPos', {
     get() {
+        if (!this.memory.centerPos) this.memory.centerPos = {}
         if (this.memory.centerPos.x && this.memory.centerPos.y) return new RoomPosition(this.memory.centerPos.x, this.memory.centerPos.y, this.name)
         else this.log('房间未设置中心点！', 'error')
     },

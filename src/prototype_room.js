@@ -8,16 +8,13 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
 }
 
 Room.prototype.checkRoomMemory = function () {
-    if (!this.memory.centerPos) this.memory.centerPos = {}
     if (!this.memory.labs) this.memory.labs = {}
     if (!this.memory.roomStatus) this.memory.roomStatus = 'Normal'
-    if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
     if (!this.memory.TaskCenter) this.memory.TaskCenter = []
     if (!this.memory.TaskRemote) this.memory.TaskRemote = []
     if (!this.memory.TaskSpawn) this.memory.TaskSpawn = []
     if (!this.memory.TaskTransport) this.memory.TaskTransport = []
     if (!this.memory.TaskWork) this.memory.TaskWork = []
-    if (!this.memory.remoteLocks) this.memory.remoteLocks = {}
 }
 
 Room.prototype.collectRoomStats = function () {
@@ -69,9 +66,9 @@ Room.prototype.roomVisual = function () {
 
     this.visual.text(`RoomStatus: ${this.memory.roomStatus}`, 1, visualTextY++, { align: 'left' })
 
-    this.visual.text(`Transporter: ${this.memory.transporterAmount}, Worker: ${this.memory.workerAmount}, Upgrader: ${this.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
+    this.visual.text(`Worker: ${this.memory.workerAmount}, Upgrader: ${this.memory.upgraderAmount}`, 1, visualTextY++, { align: 'left' })
 
-    let text = 'TaskCenter : ' + this.memory['TaskCenter'].map(i => `[${i.data.source}->${i.data.target}:${i.data.resourceType}*${i.data.amount}]`).join(' ')
+    let text = 'TaskCenter : ' + this.memory['TaskCenter'].map(i => `[${i.data.source}>${i.data.target}:${i.data.resourceType}*${i.data.amount}]`).join(' ')
     this.visual.text(text, 1, visualTextY++, { align: 'left' })
 
     text = 'TaskRemote : ' + this.memory['TaskRemote'].map(i => `[${i.data.sourceType}:${i.key},${i.minUnits},${i.nowUnits},${i.maxUnits}]`).join(' ')

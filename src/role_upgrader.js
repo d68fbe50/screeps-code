@@ -35,7 +35,7 @@ const target = (creep) => {
     if (creep.ticksToLive < 100 && creep.boostCounts['XGH2O']) {
         const result = creep.unboost()
         if (result === true) return creep.suicide()
-        else if (result === ERR_NOT_IN_RANGE) return
+        else if (result === ERR_NOT_IN_RANGE) return delete creep.memory.dontPullMe
     }
     if (creep.energy <= creep.bodyCounts[WORK]) creep.getFrom(Game.getObjectById(creep.memory.energySourceId))
     creep.upgrade()

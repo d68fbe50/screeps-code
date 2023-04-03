@@ -4,7 +4,6 @@ const roles = require('./role')
 !('sim' in Game.rooms) && console.log('[全局重置]')
 
 module.exports.loop = function () {
-    checkMemory()
     handleNotExistCreep()
     handleNotExistFlag()
 
@@ -20,13 +19,8 @@ module.exports.loop = function () {
     collectStats()
 }
 
-function checkMemory() {
-    if (!Memory.allCreeps) Memory.allCreeps = []
-    if (!Memory.avoidRooms) Memory.avoidRooms = []
-    if (!Memory.stats) Memory.stats = {}
-}
-
 function handleNotExistCreep() {
+    if (!Memory.allCreeps) Memory.allCreeps = []
     for (const creepName in Memory.creeps) {
         if (Game.creeps[creepName]) continue
         const creepMemory = Memory.creeps[creepName]
@@ -54,6 +48,7 @@ function handleNotExistFlag() {
 
 function collectStats() {
     if (Game.time % 10) return
+    if (!Memory.stats) Memory.stats = {}
     Memory.stats.gcl = Game.gcl.level
     Memory.stats.gpl = Game.gpl.level
     Memory.stats.gclPercent = (Game.gcl.progress / Game.gcl.progressTotal) * 100
