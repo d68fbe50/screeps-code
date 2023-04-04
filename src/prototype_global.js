@@ -1,7 +1,6 @@
-global.energy = RESOURCE_ENERGY
-Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
-
 const { updateAvoidRooms } = require('./wheel_move')
+
+global.energy = RESOURCE_ENERGY
 
 const logHistory = []
 global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
@@ -77,6 +76,10 @@ Object.defineProperty(global, 'help', {
         return showHelp()
     },
     configurable: true
+})
+
+Object.values(Game.rooms).forEach(i => {
+    if (i.controller && i.controller.my) global[i.name.toLowerCase()] = i
 })
 
 function showHelp() {

@@ -21,7 +21,7 @@ const source = (creep) => {
     const { source, resourceType, amount } = task.data
     creep.memory.task.key = key
 
-    let getAmount = creep.store.getFreeCapacity()
+    let getAmount = creep.freeCapacity
     if (getAmount > amount) getAmount = amount
 
     const result = creep.getFrom(creep.room[source], resourceType, getAmount)

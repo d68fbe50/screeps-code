@@ -5,12 +5,8 @@ StructureContainer.prototype.run = function () {
         if (this.energy > CONTAINER_CAPACITY / 2) this.room.addTransportTask('sourceContainerOut')
     }
 
-    else if (this.room.memory.upgradeContainerId === this.id) {
-        if (this.energy < CONTAINER_CAPACITY / 2) this.room.addTransportTask('upgradeContainerIn')
-    }
-
     else if (this.room.memory.labContainerId === this.id) {
-        if (this.store.getUsedCapacity() > CONTAINER_CAPACITY / 2) this.room.addTransportTask('labContainerOut')
+        if (this.usedCapacity > CONTAINER_CAPACITY / 2) this.room.addTransportTask('labContainerOut')
     }
 }
 
@@ -21,6 +17,5 @@ StructureContainer.prototype.onBuildComplete = function () {
         this.room.memory.sourceContainerIds = _.uniq([...this.room.memory.sourceContainerIds, this.id])
         this.room.setCreepAmount('transporter', 2)
     }
-    else if (this.pos.findStructureInRange(STRUCTURE_CONTROLLER, 4)) this.room.memory.upgradeContainerId = this.id
     else if (this.pos.findStructureInRange(STRUCTURE_LAB, 1)) this.room.memory.labContainerId = this.id
 }

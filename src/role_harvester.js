@@ -28,7 +28,7 @@ const target = (creep) => {
         const link = Game.getObjectById(creep.memory.linkId)
         if (!link) return delete creep.memory.linkId
         if (link.isFull) return
-        if (creep.store.getFreeCapacity() <= creep.bodyCounts[WORK] * 2) creep.putTo(link)
+        if (creep.freeCapacity <= creep.bodyCounts[WORK] * 2) creep.putTo(link)
         creep.getFrom(source)
         return
     }

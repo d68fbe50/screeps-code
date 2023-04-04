@@ -6,13 +6,6 @@ Object.defineProperty(Room.prototype, 'sourceContainers', {
     configurable: true
 })
 
-Object.defineProperty(Room.prototype, 'upgradeContainer', {
-    get() {
-        return Game.getObjectById(this.memory.upgradeContainerId)
-    },
-    configurable: true
-})
-
 Object.defineProperty(Room.prototype, 'labContainer', {
     get() {
         return Game.getObjectById(this.memory.labContainerId)

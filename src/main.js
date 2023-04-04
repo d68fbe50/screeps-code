@@ -19,6 +19,7 @@ module.exports.loop = function () {
     collectStats()
 
     // tmp
+    if ('sim' in Game.rooms) return
     const creep = new RoomPosition(15, 15, 'W49S9').creep
     if (creep && creep.memory.role === 'upgrader') creep.move(BOTTOM)
 }

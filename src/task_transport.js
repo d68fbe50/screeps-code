@@ -13,8 +13,7 @@ const transportTaskConfigs = {
     nukerG: { priority: -1, minUnits: 1, maxUnits: 1 },
     powerSpawnEnergy: { priority: 0, minUnits: 1, maxUnits: 1 },
     powerSpawnPower: { priority: 0, minUnits: 1, maxUnits: 1 },
-    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 1 },
-    upgradeContainerIn: { priority: 0, minUnits: 1, maxUnits: 1 }
+    sourceContainerOut: { priority: 0, minUnits: 1, maxUnits: 1 }
 }
 
 Room.prototype.getTransportTask = function (key) {
@@ -182,8 +181,6 @@ const sourceContainerOut = {
     target: (creep) => creep.clearCarry()
 }
 
-const upgradeContainerIn = {}
-
 module.exports = {
     fillExtension,
     fillTower,
@@ -197,8 +194,7 @@ module.exports = {
     nukerG,
     powerSpawnEnergy,
     powerSpawnPower,
-    sourceContainerOut,
-    upgradeContainerIn
+    sourceContainerOut
 }
 
 Creep.prototype.fillExtensions = function () {

@@ -1,5 +1,4 @@
 const boostPrepare = (creep) => {
-    if (creep.room.level === 8) return true
     if (creep.room.memory.roomStatus !== 'Upgrade') return true
     return creep.boost(['XGH2O'])
 }
@@ -9,7 +8,6 @@ const prepare = (creep) => {
     if (!energySource) {
         if (creep.room.terminal && creep.room.terminal.pos.getRangeTo(creep.room.controller) <= 4) energySource = creep.room.terminal
         else if (creep.room.upgradeLink) energySource = creep.room.upgradeLink
-        else if (creep.room.upgradeContainer) energySource = creep.room.upgradeContainer
         if (energySource) creep.memory.energySourceId = energySource.id
         else {
             creep.say('no source!')
@@ -26,7 +24,7 @@ const prepare = (creep) => {
 }
 
 const target = (creep) => {
-    if (creep.ticksToLive < 100 && Object.keys(creep.boostCounts).length > 0) {
+    if (creep.ticksToLive < 100 && Object.keys(creep.boostCounts).length > 1) {
         const result = creep.unboost()
         if (result === true) return creep.suicide()
         else if (result === ERR_NOT_IN_RANGE) return delete creep.memory.dontPullMe

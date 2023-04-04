@@ -10,7 +10,7 @@ StructureLink.prototype.run = function () {
     else if (this.id === this.room.memory.upgradeLinkId) {
         if (this.energy > 100) return
         if (!this.room.centerLink || this.room.centerLink.cooldown > 0) return
-        const amount = Math.min(this.store.getFreeCapacity(energy), this.room.centerLink.store.getFreeCapacity(energy))
+        const amount = Math.min(this.freeCapacity, this.room.centerLink.freeCapacity)
         this.room.addCenterTask('centerLink', 'storage', 'centerLink', energy, amount)
     }
 
