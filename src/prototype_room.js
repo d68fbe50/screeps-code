@@ -9,6 +9,7 @@ Room.prototype.log = function (content, type = 'info', notifyNow = false, prefix
 
 Room.prototype.checkRoomMemory = function () {
     if (!this.memory.labs) this.memory.labs = {}
+    if (!this.memory.sourceContainerIds) this.memory.sourceContainerIds = []
     if (!this.memory.TaskCenter) this.memory.TaskCenter = []
     if (!this.memory.TaskRemote) this.memory.TaskRemote = []
     if (!this.memory.TaskSpawn) this.memory.TaskSpawn = []
@@ -20,11 +21,6 @@ Room.prototype.collectRoomStats = function () {
     Memory.stats[this.name + '-rcl'] = this.controller.level
     Memory.stats[this.name + '-rclPercent'] = this.controller.progress / this.controller.progressTotal * 100
     Memory.stats[this.name + '-energy'] = this[energy]
-}
-
-Room.prototype.getResources = function (resourceType, amount = 1) {
-    if (this.storage && this.storage.store[resourceType] >= amount) return this.storage
-    if (this.terminal && this.terminal.store[resourceType] >= amount) return this.terminal
 }
 
 Room.prototype.onNormal = function () {
@@ -58,6 +54,17 @@ Room.prototype.onUpgrade = function () {
     upgradeBoostTypes.forEach((t, index) => this.reactionLabs[index] && this.reactionLabs[index].onBoost(t))
     this.memory.state = state.Upgrade
     this.log(`房间已切换至 ${this.memory.state} 模式`)
+}
+
+Room.prototype.resAvailable = function (resourceType, amount = 1) {
+    if (this.storage && this.storage.store[resourceType] >= amount) return this.storage
+    if (this.terminal && this.terminal.store[resourceType] >= amount) return this.terminal
+}
+
+Room.prototype.resAmount = function (resourceType) {
+    const amountInStorage = this.storage ? this.storage.store[resourceType] : 0
+    const amountInTerminal = this.terminal ? this.terminal.store[resourceType] : 0
+    return amountInStorage + amountInTerminal
 }
 
 Room.prototype.roomVisual = function () {

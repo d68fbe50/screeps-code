@@ -4,6 +4,7 @@ const roles = require('./role')
 !('sim' in Game.rooms) && console.log('[全局重置]')
 
 module.exports.loop = function () {
+    checkMemory()
     handleNotExistCreep()
     handleNotExistFlag()
 
@@ -24,8 +25,12 @@ module.exports.loop = function () {
     if (creep && creep.memory.role === 'upgrader') creep.move(BOTTOM)
 }
 
-function handleNotExistCreep() {
+function checkMemory() {
     if (!Memory.allCreeps) Memory.allCreeps = []
+    if (!Memory.shareTask) Memory.shareTask = {}
+}
+
+function handleNotExistCreep() {
     for (const creepName in Memory.creeps) {
         if (Game.creeps[creepName]) continue
         const creepMemory = Memory.creeps[creepName]

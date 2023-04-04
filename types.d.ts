@@ -1,7 +1,7 @@
 interface Room { container, extension, inLab1, inLab2, lab, mineral, rampart, source, spawn, tower, wall }
 interface Structure { onBuildComplete, store }
 
-interface Memory { allCreeps, avoidRooms, delayTasks, isVisualPath, stats }
+interface Memory { allCreeps, avoidRooms, shareTask, stats }
 interface RoomMemory {
     centerPos, isAutoLayout, rcl, state,
     constructionSiteId, constructionSiteType, constructionSitePos,
@@ -10,7 +10,7 @@ interface RoomMemory {
     spawnLock, remoteLocks,
     TaskCenter, TaskRemote, TaskSpawn, TaskTransport, TaskWork, TaskTest,
     transporterAmount, workerAmount, upgraderAmount,
-    labs, needRepairWallId, useRuinEnergy
+    labs, needRepairWallId, useRuinEnergy, enableTerminal
 }
 interface CreepMemory {
     role, home, config, task,

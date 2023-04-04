@@ -62,12 +62,12 @@ function getExpectPrice(type, resourceType) {
         const orders = Game.market.getAllOrders({ type, resourceType })
         const sorted = _.sortBy(orders, i => i.price * -1)
         const highest = sorted.find(i => checkPrice(i, history))
-        return highest && (highest.price + 0.1)
+        return highest && (highest.price + 1)
     } else if (type === ORDER_SELL) {
         const orders = Game.market.getAllOrders({ type, resourceType })
         const sorted = _.sortBy(orders, i => i.price)
         const lowest = sorted.find(i => checkPrice(i, history))
-        return lowest && (lowest.price - 0.1)
+        return lowest && (lowest.price - 1)
     }
 }
 

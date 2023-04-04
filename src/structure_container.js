@@ -1,5 +1,4 @@
 StructureContainer.prototype.run = function () {
-    if (!this.room.memory.sourceContainerIds) this.room.memory.sourceContainerIds = []
     if ((this.room.memory.sourceContainerIds).includes(this.id)) {
         if (!this.room.storage && !this.room.terminal) return
         if (this.energy > CONTAINER_CAPACITY / 2) this.room.addTransportTask('sourceContainerOut')

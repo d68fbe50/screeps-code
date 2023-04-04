@@ -1,10 +1,10 @@
-const expectAmount = {
+const reactionAmount = {
     'OH': 1500, 'ZK': 1500, 'UL': 1500, 'G': 1500,
-    'UH': 1500, 'UH2O': 1500, 'XUH2O': 10000, // attack
     'ZO': 1500, 'ZHO2': 1500, 'XZHO2': 10000, // move
-    'LH': 1500, 'LH2O': 1500, 'XLH2O': 10000, // repair
+    'UH': 1500, 'UH2O': 1500, 'XUH2O': 10000, // attack
     'LO': 1500, 'LHO2': 1500, 'XLHO2': 10000, // heal
     'KO': 1500, 'KHO2': 1500, 'XKHO2': 10000, // ranged
+    'LH': 1500, 'LH2O': 1500, 'XLH2O': 10000, // repair
     'ZH': 1500, 'ZH2O': 1500, 'XZH2O': 10000, // dismantle
     'GO': 1500, 'GHO2': 1500, 'XGHO2': 10000, // tough
     'UO': 1500, 'UHO2': 1500, 'XUHO2': 5000, // harvest
@@ -37,7 +37,7 @@ StructureLab.prototype.run = function () {
         if (this.room.getTransportTask('labBoostOut') || this.room.getTransportTask('labBoostIn')) return
         if (!this.isEmpty && this.mineralType !== this.boostType) return this.room.addTransportTask('labBoostOut')
         if (this.isEmpty || (this.mineralType === this.boostType && this.store[this.mineralType] < LAB_MINERAL_CAPACITY / 2)) {
-            if (this.room.getResources(this.boostType, LAB_MINERAL_CAPACITY / 2)) return this.room.addTransportTask('labBoostIn')
+            if (this.room.resAvailable(this.boostType, LAB_MINERAL_CAPACITY / 2)) return this.room.addTransportTask('labBoostIn')
         }
     }
 }
@@ -67,10 +67,10 @@ Object.defineProperty(StructureLab.prototype, 'boostType', {
 })
 
 function chooseReactionType (room) {
-    const resourceType = Object.keys(expectAmount).find(i =>
-        !room.getResources(i, expectAmount[i])
-        && room.getResources(reactionMap[i][0], LAB_MINERAL_CAPACITY / 2)
-        && room.getResources(reactionMap[i][1], LAB_MINERAL_CAPACITY / 2)
+    const resourceType = Object.keys(reactionAmount).find(i =>
+        !room.resAvailable(i, reactionAmount[i])
+        && room.resAvailable(reactionMap[i][0], LAB_MINERAL_CAPACITY / 2)
+        && room.resAvailable(reactionMap[i][1], LAB_MINERAL_CAPACITY / 2)
     )
     if (!resourceType) return
     const [ source1, source2 ] = reactionMap[resourceType]
