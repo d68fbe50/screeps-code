@@ -13,10 +13,6 @@ global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     logHistory.push(content)
 }
 
-global.allRes = function () {
-    return HelperRoomResource.showAllRes()
-}
-
 global.eachRoom = function (func) {
     let result = ''
     Object.values(Game.rooms).forEach(i => i.my && (result += `[${i.name}]:\n${func(i)}\n\n`))
@@ -31,6 +27,13 @@ global.hLog = function (amount = 10) {
     if (amount > logHistory.length) amount = logHistory.length
     return logHistory.slice(amount * -1).join('\n')
 }
+
+Object.defineProperty(global, 'allRes', {
+    get() {
+        return HelperRoomResource.showAllRes()
+    },
+    configurable: true
+})
 
 Object.defineProperty(global, 'c', {
     get() { return Game.creeps },
@@ -70,7 +73,7 @@ Object.defineProperty(global, 'help', {
 })
 
 Object.values(Game.rooms).forEach(i => {
-    if (i.my) global[i.name.toLowerCase()] = i
+    if (i.controller && i.controller.my) global[i.name.toLowerCase()] = i
 })
 
 function showHelp() {

@@ -1,4 +1,4 @@
-const resourcesExpectAmount = {
+const expectAmount = {
     'OH': 1500, 'ZK': 1500, 'UL': 1500, 'G': 1500,
     'UH': 1500, 'UH2O': 1500, 'XUH2O': 10000, // attack
     'ZO': 1500, 'ZHO2': 1500, 'XZHO2': 10000, // move
@@ -19,7 +19,7 @@ StructureLab.prototype.run = function () {
     if (this.energy < this.store.getCapacity(energy) / 2) this.room.addTransportTask('labEnergy')
 
     if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') {
-        if (Game.time % 10) return
+        if (Game.time % 30) return
         if (!this.room.inLab1.isEmpty && !this.room.inLab2.isEmpty) return
         if (this.room._hasRunInLab) return
         this.room._hasRunInLab = true
@@ -67,15 +67,19 @@ Object.defineProperty(StructureLab.prototype, 'boostType', {
 })
 
 function chooseReactionType (room) {
-    const resourceType = Object.keys(resourcesExpectAmount).find(i => !room.getResources(i, resourcesExpectAmount[i])) || 'XGH2O'
-    const [ source1, source2 ] = reactionSourceMap[resourceType]
-    if (!room.getResources(source1, LAB_MINERAL_CAPACITY / 2) || !room.getResources(source2, LAB_MINERAL_CAPACITY / 2)) return false
+    const resourceType = Object.keys(expectAmount).find(i =>
+        !room.getResources(i, expectAmount[i])
+        && room.getResources(reactionMap[i][0], LAB_MINERAL_CAPACITY / 2)
+        && room.getResources(reactionMap[i][1], LAB_MINERAL_CAPACITY / 2)
+    )
+    if (!resourceType) return
+    const [ source1, source2 ] = reactionMap[resourceType]
     room.memory.labs.source1 = source1
     room.memory.labs.source2 = source2
     return true
 }
 
-const reactionSourceMap = {
+const reactionMap = {
     'OH': ['O', 'H'], 'ZK': ['Z', 'K'], 'UL': ['U', 'L'], 'G': ['ZK', 'UL'],
     'ZO': ['Z', 'O'], 'ZH': ['Z', 'H'],
     'KO': ['K', 'O'], 'KH': ['K', 'H'],
