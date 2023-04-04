@@ -4,14 +4,14 @@ StructureLink.prototype.run = function () {
     if (this.id === this.room.memory.centerLinkId) {
         if (this.energy < 600) return
         if (supportUpgradeLink(this)) return
-        this.room.addCenterTask('centerLink', 'centerLink', 'storage', RESOURCE_ENERGY, this.energy)
+        this.room.addCenterTask('centerLink', 'centerLink', 'storage', energy, this.energy)
     }
 
     else if (this.id === this.room.memory.upgradeLinkId) {
         if (this.energy > 100) return
         if (!this.room.centerLink || this.room.centerLink.cooldown > 0) return
-        const amount = Math.min(this.store.getFreeCapacity(RESOURCE_ENERGY), this.room.centerLink.store.getFreeCapacity(RESOURCE_ENERGY))
-        this.room.addCenterTask('centerLink', 'storage', 'centerLink', RESOURCE_ENERGY, amount)
+        const amount = Math.min(this.store.getFreeCapacity(energy), this.room.centerLink.store.getFreeCapacity(energy))
+        this.room.addCenterTask('centerLink', 'storage', 'centerLink', energy, amount)
     }
 
     else {

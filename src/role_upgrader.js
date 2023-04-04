@@ -1,13 +1,7 @@
 const boostPrepare = (creep) => {
     if (creep.room.level === 8) return true
     if (creep.room.memory.roomStatus !== 'Upgrade') return true
-    const lab = creep.room.boostLabs.find(i => i.boostType === 'XGH2O')
-    if (!lab) return true
-    if (creep.pos.isNearTo(lab)) {
-        lab.boostCreep(creep)
-        return true
-    }
-    creep.goto(lab)
+    return creep.boost(['XGH2O'])
 }
 
 const prepare = (creep) => {
@@ -32,7 +26,7 @@ const prepare = (creep) => {
 }
 
 const target = (creep) => {
-    if (creep.ticksToLive < 100 && creep.boostCounts['XGH2O']) {
+    if (creep.ticksToLive < 100 && Object.keys(creep.boostCounts).length > 0) {
         const result = creep.unboost()
         if (result === true) return creep.suicide()
         else if (result === ERR_NOT_IN_RANGE) return delete creep.memory.dontPullMe

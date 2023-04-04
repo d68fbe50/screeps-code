@@ -16,7 +16,7 @@ StructureLab.prototype.run = function () {
     if (!this.room.inLab1 || !this.room.inLab2) return
     if (!this.room.memory.labs[this.id]) this.room.memory.labs[this.id] = 'reaction'
 
-    if (this.energy < this.store.getCapacity(RESOURCE_ENERGY) / 2) this.room.addTransportTask('labEnergy')
+    if (this.energy < this.store.getCapacity(energy) / 2) this.room.addTransportTask('labEnergy')
 
     if (this.room.memory.labs[this.id] === 'inLab1' || this.room.memory.labs[this.id] === 'inLab2') {
         if (Game.time % 10) return

@@ -3,6 +3,8 @@ global.co = function (orderId) {
 }
 
 global.cop = function (orderId, newPrice) {
+    const order = Game.market.getOrderById(orderId)
+    if (order && order.resourceType === energy && newPrice > 20) return '太贵辣！'
     return Game.market.changeOrderPrice(orderId, newPrice)
 }
 
@@ -10,19 +12,20 @@ global.eo = function (orderId, addAmount) {
     return Game.market.extendOrder(orderId, addAmount)
 }
 
-Room.prototype.buy = function (amount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.buy = function (amount, resourceType = energy) {
     return releaseOrder(this.name, ORDER_BUY, resourceType, amount)
 }
 
-Room.prototype.sell = function (amount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.sell = function (amount, resourceType = energy) {
     return releaseOrder(this.name, ORDER_SELL, resourceType, amount)
 }
 
-Room.prototype.cob = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.cob = function (price, totalAmount, resourceType = energy) {
+    if (resourceType === energy && price > 20) return '太贵辣！'
     return Game.market.createOrder({ type: ORDER_BUY, price, totalAmount, resourceType, roomName: this.name})
 }
 
-Room.prototype.cos = function (price, totalAmount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.cos = function (price, totalAmount, resourceType = energy) {
     return Game.market.createOrder({ type: ORDER_SELL, price, totalAmount, resourceType, roomName: this.name})
 }
 
@@ -31,12 +34,16 @@ Room.prototype.deal = function (orderId, amount) {
     return Game.market.deal(orderId, amount, this.name)
 }
 
-Room.prototype.s2t = function (amount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.s2t = function (amount, resourceType = energy) {
     this.addCenterTask('storage', 'storage', 'terminal', resourceType, amount)
 }
 
-Room.prototype.t2s = function (amount, resourceType = RESOURCE_ENERGY) {
+Room.prototype.t2s = function (amount, resourceType = energy) {
     this.addCenterTask('terminal', 'terminal', 'storage', resourceType, amount)
+}
+
+Room.prototype.send = function (roomName, amount, resourceType = energy) {
+    return this.terminal && this.terminal.send(resourceType, amount, roomName, '鸡你太美')
 }
 
 function checkPrice(order, latestHistory) {

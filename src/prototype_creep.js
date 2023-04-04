@@ -33,15 +33,27 @@ Creep.prototype.run = function () {
     else roleRequire.source && roleRequire.source(this) && (this.memory.working = !this.memory.working)
 }
 
-Creep.prototype.boost = function () {
-    //
+Creep.prototype.boost = function (waitBoostTypes) {
+    if (!this.memory.waitBoostTypes) this.memory.waitBoostTypes = waitBoostTypes
+    if (this.memory.waitBoostTypes.length === 0) return true
+    const lab = this.room.boostLabs.find(i => i.boostType === this.memory.waitBoostTypes[0])
+    if (!lab) {
+        this.memory.waitBoostTypes.shift()
+        return false
+    }
+    if (this.pos.isNearTo(lab)) {
+        lab.boostCreep(this)
+        this.memory.waitBoostTypes.shift()
+        return false
+    }
+    this.goto(lab)
 }
 
 Creep.prototype.unboost = function () {
     if (!this.room.labContainer) return false
     const lab = this.room.labContainer.pos.findStructuresInRange(STRUCTURE_LAB, 1).find(i => i.cooldown === 0)
     if (!lab) return false
-    if (!this.isEmpty) this.drop(RESOURCE_ENERGY)
+    if (!this.isEmpty) this.drop(energy)
     if (this.pos.isEqualTo(this.room.labContainer)) {
         lab.unboostCreep(this)
         return true
@@ -65,7 +77,7 @@ Creep.prototype.getEnergy = function (ignoreLimit = false, includeSource = true,
         delete this.memory.dontPullMe
         return true
     }
-    if (!this.clearCarry(RESOURCE_ENERGY)) return false
+    if (!this.clearCarry(energy)) return false
     if (!(Game.time % 10) && this.isEmpty) delete this.memory.energySourceId
     if (!this.memory.energySourceId) {
         const energySources = getEnergySources(this.room, ignoreLimit, includeSource)
@@ -163,7 +175,7 @@ Object.defineProperty(Creep.prototype, 'home', {
 
 function getEnergySources (room, ignoreLimit, includeSource) {
     if (room.memory.useRuinEnergy) {
-        const ruins = room.find(FIND_RUINS).filter(i => i.store[RESOURCE_ENERGY] >= 1000)
+        const ruins = room.find(FIND_RUINS).filter(i => i.store[energy] >= 1000)
         if (ruins.length > 0) return ruins
     }
     if (room.storage && room.storage.energy > (ignoreLimit ? 1000 : 10000)) return [room.storage]

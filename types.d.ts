@@ -14,9 +14,9 @@ interface RoomMemory {
 }
 interface CreepMemory {
     role, home, config, task,
-    boostReady, ready, working, dontNeed, dontPullMe,
-    bodyCounts, boostCounts,
-    energySourceId
+    ready, working, dontNeed, dontPullMe,
+    boostReady, boostCounts, waitBoostTypes,
+    bodyCounts, energySourceId
 }
 interface PowerCreepMemory {}
 interface FlagMemory { checked }

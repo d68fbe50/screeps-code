@@ -1,6 +1,6 @@
 Object.defineProperty(Creep.prototype, 'energy', {
     get() {
-        return this.store[RESOURCE_ENERGY]
+        return this.store[energy]
     },
     configurable: true
 })
@@ -25,7 +25,7 @@ Object.defineProperty(Structure.prototype, 'energy', {
             log('no-store！', 'error')
             return
         }
-        return this.store[RESOURCE_ENERGY]
+        return this.store[energy]
     },
     configurable: true
 })
@@ -41,7 +41,7 @@ Object.defineProperty(Structure.prototype, 'isEmpty', {
             || this.structureType === STRUCTURE_LINK
             || this.structureType === STRUCTURE_NUKER
             || this.structureType === STRUCTURE_SPAWN
-            || this.structureType === STRUCTURE_TOWER) return this.store[RESOURCE_ENERGY] <= 0
+            || this.structureType === STRUCTURE_TOWER) return this.store[energy] <= 0
         return this.store.getUsedCapacity() <= 0
     },
     configurable: true
@@ -58,7 +58,7 @@ Object.defineProperty(Structure.prototype, 'isFull', {
             || this.structureType === STRUCTURE_LINK
             || this.structureType === STRUCTURE_NUKER
             || this.structureType === STRUCTURE_SPAWN
-            || this.structureType === STRUCTURE_TOWER) return this.store.getFreeCapacity(RESOURCE_ENERGY) <= 0
+            || this.structureType === STRUCTURE_TOWER) return this.store.getFreeCapacity(energy) <= 0
         return this.store.getFreeCapacity() <= 0
     },
     configurable: true

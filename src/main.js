@@ -17,6 +17,10 @@ module.exports.loop = function () {
     if (Game.cpu.bucket >= 10000) Game.cpu.generatePixel && Game.cpu.generatePixel()
 
     collectStats()
+
+    // tmp
+    const creep = new RoomPosition(15, 15, 'W49S9').creep
+    if (creep && creep.memory.role === 'upgrader') creep.move(BOTTOM)
 }
 
 function handleNotExistCreep() {
@@ -51,8 +55,8 @@ function collectStats() {
     if (!Memory.stats) Memory.stats = {}
     Memory.stats.gcl = Game.gcl.level
     Memory.stats.gpl = Game.gpl.level
-    Memory.stats.gclPercent = (Game.gcl.progress / Game.gcl.progressTotal) * 100
-    Memory.stats.gplPercent = (Game.gpl.progress / Game.gpl.progressTotal) * 100
+    Memory.stats.gclPercent = Game.gcl.progress / Game.gcl.progressTotal * 100
+    Memory.stats.gplPercent = Game.gpl.progress / Game.gpl.progressTotal * 100
     Memory.stats.cpu = Game.cpu.getUsed()
     Memory.stats.cpuLimit = Game.cpu.limit
     Memory.stats.bucket = Game.cpu.bucket

@@ -17,7 +17,7 @@ Creep.prototype.dismantleTo = function (target) {
     return result
 }
 
-Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amount) {
+Creep.prototype.getFrom = function (target, resourceType = energy, amount) {
     let result
     if (target instanceof Structure || target instanceof Ruin) result = this.withdraw(target, resourceType, amount)
     else if (target instanceof Resource) result = this.pickup(target)
@@ -27,14 +27,12 @@ Creep.prototype.getFrom = function (target, resourceType = RESOURCE_ENERGY, amou
 }
 
 Creep.prototype.goto = function (firstArg, secondArg, opts) {
-    if (Memory.isVisualPath) {
-        const toPos = (typeof firstArg == 'object') ? (firstArg.pos || firstArg) : new RoomPosition(firstArg, secondArg, this.room.name)
-        if (this.room.name === toPos.roomName) this.room.visual.line(this.pos, toPos, { width: 0.05 })
-    }
+    const toPos = (typeof firstArg == 'object') ? (firstArg.pos || firstArg) : new RoomPosition(firstArg, secondArg, this.room.name)
+    if (this.room.name === toPos.roomName) this.room.visual.line(this.pos, toPos, { width: 0.05 })
     this.moveTo(firstArg, secondArg, opts)
 }
 
-Creep.prototype.putTo = function (target, resourceType = RESOURCE_ENERGY, amount) {
+Creep.prototype.putTo = function (target, resourceType = energy, amount) {
     const result = this.transfer(target, resourceType, amount)
     if (result === ERR_NOT_IN_RANGE) this.goto(target)
     return result

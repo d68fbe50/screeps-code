@@ -1,3 +1,4 @@
+global.energy = RESOURCE_ENERGY
 Object.values(Game.rooms).forEach(i => i.controller && i.controller.my && (global[i.name.toLowerCase()] = i))
 
 const { updateAvoidRooms } = require('./wheel_move')

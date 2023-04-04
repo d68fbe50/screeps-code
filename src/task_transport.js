@@ -229,7 +229,7 @@ Creep.prototype.fillTowers = function () {
 Creep.prototype.fillLabEnergy = function () {
     let target = Game.getObjectById(this.memory.task.needFillLabId)
     if (!target) {
-        target = this.pos.findClosestByRange(this.room.lab, { filter: i => i.energy < i.store.getCapacity(RESOURCE_ENERGY) / 2 })
+        target = this.pos.findClosestByRange(this.room.lab, { filter: i => i.energy < i.store.getCapacity(energy) / 2 })
         if (target) this.memory.task.needFillLabId = target.id
         else return true
     }
