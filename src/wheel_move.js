@@ -137,6 +137,25 @@ let cacheMissCost = 0
 /***************************************
  *  util functions
  */
+
+function updateAvoidRooms () {
+    avoidRooms = Memory.avoidRooms || []
+}
+
+global.addAvoidRoom = function (roomName) {
+    if (!Memory.avoidRooms) Memory.avoidRooms = []
+    Memory.avoidRooms = _.uniq([...Memory.avoidRooms, roomName])
+    updateAvoidRooms()
+    console.log(`房间：${roomName} 设置为绕过`)
+}
+
+global.removeAvoidRoom = function (roomName) {
+    if (!Memory.avoidRooms) Memory.avoidRooms = []
+    Memory.avoidRooms = _.pull(Memory.avoidRooms, roomName)
+    updateAvoidRooms()
+    console.log(`房间：${roomName} 恢复为可通行`)
+}
+
 let reg1 = /^([WE])([0-9]+)([NS])([0-9]+)$/    // parse得到['E28N7','E','28','N','7']
 /**
  *  统一到大地图坐标，平均单次开销0.00005
@@ -1554,8 +1573,4 @@ module.exports = {
     },
     clear: () => {},
     // clear: clearUnused
-
-    updateAvoidRooms: function () {
-        avoidRooms = Memory.avoidRooms || []
-    }
 }

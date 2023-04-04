@@ -1,15 +1,15 @@
 const resourcesExpectAmount = {
-    'OH': 2000, 'ZK': 2000, 'UL': 2000, 'G': 2000,
-    'UH': 2000, 'UH2O': 2000, 'XUH2O': 10000, // attack
-    'ZO': 2000, 'ZHO2': 2000, 'XZHO2': 10000, // move
-    'LH': 2000, 'LH2O': 2000, 'XLH2O': 10000, // repair
-    'LO': 2000, 'LHO2': 2000, 'XLHO2': 10000, // heal
-    'KO': 2000, 'KHO2': 2000, 'XKHO2': 10000, // ranged
-    'ZH': 2000, 'ZH2O': 2000, 'XZH2O': 10000, // dismantle
-    'GO': 2000, 'GHO2': 2000, 'XGHO2': 10000, // tough
-    'UO': 2000, 'UHO2': 2000, 'XUHO2': 5000, // harvest
-    'KH': 2000, 'KH2O': 2000, 'XKH2O': 5000, // carry
-    'GH': 2000, 'GH2O': 2000, 'XGH2O': 5000, // upgrade
+    'OH': 1500, 'ZK': 1500, 'UL': 1500, 'G': 1500,
+    'UH': 1500, 'UH2O': 1500, 'XUH2O': 10000, // attack
+    'ZO': 1500, 'ZHO2': 1500, 'XZHO2': 10000, // move
+    'LH': 1500, 'LH2O': 1500, 'XLH2O': 10000, // repair
+    'LO': 1500, 'LHO2': 1500, 'XLHO2': 10000, // heal
+    'KO': 1500, 'KHO2': 1500, 'XKHO2': 10000, // ranged
+    'ZH': 1500, 'ZH2O': 1500, 'XZH2O': 10000, // dismantle
+    'GO': 1500, 'GHO2': 1500, 'XGHO2': 10000, // tough
+    'UO': 1500, 'UHO2': 1500, 'XUHO2': 5000, // harvest
+    'KH': 1500, 'KH2O': 1500, 'XKH2O': 5000, // carry
+    'GH': 1500, 'GH2O': 1500, 'XGH2O': 5000, // upgrade
 }
 
 StructureLab.prototype.run = function () {

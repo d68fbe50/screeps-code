@@ -1,6 +1,5 @@
-const { updateAvoidRooms } = require('./wheel_move')
-
 global.energy = RESOURCE_ENERGY
+global.state = { Normal: 'Normal', Defend: 'Defend', War: 'War', NukerEmergency: 'NukerEmergency', Upgrade: 'Upgrade' }
 
 const logHistory = []
 global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
@@ -14,31 +13,23 @@ global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
     logHistory.push(content)
 }
 
-global.hLog = function (amount = 10) {
-    if (amount > logHistory.length) amount = logHistory.length
-    return logHistory.slice(amount * -1).join('\n')
+global.allRes = function () {
+    return HelperRoomResource.showAllRes()
 }
 
-global.addAvoidRoom = function (roomName) {
-    if (!Memory.avoidRooms) Memory.avoidRooms = []
-    Memory.avoidRooms = _.uniq([...Memory.avoidRooms, roomName])
-    updateAvoidRooms()
-    log(`房间：${roomName} 设置为绕过`)
-}
-
-global.removeAvoidRoom = function (roomName) {
-    if (!Memory.avoidRooms) Memory.avoidRooms = []
-    Memory.avoidRooms = _.pull(Memory.avoidRooms, roomName)
-    updateAvoidRooms()
-    log(`房间：${roomName} 恢复为可通行`)
+global.eachRoom = function (func) {
+    let result = ''
+    Object.values(Game.rooms).forEach(i => i.my && (result += `[${i.name}]:\n${func(i)}\n\n`))
+    return result
 }
 
 global.get = function (id) {
     return Game.getObjectById(id)
 }
 
-global.res = function () {
-    return HelperRoomResource.showAllRes()
+global.hLog = function (amount = 10) {
+    if (amount > logHistory.length) amount = logHistory.length
+    return logHistory.slice(amount * -1).join('\n')
 }
 
 Object.defineProperty(global, 'c', {
@@ -79,7 +70,7 @@ Object.defineProperty(global, 'help', {
 })
 
 Object.values(Game.rooms).forEach(i => {
-    if (i.controller && i.controller.my) global[i.name.toLowerCase()] = i
+    if (i.my) global[i.name.toLowerCase()] = i
 })
 
 function showHelp() {

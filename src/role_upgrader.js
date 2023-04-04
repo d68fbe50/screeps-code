@@ -1,5 +1,5 @@
 const boostPrepare = (creep) => {
-    if (creep.room.memory.roomStatus !== 'Upgrade') return true
+    if (creep.room.state !== state.Upgrade) return true
     return creep.boost(['XGH2O'])
 }
 
