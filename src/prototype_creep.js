@@ -64,7 +64,7 @@ Creep.prototype.unboost = function () {
 
 Creep.prototype.clearCarry = function (excludeResourceType) {
     if (this.isEmpty || this.usedCapacity === this.store[excludeResourceType]) return true
-    const resourceType = Object.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
+    const resourceType = _.keys(this.store).find(i => i !== excludeResourceType && this.store[i] > 0)
     let target = this.room.storage && this.usedCapacity <= this.room.storage.freeCapacity && this.room.storage
     if (!target) target = this.room.terminal && this.usedCapacity <= this.room.terminal.freeCapacity && this.room.terminal
     if (target) this.putTo(target, resourceType)

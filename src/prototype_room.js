@@ -19,7 +19,7 @@ Room.prototype.checkRoomMemory = function () {
 
 Room.prototype.collectRoomStats = function () {
     Memory.stats[this.name + '-rcl'] = this.controller.level
-    Memory.stats[this.name + '-rclPercent'] = this.controller.progress / this.controller.progressTotal * 100
+    Memory.stats[this.name + '-rclPercent'] = this.controller.progress / this.controller.progressTotal * 100 || -1
     Memory.stats[this.name + '-energy'] = this[energy]
 }
 

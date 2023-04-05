@@ -99,7 +99,7 @@ Room.prototype.updateTask = function (type, key, content) {
     if (!type || !key || !content) return false
     const index = this.getTaskIndex(type, key)
     if (index === -1) return false
-    Object.keys(content).forEach(i => this.memory[type][index][i] = content[i])
+    _.keys(content).forEach(i => this.memory[type][index][i] = content[i])
     return key
 }
 

@@ -1,4 +1,11 @@
 global.energy = RESOURCE_ENERGY
+global.power = RESOURCE_POWER
+global.ops = RESOURCE_OPS
+global.mineralTypes = ['O', 'H', 'Z', 'K', 'U', 'L', 'X']
+global.t0Types = ['OH', 'ZK', 'UL', 'G']
+global.t1Types = ['ZH', 'ZO', 'KH', 'KO', 'UH', 'UO', 'LH', 'LO', 'GH', 'GO']
+global.t2Types = ['ZH2O', 'ZHO2', 'KH2O', 'KHO2', 'UH2O', 'UHO2', 'LH2O', 'LHO2', 'GH2O', 'GHO2']
+global.t3Types = ['XZH2O', 'XZHO2', 'XKH2O', 'XKHO2', 'XUH2O', 'XUHO2', 'XLH2O', 'XLHO2', 'XGH2O', 'XGHO2']
 global.state = { Normal: 'Normal', Defend: 'Defend', War: 'War', NukerEmergency: 'NukerEmergency', Upgrade: 'Upgrade' }
 
 const logHistory = []
@@ -15,7 +22,7 @@ global.log = function (content, type = 'info', notifyNow = false, prefix = '') {
 
 global.eachRoom = function (func) {
     let result = ''
-    Object.values(Game.rooms).forEach(i => i.my && (result += `[${i.name}]:\n${func(i)}\n\n`))
+    _.values(Game.rooms).forEach(i => i.my && (result += `[${i.name}]:\n${func(i)}\n\n`))
     return result
 }
 
@@ -72,7 +79,7 @@ Object.defineProperty(global, 'help', {
     configurable: true
 })
 
-Object.values(Game.rooms).forEach(i => {
+_.values(Game.rooms).forEach(i => {
     if (i.controller && i.controller.my) global[i.name.toLowerCase()] = i
 })
 

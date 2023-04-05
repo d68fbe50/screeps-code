@@ -15,11 +15,11 @@ Flag.prototype.run = function () {
     else if (command === 'centerPos') isInMyRoom && this.room.setCenterPos(this.pos) || this.remove()
     else if (command === 'claim') closestMyRoom.addClaimer(this.name)
     else if (command === 'inLab') isInMyRoom && this.room.setInLab(this.pos) || this.remove()
+    else if (command === 'layout') delete this.memory.checked && visualLayout(this.pos.roomName, this.pos)
     else if (command === 'remote') closestMyRoom.addRemoteTask(this.name, 'fromFlag')
-    else if (command === 'visual') delete this.memory.checked && visualLayout(this.pos.roomName, this.pos)
 }
 
 function findClosestMyRoom(fromRoomName) {
-    const myRooms = Object.values(Game.rooms).filter(i => i.my)
+    const myRooms = _.values(Game.rooms).filter(i => i.my)
     return _.sortBy(myRooms, i => Game.map.getRoomLinearDistance(fromRoomName, i.name))[0]
 }

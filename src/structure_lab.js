@@ -67,7 +67,7 @@ Object.defineProperty(StructureLab.prototype, 'boostType', {
 })
 
 function chooseReactionType (room) {
-    const resourceType = Object.keys(reactionAmount).find(i =>
+    const resourceType = _.keys(reactionAmount).find(i =>
         !room.resAvailable(i, reactionAmount[i])
         && room.resAvailable(reactionMap[i][0], LAB_MINERAL_CAPACITY / 2)
         && room.resAvailable(reactionMap[i][1], LAB_MINERAL_CAPACITY / 2)

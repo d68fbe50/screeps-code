@@ -108,7 +108,7 @@ const labContainerOut = {
             else if (creep.isEmpty) return ERR_NOT_FOUND
             else return true
         }
-        const result = creep.getFrom(target, target.resourceType || Object.keys(target.store).find(i => target.store[i] > 0))
+        const result = creep.getFrom(target, target.resourceType || _.keys(target.store).find(i => target.store[i] > 0))
         if (result !== ERR_NOT_IN_RANGE) delete creep.memory.task.dropsId
         return false
     },

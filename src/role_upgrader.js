@@ -24,7 +24,7 @@ const prepare = (creep) => {
 }
 
 const target = (creep) => {
-    if (creep.ticksToLive < 100 && Object.keys(creep.boostCounts).length > 1) {
+    if (creep.ticksToLive < 100 && _.keys(creep.boostCounts).length > 1) {
         const result = creep.unboost()
         if (result === true) return creep.suicide()
         else if (result === ERR_NOT_IN_RANGE) return delete creep.memory.dontPullMe

@@ -8,12 +8,12 @@ module.exports.loop = function () {
     handleNotExistCreep()
     handleNotExistFlag()
 
-    Object.values(Game.rooms).forEach(i => i.my && i.checkRoomMemory && i.checkRoomMemory())
-    Object.values(Game.structures).forEach(i => i.run && i.run())
-    Object.values(Game.creeps).forEach(i => i.run && i.run())
-    Object.values(Game.powerCreeps).forEach(i => i.run && i.run())
-    Object.values(Game.flags).forEach(i => i.run && i.run())
-    Object.values(Game.rooms).forEach(i => i.my && i.roomVisual && i.roomVisual())
+    _.values(Game.rooms).forEach(i => i.my && i.checkRoomMemory && i.checkRoomMemory())
+    _.values(Game.structures).forEach(i => i.run && i.run())
+    _.values(Game.creeps).forEach(i => i.run && i.run())
+    _.values(Game.powerCreeps).forEach(i => i.run && i.run())
+    _.values(Game.flags).forEach(i => i.run && i.run())
+    _.values(Game.rooms).forEach(i => i.my && i.roomVisual && i.roomVisual())
 
     if (Game.cpu.bucket >= 10000) Game.cpu.generatePixel && Game.cpu.generatePixel()
 
@@ -67,5 +67,5 @@ function collectStats() {
     Memory.stats.cpuLimit = Game.cpu.limit
     Memory.stats.bucket = Game.cpu.bucket
     Memory.stats.credit = Game.market.credits
-    Object.values(Game.rooms).forEach(i => i.my && i.collectRoomStats && i.collectRoomStats())
+    _.values(Game.rooms).forEach(i => i.my && i.collectRoomStats && i.collectRoomStats())
 }

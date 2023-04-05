@@ -37,7 +37,7 @@ const fromFlag = {
         }
         const source = [...flag.pos.ruins, ...flag.pos.structures].find(i => i.store && i.store.getUsedCapacity() > 0)
         if (source) {
-            const resourceType = Object.keys(source.store).find(i => !excludeResourceTypes.includes(i) && source.store[i] > 0)
+            const resourceType = _.keys(source.store).find(i => !excludeResourceTypes.includes(i) && source.store[i] > 0)
             if (resourceType) {
                 creep.getFrom(source, resourceType)
                 return false
