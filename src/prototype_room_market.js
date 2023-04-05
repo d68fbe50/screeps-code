@@ -37,15 +37,17 @@ Room.prototype.deal = function (orderId, amount) {
 }
 
 Room.prototype.s2t = function (amount, resourceType = energy) {
-    this.addCenterTask('storage', 'storage', 'terminal', resourceType, amount)
+    return this.addCenterTask('terminal', 'storage', 'terminal', resourceType, amount)
 }
 
 Room.prototype.t2s = function (amount, resourceType = energy) {
-    this.addCenterTask('terminal', 'terminal', 'storage', resourceType, amount)
+    return this.addCenterTask('terminal', 'terminal', 'storage', resourceType, amount)
 }
 
 Room.prototype.send = function (roomName, amount, resourceType = energy) {
-    return this.terminal && this.terminal.send(resourceType, amount, roomName, '鸡你太美')
+    const result = this.terminal && this.terminal.send(resourceType, amount, roomName, '鸡你太美')
+    if (result === OK) this.log(`发送给 ${roomName} : ${resourceType}*${amount}`)
+    return result
 }
 
 function checkPrice(order, latestHistory) {

@@ -25,11 +25,11 @@ Room.prototype.structRoadPath = function (fromPos, toPos, cut = 2) {
 
 Room.prototype.updateLayout = function () {
     if (!this.memory.isAutoLayout || !this.centerPos) return this.log('自动布局未开启或中心点未设置', 'warning')
-    _.keys(LAYOUT_DATA).forEach(level => {
-        level <= this.level && _.keys(LAYOUT_DATA[level]).forEach(type => {
-            LAYOUT_DATA[level][type].forEach(posXY => {
+    _.keys(newLayoutData).forEach(level => {
+        level <= this.level && _.keys(newLayoutData[level]).forEach(type => {
+            newLayoutData[level][type].forEach(posXY => {
                 const pos = new RoomPosition(posXY[0]-25+this.centerPos.x, posXY[1]-25+this.centerPos.y, this.name)
-                pos.createConstructionSite(type)
+                pos.terrain != 'wall' && pos.createConstructionSite(type)
             })
         })
     })
@@ -108,45 +108,5 @@ const newLayoutData = {
         observer: [ [0,-5] ],
         powerSpawn: [ [-1,0] ],
         nuker: [ [0,-4] ]
-    }
-}
-
-const LAYOUT_DATA = {
-    1: {
-        spawn: [ [25,22] ]
-    },
-    2: {
-        extension: [ [22,23], [23,22], [23,23], [23,24], [24,23] ]
-    },
-    3: {
-        tower: [ [21,24] ],
-        extension: [ [26,23], [27,22], [27,23], [27,24], [28,23] ],
-        road: [
-            [21,23], [21,27], [22,22], [22,24], [22,26], [22,28], [23,21], [23,25], [23,29], [24,22],
-            [24,24], [24,26], [24,28], [25,23], [25,27], [26,22], [26,24], [26,26], [26,28], [27,21],
-            [27,25], [27,29], [28,22], [28,24], [28,26], [28,28], [29,23], [29,27]
-        ]
-    },
-    4: {
-        extension: [ [22,27], [23,26], [23,27], [23,28], [24,27], [26,27], [27,26], [27,27], [27,28], [28,27] ],
-        storage: [ [25,26] ]
-    },
-    5: {
-        tower: [ [29,24] ],
-        extension: [ [21,21], [22,21], [24,21], [25,21], [26,21], [28,21], [29,21], [21,22], [29,22], [21,25] ],
-        link: [ [25,24] ]
-    },
-    6: {
-        extension: [ [22,25], [28,25], [29,25], [21,28], [25,28], [29,28], [21,29], [25,29], [29,29] ],
-        // terminal: [ [26,25] ]
-    },
-    7: {
-        tower: [ [21,26] ],
-        spawn: [ [22,29] ]
-    },
-    8: {
-        tower: [ [29,26], [24,29], [26,29] ],
-        spawn: [ [28,29] ],
-        powerSpawn: [ [24,25] ]
     }
 }
